@@ -134,5 +134,3 @@ STATICFILES_DIRS = (
 )
 
 django_heroku.settings(locals())
-
-DISABLE_COLLECTSTATIC=1

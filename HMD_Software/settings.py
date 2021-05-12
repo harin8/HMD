@@ -123,4 +123,6 @@ DATE_INPUT_FORMATS = ('%d-%m-%Y', '%Y-%m-%d')
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = '/static/'
+
 DISABLE_COLLECTSTATIC=1

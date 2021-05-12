@@ -1,1 +1,1 @@
-web: gunicorn ca-software.wsgi --log-file -
+web: gunicorn HMD.wsgi --log-file -

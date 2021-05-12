@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block body_block %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 py-3 mt-2">
+            <h4>New Return</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if not Data_Dict.Submitted_ini %}
+                        <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Return' %}" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="It_No" id="it_no" value="{{ Data_Dict.It_no }}">
+                        {% csrf_token %}
+                    {% endif %}
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Select client:</label>
+                                    <input required type="text" value="{{ Name|safe }}" id="c_name" class="form-control" name="name" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Accepted By:</label>
+                                    <input required type="text" placeholder="Name" id="accepted_by" class="form-control" name="acceptedBy" value="{{ Data_Dict.Accepted_by|safe }}" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Accept date:</label>
+                                    <input required type="date" name="acceptedDate" id="accepted_date" class="form-control eventTodayDateTime" placeholder="Select Date" value="{{ Data_Dict.Accepted_date|safe }}" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>AY:</label>
+                                    <select required name="AY" class="form-control" id="ay" {% if Data_Dict.Submitted_ini %} disabled {% endif %}>
+                                        {% for ay in AY_list %}
+                                            {% if ay == AY_Selected %}
+                                                <option value="{{ ay|safe }}" selected> {{ay|title}} </option>
+                                            {% else %}
+                                                <option value="{{ ay|safe }}"> {{ay|title}} </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Select type:</label>
+                                    <select required name="type" class="form-control" id="r_type" {% if Data_Dict.Submitted_ini %} disabled {% endif %}>
+                                        <option value="1" {% if Type == '1' %} selected {% endif %}> Original </option>
+                                        <option value="2" {% if Type == '2' %} selected {% endif %}>Revised</option>
+                                        <option value="3" {% if Type == '3' %} selected {% endif %}>142(1)</option>
+                                        <option value="4" {% if Type == '4' %} selected {% endif %}>148</option>
+                                        <option value="5" {% if Type == '5' %} selected {% endif %}>139(9)</option>
+                                        <option value="6" {% if Type == '6' %} selected {% endif %}>153A</option>
+                                        <option value="7" {% if Type == '7' %} selected {% endif %}>153C r.w 153A</option>
+                                        <option value="8" {% if Type == '8' %} selected {% endif %}>92CD</option>
+                                        <option value="9" {% if Type == '9' %} selected {% endif %}>119(2)(b)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Remarks:</label>
+                                    <input required type="text" name="remarks" id="remarks" class="form-control" placeholder="Write Remarks" value="{{ Data_Dict.Remarks|safe }}" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                        {% if not Data_Dict.Submitted_ini %}
+                            <div class="row">
+                                <div class="form-group col-sm-3">
+                                    <button type="button" id="save_button" class="btn btn-success">Save</button>&nbsp;&nbsp;
+                                    <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
+                                    <button type="reset" class="btn btn-secondary back" name="Cancel" >Cancel</button>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    $("#save_button").click(function(e){
+        e.preventDefault();
+        it_no = $("#it_no").val();
+        c_name = $("#c_name").val();
+        accepted_by = $("#accepted_by").val();
+        accepted_date = $("#accepted_date").val();
+        ay = $("#ay").val();
+        r_type = $("#r_type").val();
+        remarks = $("#remarks").val();
+        $.ajax({
+            type: "POST",
+            url: "{% url 'Submit New Return' %}",
+            beforeSend: function(xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            },
+            data: {
+                It_No: it_no,
+                name: c_name,
+                acceptedBy: accepted_by,
+                acceptedDate: accepted_date,
+                AY: ay,
+                type: r_type,
+                remarks: remarks,
+                save_ini: false
+            },
+            success: function(result){
+                alert("Details Saved");
+                location.href = window.location.origin + '/new_it_return?A.Y=' + ay + '&Type=' + r_type;
+            }
+        });
+    });
+</script>
+{% endblock %}

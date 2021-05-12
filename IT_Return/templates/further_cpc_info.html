@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block body_block %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 py-3 mt-2">
+            <h4>CPC</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if not Data_Dict.Submitted_cpc %}
+                        <form role="form" name="frmCPCAdd" class="form-horizontal" action="{% url 'Further CPC Submit' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                    {% endif %}
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Client Code:</label>
+                                    <input required type="text" value="{{ Data_Dict.Client_code|safe }}" class="form-control" name="clientCode" readonly>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Client Name:</label>
+                                    <input required type="text" placeholder="Name" class="form-control" name="clientName" value="{{ Data_Dict.Name|safe }}"  readonly>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>AY:</label>
+                                    <select required name="AY" class="form-control" readonly>
+                                        {% for ay in AY_list %}
+                                            {% if ay == AY_Selected %}
+                                                <option value="{{ ay|safe }}" selected> {{ay|title}} </option>
+                                            {% else %}
+                                                <option value="{{ ay|safe }}"> {{ay|title}} </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Verification:</label>
+                                    <select required name="verification" class="form-control" id="verification">
+                                        <option value="2" {% if Data_Dict.Verification == "Aadhar" %} selected {% endif %}> Aadhar </option>
+                                        <option value="4" {% if Data_Dict.Verification == "CPC" %} selected {% endif %}> Verify Letter </option>
+                                        <option value="5" {% if Data_Dict.Verification == "EVC" %} selected {% endif %}> EVC </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Select type:</label>
+                                    <select required name="type" class="form-control" readonly>
+                                        <option value="1" {% if Type == '1' %} selected {% endif %}>Original</option>
+                                        <option value="2" {% if Type == '2' %} selected {% endif %}>Revised</option>
+                                        <option value="3" {% if Type == '3' %} selected {% endif %}>142(1)</option>
+                                        <option value="4" {% if Type == '4' %} selected {% endif %}>148</option>
+                                        <option value="5" {% if Type == '5' %} selected {% endif %}>139(9)</option>
+                                        <option value="6" {% if Type == '6' %} selected {% endif %}>153A</option>
+                                        <option value="7" {% if Type == '7' %} selected {% endif %}>153C r.w 153A</option>
+                                        <option value="8" {% if Type == '8' %} selected {% endif %}>92CD</option>
+                                        <option value="9" {% if Type == '9' %} selected {% endif %}>119(2)(b)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Filed by:</label>
+                                    <input required type="text" name="filedBy" class="form-control" value="{{ Data_Dict.Filed_by}}" readonly>
+                                </div>
+                              </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Filing date:</label>
+                                    <input required type="date" name="filingDate" class="form-control eventTodayDateTime" placeholder="Select Date" value="{{ Data_Dict.Filing_date}}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Acknowledgment No:</label>
+                                    <input required type="text" name="acknowledgmentNo" class="form-control" placeholder="Ack.No" value="{{ Data_Dict.Ack_no }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Completed By:</label>
+                                    <input required type="text" name="completedBy" class="form-control" placeholder="Write Name" value="{{ Data_Dict.Completed_by|safe }}" {% if Data_Dict.Submitted_cpc %} readonly {% endif %}>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Completed On:</label>
+                                    <input required type="date" name="completedOn" class="form-control eventTodayDateTime" placeholder="Select Date" value="{{ Data_Dict.Completed_on}}" {% if Data_Dict.Submitted_cpc %} readonly {% endif %}>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Remarks:</label>
+                                    <input required type="text" name="remarksCPC" class="form-control" placeholder="Write Remarks" value="{{ Data_Dict.Remarks_cpc|safe }}" {% if Data_Dict.Submitted_cpc %} readonly {% endif %}>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Due Date:</label>
+                                    <input required type="date" name="dueDate_CPC" class="form-control eventTodayDateTime" placeholder="Select Date" value="{{ Data_Dict.Due_date_cpc}}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        {% if not Data_Dict.Submitted_cpc %}
+                            <div class="row">
+                                <div class="form-group col-sm-3">
+                                    <button type="submit" class="btn btn-success" >Submit</button>&nbsp;&nbsp;
+                                    <button type="reset" class="btn btn-secondary back" name="Cancel">Cancel</button>
+                                </div>
+                            </div>
+                            </form>
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('.eventTodayDateTime').flatpickr({
+        dateFormat: "d/m/Y",
+        minDate: "today"
+    });
+</script>
+{% endblock %}

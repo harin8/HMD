@@ -1,0 +1,124 @@
+{% extends "landing.html" %}
+{% block head_block %}
+    {% load static %}
+{% endblock %}
+
+{% block body_block %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 py-3 mt-2">
+            <h4>New Return</h4>
+        </div>
+    </div>
+    <form action="{% url 'New IT Return' %}">
+        <div class="row">
+            <div class="col-2">
+                <label class="form-label">Select AY:</label>
+                <select name="A.Y" class="form-control" id="A.Y">
+                    {% for ay in AY_list %}
+                        {% if ay == AY_Selected %}
+                            <option value="{{ay}}" selected>{{ay|title}}</option>
+                        {% else %}
+                            <option value="{{ay}}">{{ay|title}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-2">
+                <label class="form-label">Select Type:</label>
+                <select name="Type" class="form-control" id="Type">
+                    <option value="1" {% if Return_Type_Selected == '1' %} selected {% endif %}>Original</option>
+                    <option value="2" {% if Return_Type_Selected == '2' %} selected {% endif %}>Revised</option>
+                    <option value="3" {% if Return_Type_Selected == '3' %} selected {% endif %}>142(1)</option>
+                    <option value="4" {% if Return_Type_Selected == '4' %} selected {% endif %}>148</option>
+                    <option value="5" {% if Return_Type_Selected == '5' %} selected {% endif %}>139(9)</option>
+                    <option value="6" {% if Return_Type_Selected == '6' %} selected {% endif %}>153A</option>
+                    <option value="7" {% if Return_Type_Selected == '7' %} selected {% endif %}>153C r.w 153A</option>
+                    <option value="8" {% if Return_Type_Selected == '8' %} selected {% endif %}>92CD</option>
+                    <option value="9" {% if Return_Type_Selected == '9' %} selected {% endif %}>119(2)(b)</option>
+                </select>
+            </div>
+            <div class="col-1">
+                <br>
+                <button type="submit" class="form-control btn btn-primary" id="return-new-search" style="margin-top:7px">Search</button>
+            </div>
+        </div>
+    </form>
+    <br>
+    {% if Return_List %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table cellpadding="1" cellspacing="2" border="0" class="table table-striped table-bordered dataTable" id="returnList" width="100%">
+                            <thead>
+                            <tr>
+                                <th align="left">Client Name</th>
+                                <th align="left">Accepted By</th>
+                                <th align="left">Accepted Date</th>
+                                <th align="left">A.Y</th>
+                                <th align="left">Type</th>
+                                <th align="left">Status</th>
+                                <th align="left">Remarks</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for each_return in Return_List %}
+                                <tr>
+                                    <td align="left">{{ each_return.Name }}</td>
+                                    <td align="left">{{ each_return.Accepted_by }}</td>
+                                    <td align="left">{{ each_return.Accepted_date }}</td>
+                                    <td align="left">{{ each_return.AY }}</td>
+                                    <td align="left">{{ each_return.Type }}</td>
+                                    <td align="left">{{ each_return.Status }}</td>
+                                    <td align="left">{{ each_return.Remarks }}</td>
+                                    <td>
+                                        {% if each_return.Status == 'Initiated' %}
+                                            <a href="{% url 'Create New Return' it_no=each_return.It_no ay=each_return.AY r_type=Return_Type_Selected %}" title="Edit" ><i class="fe-edit text-info"></i></a>&nbsp;&nbsp;
+                                            <a href="{% url 'Further Return Info' it_no=each_return.It_no ay=each_return.AY r_type=Return_Type_Selected %}" title="further info"><i class="fas fa-clipboard text-info"></i></a>
+                                        {% endif %}
+                                        {% if each_return.Status == 'Not initiated' %}
+                                            <a href="{% url 'Create New Return' it_no=each_return.It_no ay=each_return.AY r_type=Return_Type_Selected %}" title="Edit" ><i class="fe-edit text-info"></i></a>&nbsp;&nbsp;
+                                        {% endif %}
+                                        {% if each_return.Status == 'Completed' %}
+                                            <a href="{% url 'Further Return Info' it_no=each_return.It_no ay=each_return.AY r_type=Return_Type_Selected %}" title="View"><i class="fas fa-eye text-success"></i></a>&nbsp;&nbsp;
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                                <tfoot>
+                                <tr>
+                                    <th align="left">Client Name</th>
+                                    <th align="left">Accepted By</th>
+                                    <th align="left">Accepted Date</th>
+                                    <th align="left">A.Y</th>
+                                    <th align="left">Type</th>
+                                    <th align="left">Status</th>
+                                    <th align="left">Remarks</th>
+                                    <th>Action</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<script>
+    $(document).ready( function () {
+        $('#returnList').DataTable({
+            dom: 'Bfrtip',
+			buttons: [{
+                extend: 'excel',
+                title: 'IT_Return'
+            }]
+		});
+    });
+</script>
+{% endblock %}

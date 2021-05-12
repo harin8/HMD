@@ -1,1 +1,1 @@
-web: gunicorn HMD.wsgi
+web: gunicorn HMD.wsgi --log-file -

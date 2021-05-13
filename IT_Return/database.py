@@ -3,12 +3,12 @@ import pymongo
 import datetime
 from datetime import timedelta
 
-# __MONGO_CONNECTION_URI__ = 'mongodb://zscan:zscan@localhost/?authSource=zeroscan&authMechanism=SCRAM-SHA-1'
-__MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
+__MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
+# __MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
 
 
-# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
-client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
+client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
+# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
 db = client.HMD
 
 
@@ -66,7 +66,7 @@ def get_return_proof_name_from_id(r_id):
     elif r_id == '3':
         return 'CPC'
     elif r_id == '4':
-        return 'Verify Letter'
+        return 'Verify Later'
     elif r_id == '5':
         return 'EVC'
     else:
@@ -91,7 +91,7 @@ def get_all_return_list(r_ay, r_type):
 def get_ay_list():
     today_date = datetime.datetime.now()
     current_year = today_date.year
-    start_year = 2015
+    start_year = 2010
     ay_list = []
     while start_year != current_year + 2:
         temp = str(start_year) + '-' + str(start_year + 1)
@@ -120,7 +120,6 @@ def get_return_details(it_no, ay, r_type_name):
         return result[0]
     else:
         result = list(db.clientMaster.find({'It_no': it_no}, {'Name': 1, 'It_no': 1}))
-        print(result)
         if result:
             return result[0]
         else:
@@ -181,8 +180,9 @@ def get_existing_completed_return_list():
 
 
 def get_cpc_all_return_list():
-    result = list(db.returnMaster.find({'$or': [{'Verification': 'Verify Letter'},{'Verification': 'Aadhar'},
-                                                {'Verification': 'EVC'}]}, {'_id': 0}))
+    result = list(db.returnMaster.find({'$and': [{'Submitted_fur': True},
+                                                 {'$or': [{'Verification': 'Verify Later'}, {'Verification': 'Aadhar'},
+                                                          {'Verification': 'EVC'}]}]}, {'_id': 0}))
     for x in result:
         clientMaster_result = list(db.clientMaster.find({'Name': x['Name']}, {'It_no': 1}))
         if clientMaster_result:

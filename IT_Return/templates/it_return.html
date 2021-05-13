@@ -1,20 +1,27 @@
 {% extends "landing.html" %}
 {% block head_block %}
     {% load static %}
+    <title>HMD|Return List</title>
+    <link href="{% static 'assets/css/fixedColumns.bootstrap4.min.css' %}" rel="stylesheet">
+	<script src="{% static 'assets/js/fixedColumns.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'assets/js/jszip.min.js' %}"></script>
 {% endblock %}
 
 {% block body_block %}
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-12 py-3 mt-2">
+        <div class="col-sm-6 py-3 mt-2">
             <h4>New Return</h4>
+        </div>
+        <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <a id="backButton" href="{% url 'Landing' %}">Back</a>
         </div>
     </div>
     <form action="{% url 'New IT Return' %}">
         <div class="row">
             <div class="col-2">
-                <label class="form-label">Select AY:</label>
+                <label class="form-label">Select A.Y.:</label>
                 <select name="A.Y" class="form-control" id="A.Y">
                     {% for ay in AY_list %}
                         {% if ay == AY_Selected %}
@@ -57,8 +64,8 @@
                             <tr>
                                 <th align="left">Client Name</th>
                                 <th align="left">Accepted By</th>
-                                <th align="left">Accepted Date</th>
-                                <th align="left">A.Y</th>
+                                <th align="left">Acceptance Date</th>
+                                <th align="left">A.Y.</th>
                                 <th align="left">Type</th>
                                 <th align="left">Status</th>
                                 <th align="left">Remarks</th>
@@ -70,7 +77,7 @@
                                 <tr>
                                     <td align="left">{{ each_return.Name }}</td>
                                     <td align="left">{{ each_return.Accepted_by }}</td>
-                                    <td align="left">{{ each_return.Accepted_date }}</td>
+                                    <td align="left">{{ each_return.Acceptance_date }}</td>
                                     <td align="left">{{ each_return.AY }}</td>
                                     <td align="left">{{ each_return.Type }}</td>
                                     <td align="left">{{ each_return.Status }}</td>
@@ -94,8 +101,8 @@
                                 <tr>
                                     <th align="left">Client Name</th>
                                     <th align="left">Accepted By</th>
-                                    <th align="left">Accepted Date</th>
-                                    <th align="left">A.Y</th>
+                                    <th align="left">Acceptance Date</th>
+                                    <th align="left">A.Y.</th>
                                     <th align="left">Type</th>
                                     <th align="left">Status</th>
                                     <th align="left">Remarks</th>
@@ -114,6 +121,12 @@
     $(document).ready( function () {
         $('#returnList').DataTable({
             dom: 'Bfrtip',
+            scrollX: true,
+            scrollCollapse: true,
+            fixedColumns: {
+                leftColumns:0,
+                rightColumns: 1
+            },
 			buttons: [{
                 extend: 'excel',
                 title: 'IT_Return'

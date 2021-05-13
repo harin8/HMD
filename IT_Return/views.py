@@ -4,13 +4,14 @@ import pymongo as pymongo
 from django.shortcuts import render
 from IT_Return import database
 
-# __MONGO_CONNECTION_URI__ = 'mongodb://zscan:zscan@localhost/?authSource=zeroscan&authMechanism=SCRAM-SHA-1'
+__MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
 
-__MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
+# __MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w
+# =majority&ssl=true'
 
 
-# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
-client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
+client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
+# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
 db = client.HMD
 
 
@@ -50,23 +51,17 @@ def create_new_return(request, it_no, ay, r_type):
 def submit_new_return(request):
     ay_list = database.get_ay_list()
     ay = request.POST.get('AY')
-    save_bool = request.POST.get('save_ini', True)
-    if save_bool == 'false':
-        save_bool_final = False
-    else:
-        save_bool_final = True
     return_type = request.POST.get('type')
     return_type_name = database.get_return_type_name_from_id(return_type)
     return_data_dict = {
         'It_no': request.POST.get('It_No'),
         'Name': request.POST.get('name'),
         'Accepted_by': request.POST.get('acceptedBy'),
-        'Accepted_date': request.POST.get('acceptedDate'),
+        'Acceptance_date': request.POST.get('acceptedDate'),
         'AY': ay,
         'Type': return_type_name,
         'Status': 'Initiated',
-        'Remarks': request.POST.get('remarks'),
-        'Submitted_ini': save_bool_final}
+        'Submitted_ini': True}
     return_result = database.add_return_record(return_data_dict)
     all_return_list = database.get_all_return_list(ay, return_type_name)
     return render(request, 'it_return.html', {'AY_list': ay_list, 'AY_Selected': ay,

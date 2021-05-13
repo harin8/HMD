@@ -3,12 +3,12 @@ import pymongo
 import datetime
 from datetime import timedelta
 
-# __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
-__MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
+__MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
+# __MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
 
 
-# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
-client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
+client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
+# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
 db = client.HMD
 
 

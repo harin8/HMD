@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 {% extends "layout.html" %}
+{% block head_block %}
+    <title>HMD|Create New Certificate</title>
+{% endblock %}
 {% block body_block %}
 {% load certificate_tags %}
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-12 py-3 mt-2">
+        <div class="col-sm-6 py-3 mt-2">
             <h4>Certificate</h4>
+        </div>
+        <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <a id="backButton" href="{% url 'Certificates Landing' %}">Back</a>
         </div>
     </div>
     <div class="row">
@@ -97,7 +103,7 @@
                             <div class="row">
                                 <div class="form-group col-sm-3">
                                     <button type="submit" class="btn btn-success" >Submit</button>&nbsp;&nbsp;
-                                    <button type="reset" class="btn btn-secondary back" name="Cancel">Cancel</button>
+                                    <button type="reset" class="btn btn-secondary back" name="Reset">Reset</button>
                                 </div>
                             </div>
                         {% endif %}

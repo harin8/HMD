@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'IT_Return',
     'HMD_Software',
-    'certificates'
+    'certificates',
+    'clients'
 ]
 
 MIDDLEWARE = [

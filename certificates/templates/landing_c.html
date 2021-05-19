@@ -151,13 +151,7 @@
     $(document).ready( function () {
         $('#existing-certificateList').DataTable({
             dom: 'Bfrtip',
-            scrollX: true,
-            scrollCollapse: true,
-            fixedColumns: {
-                leftColumns:0,
-                rightColumns: 1
-            },
-			buttons: [{
+            buttons: [{
                 extend: 'excel',
                 title: 'Certificates'
             }]

@@ -130,11 +130,6 @@ def existing_return_list(request):
     return render(request, 'existing_return.html', {'Return_List': all_return_list})
 
 
-def client_master_list(request):
-    all_return_list = database.get_client_master_list()
-    return render(request, 'client_info.html', {'client_List': all_return_list})
-
-
 def further_cpc_info(request, it_no, ay, r_type):
     ay_list = database.get_ay_list()
     # check if exists in db

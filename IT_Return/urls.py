@@ -13,6 +13,5 @@ urlpatterns = [
     path('existing_return_list', views.existing_return_list, name='Existing Return List'),
     path('cpc_list', views.cpc_list, name='CPC List'),
     path('further_cpc_info/<slug:it_no>/<slug:ay>/<slug:r_type>', views.further_cpc_info, name='Further CPC Info'),
-    path('further_cpc_submit', views.further_cpc_submit, name='Further CPC Submit'),
-    path('client_master_list', views.client_master_list, name='Client Master List')
+    path('further_cpc_submit', views.further_cpc_submit, name='Further CPC Submit')
 ]

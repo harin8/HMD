@@ -2,12 +2,13 @@ import ssl
 import pymongo
 from bson.objectid import ObjectId
 
-# __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
+__MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
 
-__MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
+# __MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w
+# =majority&ssl=true'
 
-#client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
-client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
+client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
+# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
 db = client.HMD
 
 
@@ -25,7 +26,7 @@ def add_certificate_data_in_db(data_dict):
 
 
 def get_cert_details(r_id):
-    result = list(db.certificateMaster.find({"_id":  ObjectId(r_id)}))
+    result = list(db.certificateMaster.find({"_id": ObjectId(r_id)}))
     if result:
         return result[0]
     else:

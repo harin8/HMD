@@ -31,7 +31,7 @@
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label>Client Name:</label>
-                                    <input required type="text" placeholder="Name" class="form-control" name="clientName" value="{{ Data_Dict.Name|safe }}"  readonly>
+                                    <input required style="text-transform:uppercase" type="text" placeholder="Name" class="form-control" name="clientName" value="{{ Data_Dict.Name|safe }}"  readonly>
                                 </div>
                             </div>
                             <div class="col-sm-3">
@@ -77,7 +77,7 @@
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label>Filed By:</label>
-                                    <input required type="text" name="filedBy" class="form-control" value="{{ Data_Dict.Filed_by}}" readonly>
+                                    <input required style="text-transform:uppercase" type="text" name="filedBy" class="form-control" value="{{ Data_Dict.Filed_by}}" readonly>
                                 </div>
                               </div>
                             <div class="col-sm-3">
@@ -95,7 +95,7 @@
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label>Completed By:</label>
-                                    <input required type="text" name="completedBy" class="form-control" placeholder="Write Name" value="{{ Data_Dict.Completed_by|safe }}" {% if Data_Dict.Submitted_cpc %} readonly {% endif %}>
+                                    <input required style="text-transform:uppercase" type="text" name="completedBy" class="form-control" placeholder="Write Name" value="{{ Data_Dict.Completed_by|safe }}" {% if Data_Dict.Submitted_cpc %} readonly {% endif %}>
                                 </div>
                             </div>
                             <div class="col-sm-3">
@@ -107,7 +107,7 @@
                             <div class="col-sm-3">
                                 <div class="form-group">
                                     <label>Remarks:</label>
-                                    <input required type="text" name="remarksCPC" class="form-control" placeholder="Write Remarks" value="{{ Data_Dict.Remarks_cpc|safe }}" {% if Data_Dict.Submitted_cpc %} readonly {% endif %}>
+                                    <input required style="text-transform:uppercase" type="text" name="remarksCPC" class="form-control" placeholder="Write Remarks" value="{{ Data_Dict.Remarks_cpc|safe }}" {% if Data_Dict.Submitted_cpc %} readonly {% endif %}>
                                 </div>
                             </div>
                             <div class="col-sm-3">

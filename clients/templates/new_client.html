@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block head_block %}
+    {% load static %}
+    <title>HMD|New Client</title>
+{% endblock %}
+{% block body_block %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6 py-3 mt-2">
+            <h4>New Client</h4>
+        </div>
+        <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <a id="backButton" href="{% url 'Client Landing' %}">Back</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Client' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label>Client Name:</label>
+                                    <input required style="text-transform:uppercase" type="text" value="" id="c_name" class="form-control" name="name">
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label>Group Name:</label>
+                                    <input required style="text-transform:uppercase" type="text" value="" id="group_name" class="form-control" name="groupName">
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label>Party Name:</label>
+                                    <input required style="text-transform:uppercase" type="text" value="" id="party_name" class="form-control" name="partyName">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label>IT No:</label>
+                                    <input required type="text" onkeyup="It_no(this.value)" pattern="[0-9]*" title="Only numbers allowed" id="it_no" class="form-control" name="itNo">
+                                    <div class="invalid-tooltip" id="it-tooltip">
+                                        Already Exists!
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label>Audit No:</label>
+                                    <input required type="text" onkeyup="Audit_no(this.value)" pattern="[0-9]*" title="Only numbers allowed" id="audit_no" class="form-control" name="auditNo">
+                                    <div class="invalid-tooltip" id="audit-tooltip">
+                                        Already Exists!
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label>Certificate No:</label>
+                                    <input required type="text" onkeyup="Certificate_no(this.value)" pattern="[0-9]*" title="Only numbers allowed" id="certificate_no" class="form-control" name="certificateNo">
+                                    <div class="invalid-tooltip" id="certificate-tooltip">
+                                        Already Exists!
+                                    </div>
+                                </div>
+                            </div>
+                        </div><br>
+                        <div class="row">
+                            <div class="col-12">Contact Details</div>
+                        </div><br>
+                        <button id="add_client" class="btn btn-success">Add</button>
+                        <button id="remove_client" class="btn btn-danger">Remove</button>
+                        <br><br>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Name:</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Contact No:</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Designation:</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Email:</label>
+                                </div>
+                            </div>
+                        </div>
+                        <span id="contact_span">
+                            <div class="row contacts">
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <input style="text-transform:uppercase" type="text" value="" class="form-control" name="contactName">
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <input pattern="[0-9]*" maxlength="10" minlength="10" title="10 digits" type="text" value="" class="form-control" name="contactNo">
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <input style="text-transform:uppercase" type="text" value="" class="form-control" name="contactDesignation">
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <input pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" type="text" class="form-control" title="Enter Valid email" name="contactEmail">
+                                    </div>
+                                </div>
+                            </div>
+                        </span>
+                        <div class="row" id="submit-button">
+                            <div class="form-group col-sm-3">
+                                <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
+                                <button type="reset" class="btn btn-secondary back" name="Reset" >Reset</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var counter = 1;
+    $('#add_client').on('click', function(e) {
+        e.preventDefault();
+        $('.row.contacts').last().clone().appendTo('#contact_span').find('input').val("");
+        counter += 1;
+    });
+
+	$('#remove_client').on('click', function(e) {
+	    e.preventDefault();
+	    if(counter > 1) {
+            $('.row.contacts').last().remove();
+            counter -= 1;
+        }
+    });
+
+    function It_no(no) {
+        var no_list = {{ It_No|safe }};
+        if(no_list.includes(no)) {
+            $('#it-tooltip').css('display','block');
+            $('#submit-button').css('display','none');
+        }
+        else {
+            $('#it-tooltip').css('display','none');
+            if($('.invalid-tooltip').css('display') == 'none') {
+                $('#submit-button').css('display','block');
+            }
+            else {
+                $('#submit-button').css('display','none');
+            }
+        }
+    };
+    function Audit_no(no) {
+        var no_list = {{ Audit_No|safe }};
+        if(no_list.includes(no)) {
+            $('#audit-tooltip').css('display','block');
+            $('#submit-button').css('display','none');
+        }
+        else {
+            $('#audit-tooltip').css('display','none');
+            if($('.invalid-tooltip').css('display') == 'none') {
+                $('#submit-button').css('display','block');
+            }
+            else {
+                $('#submit-button').css('display','none');
+            }
+        }
+    };
+    function Certificate_no(no) {
+        var no_list = {{ Certificate_No|safe }};
+        if(no_list.includes(no)) {
+            $('#certificate-tooltip').css('display','block');
+            $('#submit-button').css('display','none');
+        }
+        else {
+            $('#certificate-tooltip').css('display','none');
+            if($('.invalid-tooltip').css('display') == 'none') {
+                $('#submit-button').css('display','block');
+            }
+            else {
+                $('#submit-button').css('display','none');
+            }
+        }
+    };
+</script>
+{% endblock %}

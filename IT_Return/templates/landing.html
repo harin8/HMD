@@ -48,7 +48,7 @@
 	$('#it-return').on('click', function(event) {
   		event.preventDefault(); // To prevent following the link (optional)
   		if (!modal_toggle) {
-            var div = '<div class="card widget-box-three"><div class="card-body"><a role="button" href="{% url 'New IT Return' %}" class="btn btn-link" id="return-new">New</a></div></div><br><div class="card widget-box-three"><div class="card-body"><a href="{% url 'Existing Return List' %}" role="button" class="btn btn-link" id="return-existing">Existing</a></div></div><br><div class="card widget-box-three"><div class="card-body"><a role="button" href="{% url 'CPC List' %}" class="btn btn-link" id="return-cpc">CPC</a></div></div><br>'
+            var div = '<div class="card widget-box-three"><div class="card-body"><a role="button" href="{% url 'New IT Return' %}" class="btn btn-link" id="return-new">New</a></div></div><br><div class="card widget-box-three"><div class="card-body"><a href="{% url 'Existing Return List' %}" role="button" class="btn btn-link" id="return-existing">Existing</a></div></div><br><div class="card widget-box-three"><div class="card-body"><a role="button" href="{% url 'CPC List' %}" class="btn btn-link" id="return-cpc">Verify Later</a></div></div><br>'
             $('#sub-menu').append(div);
             $('#sub-menu').css('display', 'block');
             modal_toggle = true;

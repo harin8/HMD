@@ -4,13 +4,14 @@ import pymongo as pymongo
 from django.shortcuts import render
 from IT_Return import database
 
-# __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
+__MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
 
-__MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
+# __MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w
+# =majority&ssl=true'
 
 
-# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
-client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
+client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
+# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
 db = client.HMD
 
 
@@ -107,11 +108,12 @@ def further_return_submit(request):
                         'Submitted_fur': save_bool_final}
 
     return_result = database.add_further_return_record(return_data_dict)
-    all_return_list = database.get_all_return_list(ay, return_type_name)
+    all_return_list = database.get_existing_completed_return_list()
+    if all_return_list:
+        for data in all_return_list:
+            data['Type_id'] = database.get_return_type_id_from_name(data['Type'])
 
-    return render(request, 'it_return.html', {'AY_list': ay_list, 'AY_Selected': ay,
-                                              'Return_Type_Selected': return_type,
-                                              'Return_List': all_return_list})
+    return render(request, 'existing_return.html', {'Return_List': all_return_list})
 
 
 def cpc_list(request):

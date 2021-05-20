@@ -11,7 +11,7 @@
             <h4>New Client</h4>
         </div>
         <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
-            <a id="backButton" href="{% url 'Client Landing' %}">Back</a>
+            <button style="background-color:#0277bd" class="btn btn-secondary back"><a style="color:white" id="backButton" href="{% url 'Client Landing' %}">Back</a></button>
         </div>
     </div>
     <div class="row">
@@ -83,12 +83,12 @@
                             </div>
                             <div class="col-sm-3">
                                 <div class="form-group">
-                                    <label>Contact No:</label>
+                                    <label>Designation:</label>
                                 </div>
                             </div>
                             <div class="col-sm-3">
                                 <div class="form-group">
-                                    <label>Designation:</label>
+                                    <label>Contact No:</label>
                                 </div>
                             </div>
                             <div class="col-sm-3">
@@ -106,12 +106,12 @@
                                 </div>
                                 <div class="col-sm-3">
                                     <div class="form-group">
-                                        <input pattern="[0-9]*" maxlength="10" minlength="10" title="10 digits" type="text" value="" class="form-control" name="contactNo">
+                                        <input style="text-transform:uppercase" type="text" value="" class="form-control" name="contactDesignation">
                                     </div>
                                 </div>
                                 <div class="col-sm-3">
                                     <div class="form-group">
-                                        <input style="text-transform:uppercase" type="text" value="" class="form-control" name="contactDesignation">
+                                        <input pattern="[0-9]*" maxlength="10" minlength="10" title="10 digits" type="text" value="" class="form-control" name="contactNo">
                                     </div>
                                 </div>
                                 <div class="col-sm-3">

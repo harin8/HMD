@@ -46,7 +46,7 @@
                             </tbody>
                                 <tfoot>
                                 <tr>
-				    <th align="left">Client Code</th>
+                                    <th align="left">Client Code</th>
                                     <th align="left">Client Name</th>
                                     <th align="left">Party Name</th>
                                     <th align="left">Group Name</th>
@@ -66,6 +66,9 @@
 			buttons: [{
                 extend: 'excel',
                 title: 'Client_Master'
+            },
+            {
+                extend: 'pageLength'
             }]
 		});
     });

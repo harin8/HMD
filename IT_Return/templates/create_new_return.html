@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block head_block %}
+    {% load static %}
+    <title>HMD|Create New Return</title>
+{% endblock %}
+{% block body_block %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6 py-3 mt-2">
+            <h4>New Return</h4>
+        </div>
+        <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <button style="background-color:#0277bd" class="btn btn-secondary back"><a style="color: white" id="backButton" href="{% url 'New IT Return' %}">Back</a></button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if not Data_Dict.Submitted_ini %}
+                        <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Return' %}" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="It_No" id="it_no" value="{{ Data_Dict.It_no }}">
+                        {% csrf_token %}
+                    {% endif %}
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Client Name:</label>
+                                    <input required style="text-transform:uppercase" type="text" value="{{ Name|safe }}" id="c_name" class="form-control" name="name" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Accepted By:</label>
+                                    <input required style="text-transform:uppercase" type="text" placeholder="Name" id="accepted_by" class="form-control" name="acceptedBy" value="{{ Data_Dict.Accepted_by|safe }}" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Acceptance Date:</label>
+                                    <input required type="date" name="acceptedDate" id="accepted_date" class="form-control eventTodayDateTime" placeholder="Select Date" value="{{ Data_Dict.Acceptance_date|safe }}" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>A.Y.:</label>
+                                    <select required name="AY" class="form-control" id="ay" {% if Data_Dict.Submitted_ini %} disabled {% endif %}>
+                                        {% for ay in AY_list %}
+                                            {% if ay == AY_Selected %}
+                                                <option value="{{ ay|safe }}" selected> {{ay|title}} </option>
+                                            {% else %}
+                                                <option value="{{ ay|safe }}"> {{ay|title}} </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Select Type:</label>
+                                    <select required name="type" class="form-control" id="r_type" {% if Data_Dict.Submitted_ini %} disabled {% endif %}>
+                                        <option value="1" {% if Type == '1' %} selected {% endif %}> Original </option>
+                                        <option value="2" {% if Type == '2' %} selected {% endif %}>Revised</option>
+                                        <option value="3" {% if Type == '3' %} selected {% endif %}>142(1)</option>
+                                        <option value="4" {% if Type == '4' %} selected {% endif %}>148</option>
+                                        <option value="5" {% if Type == '5' %} selected {% endif %}>139(9)</option>
+                                        <option value="6" {% if Type == '6' %} selected {% endif %}>153A</option>
+                                        <option value="7" {% if Type == '7' %} selected {% endif %}>153C r.w 153A</option>
+                                        <option value="8" {% if Type == '8' %} selected {% endif %}>92CD</option>
+                                        <option value="9" {% if Type == '9' %} selected {% endif %}>119(2)(b)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        {% if not Data_Dict.Submitted_ini %}
+                            <div class="row">
+                                <div class="form-group col-sm-3">
+                                    <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
+                                    <button type="reset" class="btn btn-secondary back" name="Reset" >Reset</button>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

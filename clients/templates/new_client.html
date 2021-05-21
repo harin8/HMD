@@ -185,7 +185,7 @@
     });
     {% if Show_Further %}
         document.getElementById('Group_Name_Form').value = {{Group_Selected}};
-        document.getElementById('group_name').value = document.getElementById('Group_Name_Form').value;
+        document.getElementById('group_name').value = $('#Group_Name_Form option:selected').text();
     {% endif %}
 </script>
 {% endblock %}

@@ -111,7 +111,11 @@ def cpc_list(request):
     if all_return_list:
         for data in all_return_list:
             data['Type_id'] = database.get_return_type_id_from_name(data['Type'])
+<<<<<<< HEAD
             data['Due_date'] = database.calculate_due_date_cpc(data['Filing_date'])
+=======
+            database.calculate_due_date_cpc(data)
+>>>>>>> 2844b280383e46751afd340adee0d9022d7691d4
     return render(request, 'cpc_list.html', {'CPC_List': all_return_list})
 
 

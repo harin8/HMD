@@ -18,6 +18,10 @@ def client_master_list(request):
 def create_new_client(request):
     group_no = request.GET.get('GroupNameForm')
     client_type_form = request.GET.get('ClientTypeForm')
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 2844b280383e46751afd340adee0d9022d7691d4
     if group_no and client_type_form:
         group_name = database.get_group_name_from_id(group_no)
         client_type_form_name = database.get_client_type_name_from_id(client_type_form)

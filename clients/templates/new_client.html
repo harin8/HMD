@@ -62,7 +62,7 @@
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         <label>Group Name:</label>
-                                        <input required style="text-transform:uppercase" type="text" value="" id="group_name" class="form-control" name="groupName">
+                                        <input required style="text-transform:uppercase" type="text" value="" id="group_name" class="form-control" name="groupName" readonly>
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
@@ -77,7 +77,7 @@
                                     <div class="form-group">
                                         <label>IT No:</label>
                                         <!--<input required type="text" onkeyup="It_no(this.value)" pattern="[0-9]*" title="Only numbers allowed" id="it_no" class="form-control" name="itNo">-->
-                                        <select class="form-control">
+                                        <select required id="it_no" name="itNo" class="form-control">
                                             {% for no in Available_It_No %}
                                                 <option value="{{ no|safe }}">{{ no }}</option>
                                             {% endfor %}
@@ -88,7 +88,7 @@
                                     <div class="form-group">
                                         <label>Audit No:</label>
                                         <!--<input required type="text" onkeyup="Audit_no(this.value)" pattern="[0-9]*" title="Only numbers allowed" id="audit_no" class="form-control" name="auditNo">-->
-                                         <select class="form-control">
+                                         <select id="audit_no" name="auditNo" class="form-control">
                                             {% for no in Available_Audit_No %}
                                                 <option value="{{ no|safe }}">{{ no }}</option>
                                             {% endfor %}
@@ -98,7 +98,7 @@
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         <label>Note: </label>
-                                        <input required type="text" onkeyup="Certificate_no(this.value)" pattern="[0-9]*" title="Only numbers allowed" id="certificate_no" class="form-control" name="certificateNo">
+                                        <input type="text" pattern="[0-9]*" title="Only numbers allowed" id="certificate_no" class="form-control" name="certificateNo">
                                     </div>
                                 </div>
                             </div><br>
@@ -185,7 +185,7 @@
     });
     {% if Show_Further %}
         document.getElementById('Group_Name_Form').value = {{Group_Selected}};
-        document.getElementById('group_name').value = document.getElementById('Group_Name_Form').value;
+        document.getElementById('group_name').value = $('#Group_Name_Form option:selected').text();
     {% endif %}
 </script>
 {% endblock %}

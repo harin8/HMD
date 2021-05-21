@@ -18,7 +18,7 @@
             <h4>CPC</h4>
         </div>
         <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
-            <a id="backButton" href="{% url 'Landing' %}">Back</a>
+            <button style="background-color:#0277bd" class="btn btn-secondary back"><a style="color: white" id="backButton" href="{% url 'Landing' %}">Back</a></button>
         </div>
     </div>
     <br>
@@ -64,9 +64,9 @@
                                     <td align="left">{{ each_return.Remarks }}</td>
                                     <td>
                                         {% if each_return.Submitted_cpc %}
-                                            <a href="{% url 'Further CPC Info' it_no=each_return.It_no ay=each_return.AY r_type=each_return.Type %}" title="further info"><i class="fas fa-eye text-success"></i></a>
+                                            <a href="{% url 'Further CPC Info' it_no=each_return.It_no ay=each_return.AY r_type=each_return.Type_id %}" title="further info"><i class="fas fa-eye text-success"></i></a>
                                         {% else %}
-                                            <a href="{% url 'Further CPC Info' it_no=each_return.It_no ay=each_return.AY r_type=each_return.Type %}" title="further info"><i class="fas fa-clipboard text-info"></i></a>
+                                            <a href="{% url 'Further CPC Info' it_no=each_return.It_no ay=each_return.AY r_type=each_return.Type_id %}" title="further info"><i class="fas fa-clipboard text-info"></i></a>
                                         {% endif %}
                                     </td>
                                 </tr>

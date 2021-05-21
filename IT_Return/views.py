@@ -4,15 +4,6 @@ import pymongo as pymongo
 from django.shortcuts import render
 from IT_Return import database
 
-# __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
-
-__MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
-
-
-# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
-client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
-db = client.HMD
-
 
 # Create your views here.
 
@@ -54,8 +45,8 @@ def submit_new_return(request):
     return_type_name = database.get_return_type_name_from_id(return_type)
     return_data_dict = {
         'It_no': request.POST.get('It_No'),
-        'Name': request.POST.get('name'),
-        'Accepted_by': request.POST.get('acceptedBy'),
+        'Name': request.POST.get('name').upper(),
+        'Accepted_by': request.POST.get('acceptedBy').upper(),
         'Acceptance_date': request.POST.get('acceptedDate'),
         'AY': ay,
         'Type': return_type_name,
@@ -93,17 +84,17 @@ def further_return_submit(request):
     return_type_name = database.get_return_type_name_from_id(return_type)
     return_proof = request.POST.get('verification')
     return_proof_name = database.get_return_proof_name_from_id(return_proof)
-    return_data_dict = {'Name': request.POST.get('name'),
+    return_data_dict = {'Name': request.POST.get('name').upper(),
                         'It_no': request.POST.get('It_No'),
                         'AY': ay,
                         'Type': return_type_name,
-                        'Handled_by': request.POST.get('handledBy'),
-                        'Checked_by': request.POST.get('checkedBy'),
+                        'Handled_by': request.POST.get('handledBy').upper(),
+                        'Checked_by': request.POST.get('checkedBy').upper(),
                         'Filing_date': request.POST.get('filingDate'),
-                        'Remarks': request.POST.get('remarks'),
+                        'Remarks': request.POST.get('remarks').upper(),
                         'Verification': return_proof_name,
                         'Ack_no': request.POST.get('acknowledgmentNo'),
-                        'Filed_by': request.POST.get('filedBy'),
+                        'Filed_by': request.POST.get('filedBy').upper(),
                         'Submitted_fur': save_bool_final}
 
     return_result = database.add_further_return_record(return_data_dict)
@@ -120,6 +111,7 @@ def cpc_list(request):
     if all_return_list:
         for data in all_return_list:
             data['Type_id'] = database.get_return_type_id_from_name(data['Type'])
+            data['Due_date'] = database.calculate_due_date_cpc(data['Filing_date'])
     return render(request, 'cpc_list.html', {'CPC_List': all_return_list})
 
 
@@ -137,7 +129,8 @@ def further_cpc_info(request, it_no, ay, r_type):
     r_type_name = database.get_return_type_name_from_id(r_type)
     exist_result = database.get_return_details(it_no, ay, r_type_name)
     exist_result = database.get_client_code_from_result(exist_result)
-    exist_result = database.calculate_due_date_cpc(exist_result)
+    for data in exist_result:
+        data['Due_date'] = database.calculate_due_date_cpc(data['Filing_date'])
     if exist_result:
         return render(request, 'further_cpc_info.html', {'Name': it_no, 'AY_Selected': ay, 'Type': r_type,
                                                          'AY_list': ay_list,
@@ -152,19 +145,20 @@ def further_cpc_submit(request):
     return_type_name = database.get_return_type_name_from_id(return_type)
     return_proof = request.POST.get('verification')
     return_proof_name = database.get_return_proof_name_from_id(return_proof)
-
-    return_data_dict = {'Name': request.POST.get('clientName'),
-                        'AY': ay,
-                        'Type': return_type_name,
-                        'Remarks_cpc': request.POST.get('remarksCPC'),
-                        'Completed_by': request.POST.get('completedBy'),
-                        'Completed_on': request.POST.get('completedOn'),
-                        'Due_date': request.POST.get('dueDate_CPC'),
-                        'Verification': return_proof_name}
-
-    return_result = database.add_cpc_return_record(return_data_dict)
     all_return_list = database.get_cpc_all_return_list()
+    if ay and return_type and return_proof:
+        return_data_dict = {'Name': request.POST.get('clientName').upper(),
+                            'AY': ay,
+                            'Type': return_type_name,
+                            'Remarks_cpc': request.POST.get('remarksCPC').upper(),
+                            'Completed_by': request.POST.get('completedBy').upper(),
+                            'Completed_on': request.POST.get('completedOn'),
+                            'Due_date': request.POST.get('dueDate_CPC'),
+                            'Verification': return_proof_name}
+
+        return_result = database.add_cpc_return_record(return_data_dict)
     if all_return_list:
         for data in all_return_list:
-            data['Type'] = database.get_return_type_id_from_name(data['Type'])
+            data['Type_id'] = database.get_return_type_id_from_name(data['Type'])
+            data['Due_date'] = database.calculate_due_date_cpc(data['Filing_date'])
     return render(request, 'cpc_list.html', {'CPC_List': all_return_list})

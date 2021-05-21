@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'IT_Return',
     'HMD_Software',
     'certificates',
-    'clients'
+    'clients',
+    'contacts'
 ]
 
 MIDDLEWARE = [

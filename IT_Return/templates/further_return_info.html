@@ -10,7 +10,7 @@
             <h4>New Return</h4>
         </div>
         <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
-            <a id="backButton" href="{% url 'Existing Return List' %}">Back</a>
+            <button style="background-color:#0277bd" class="btn btn-secondary back"><a style="color: white" id="backButton" href="{% url 'Existing Return List' %}">Back</a></button>
         </div>
     </div>
     <div class="row">
@@ -96,7 +96,7 @@
                                 <div class="col-sm-3">
 									<div class="form-group">
 										<label>Acknowledgment No:</label>
-										<input required type="text" maxlength="15" minlength="15" name="acknowledgmentNo" id="ack_no" class="form-control" placeholder="Ack.No" value="{{ Data_Dict.Ack_no}}" {% if Data_Dict.Submitted_fur %} readonly {% endif %}>
+										<input required type="text" maxlength="15" minlength="15" name="acknowledgmentNo" pattern="[0-9]{15}" id="ack_no" class="form-control" placeholder="Ack.No" value="{{ Data_Dict.Ack_no}}" {% if Data_Dict.Submitted_fur %} readonly {% endif %}>
 									</div>
 								</div>
 								<div class="col-sm-3">

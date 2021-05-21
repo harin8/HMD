@@ -59,12 +59,6 @@
                             </div>
                             <div class="col-sm-3">
                                 <div class="form-group">
-                                    <label>Remarks:</label>
-                                    <input required style="text-transform:uppercase" type="text" name="remarks" id="remarks" class="form-control eventTodayDateTime" placeholder="Write Remarks" value="{{ Data_Dict.Remarks|safe }}" {% if Data_Dict.Submitted_fur %} readonly {% endif %}>
-                                </div>
-                            </div>
-                            <div class="col-sm-3">
-                                <div class="form-group">
                                     <label>Select Type:</label>
                                     <select required name="type" class="form-control" id="r_type" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
                                         <option value="1" {% if Type == '1' %} selected {% endif %}>Original</option>
@@ -107,8 +101,15 @@
 								</div>
 								<div class="col-sm-3">
 									<div class="form-group">
+										<label>Filed By:</label>
+										<input required style="text-transform:uppercase" type="text" name="filedBy" id="filed_by" class="form-control" value="{{ Data_Dict.Filed_by}}" {% if Data_Dict.Submitted_fur %} readonly {% endif %}>
+									</div>
+								</div>
+                                <div class="col-sm-3">
+									<div class="form-group">
 										<label>Verification:</label>
 										<select required name="verification" class="form-control" id="verification" {% if Data_Dict.Submitted_fur %} disabled {% endif %}>
+                                            <option value="0" {% if Data_Dict.Verification == "--Select--" %} selected {% endif %}> --Select-- </option>
                                             <option value="1" {% if Data_Dict.Verification == "DSC" %} selected {% endif %}> DSC </option>
                                             <option value="2" {% if Data_Dict.Verification == "Aadhar" %} selected {% endif %}> Aadhar </option>
                                             <option value="4" {% if Data_Dict.Verification == "Verify Later" %} selected {% endif %}> Verify Later </option>
@@ -116,19 +117,19 @@
 										</select>
 									</div>
 								</div>
-								<div class="col-sm-3">
-									<div class="form-group">
-										<label>Filed By:</label>
-										<input required style="text-transform:uppercase" type="text" name="filedBy" id="filed_by" class="form-control" value="{{ Data_Dict.Filed_by}}" {% if Data_Dict.Submitted_fur %} readonly {% endif %}>
-									</div>
-								</div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label>Remarks:</label>
+                                        <input required style="text-transform:uppercase" type="text" name="remarks" id="remarks" class="form-control eventTodayDateTime" placeholder="Write Remarks" value="{{ Data_Dict.Remarks|safe }}" {% if Data_Dict.Submitted_fur %} readonly {% endif %}>
+                                    </div>
+                            </div>
                             {% endif %}
                         </div>
                         {% if not Data_Dict.Submitted_fur %}
                             <div class="row">
                                 <div class="form-group col-sm-3">
                                     <button type="button" id="save_button" class="btn btn-success">Save</button>&nbsp;&nbsp;
-                                    <button type="submit" class="btn btn-success" >Submit</button>&nbsp;&nbsp;
+                                    <button type="submit" id="submit-button" class="btn btn-success" >Submit</button>&nbsp;&nbsp;
                                     <button type="reset" class="btn btn-secondary back" name="Reset">Reset</button>
                                 </div>
                             </div>

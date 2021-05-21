@@ -70,7 +70,7 @@ def get_return_proof_name_from_id(r_id):
     elif r_id == '5':
         return 'EVC'
     else:
-        return 'DSC'
+        return '--Select--'
 
 
 def get_all_return_list(r_ay, r_type):

@@ -44,7 +44,7 @@
       </div>
       <div class="col-sm-3">
         <div class="form-group">
-            <label>Received Date:</label>
+            <label>Acceptance Date:</label>
             <input required type="date" name="Received_Date" id="receivedDate" class="form-control eventTodayDateTime" value="">
         </div>
       </div>
@@ -151,9 +151,13 @@
     $(document).ready( function () {
         $('#existing-certificateList').DataTable({
             dom: 'Bfrtip',
-            buttons: [{
+            lengthMenu: [[10,25,50,100,-1],[10,25,50,100,"All"]],
+			buttons: [{
                 extend: 'excel',
                 title: 'Certificates'
+            },
+            {
+                extend: 'pageLength'
             }]
 		});
     });

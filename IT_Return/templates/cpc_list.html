@@ -100,9 +100,13 @@
     $(document).ready( function () {
         $('#cpc-returnList').DataTable({
             dom: 'Bfrtip',
+            lengthMenu: [[10,25,50,100,-1],[10,25,50,100,"All"]],
 			buttons: [{
                 extend: 'excel',
                 title: 'CPC_Return'
+            },
+            {
+                extend: 'pageLength'
             }]
 		});
     });

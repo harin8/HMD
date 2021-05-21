@@ -46,7 +46,7 @@
                             </tbody>
                                 <tfoot>
                                 <tr>
-				    <th align="left">Client Code</th>
+                                    <th align="left">Client Code</th>
                                     <th align="left">Client Name</th>
                                     <th align="left">Party Name</th>
                                     <th align="left">Group Name</th>
@@ -63,9 +63,13 @@
     $(document).ready( function () {
         $('#client_info').DataTable({
             dom: 'Bfrtip',
+            lengthMenu: [[10,25,50,100,-1],[10,25,50,100,"All"]],
 			buttons: [{
                 extend: 'excel',
                 title: 'Client_Master'
+            },
+            {
+                extend: 'pageLength'
             }]
 		});
     });

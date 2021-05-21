@@ -68,7 +68,6 @@
                                 <th align="left">A.Y.</th>
                                 <th align="left">Type</th>
                                 <th align="left">Status</th>
-                                <th align="left">Remarks</th>
                                 <th>Action</th>
                             </tr>
                             </thead>
@@ -81,7 +80,6 @@
                                     <td align="left">{{ each_return.AY }}</td>
                                     <td align="left">{{ each_return.Type }}</td>
                                     <td align="left">{{ each_return.Status }}</td>
-                                    <td align="left">{{ each_return.Remarks }}</td>
                                     <td>
                                         {% if each_return.Status == 'Initiated' %}
                                             <a href="{% url 'Create New Return' it_no=each_return.It_no ay=each_return.AY r_type=Return_Type_Selected %}" title="Edit" ><i class="fe-edit text-info"></i></a>&nbsp;&nbsp;
@@ -105,7 +103,6 @@
                                     <th align="left">A.Y.</th>
                                     <th align="left">Type</th>
                                     <th align="left">Status</th>
-                                    <th align="left">Remarks</th>
                                     <th>Action</th>
                                 </tr>
                             </tfoot>
@@ -121,17 +118,20 @@
     $(document).ready( function () {
         $('#returnList').DataTable({
             dom: 'Bfrtip',
-            scrollX: true,
-            scrollCollapse: true,
-            fixedColumns: {
-                leftColumns:0,
-                rightColumns: 1
-            },
+            lengthMenu: [[10,25,50,100,-1],[10,25,50,100,"All"]],
 			buttons: [{
                 extend: 'excel',
                 title: 'IT_Return'
+            },
+            {
+                extend: 'pageLength'
             }]
 		});
     });
+
+    var current_year = new Date().getFullYear();
+    var next_year = current_year + 1;
+    year_string = String(current_year) + '-' + String(next_year);
+    document.getElementById('A.Y').value = year_string;
 </script>
 {% endblock %}

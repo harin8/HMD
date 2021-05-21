@@ -129,9 +129,8 @@ def further_cpc_info(request, it_no, ay, r_type):
     r_type_name = database.get_return_type_name_from_id(r_type)
     exist_result = database.get_return_details(it_no, ay, r_type_name)
     exist_result = database.get_client_code_from_result(exist_result)
-    for data in exist_result:
-        data['Due_date'] = database.calculate_due_date_cpc(data['Filing_date'])
     if exist_result:
+        exist_result['Due_date'] = database.calculate_due_date_cpc(exist_result['Filing_date'])
         return render(request, 'further_cpc_info.html', {'Name': it_no, 'AY_Selected': ay, 'Type': r_type,
                                                          'AY_list': ay_list,
                                                          'Data_Dict': exist_result, 'Allow_Further': True})

@@ -120,6 +120,7 @@ def cpc_list(request):
     if all_return_list:
         for data in all_return_list:
             data['Type_id'] = database.get_return_type_id_from_name(data['Type'])
+            database.calculate_due_date_cpc(data)
     return render(request, 'cpc_list.html', {'CPC_List': all_return_list})
 
 

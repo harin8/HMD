@@ -29,10 +29,7 @@
                     {% else %}
                         <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Contact' %}" method="post" enctype="multipart/form-data">
                     {% endif %}
-
-                        {% csrf_token %}
-                        {% if Hide %}
-
+		    {% csrf_token %}
 
                         <div class="row">
                             <div class="col-12">Contact Details</div>

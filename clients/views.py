@@ -28,11 +28,10 @@ def client_master_list(request):
 def create_new_client(request):
     group_no = request.GET.get('GroupNameForm')
     client_type_form = request.GET.get('ClientTypeForm')
-    group_name = database.get_group_name_from_id(group_no)
-    client_type_form_name = database.get_client_type_name_from_id(client_type_form)
-
-    if group_name and client_type_form_name:
-        print(group_name, ':', client_type_form_name)
+    
+    if group_no and client_type_form:
+        group_name = database.get_group_name_from_id(group_no)
+        client_type_form_name = database.get_client_type_name_from_id(client_type_form)
         show_further = True
         it_no_list = database.get_all_distinct_value('It_no')
         audit_no_list = database.get_all_distinct_value('Audit_no')

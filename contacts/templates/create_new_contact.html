@@ -24,8 +24,8 @@
             <div class="card">
                 <div class="card-body">
                     {% if Hide %}
-                        <input type="hidden" name="r_id" value="{{ Contact_Details|private:'_id' }}">
                         <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit Edit Contact' %}" method="post" enctype="multipart/form-data">
+			<input type="hidden" name="r_id" value="{{ Contact_Details|private:'_id' }}">
                     {% else %}
                         <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Contact' %}" method="post" enctype="multipart/form-data">
                     {% endif %}

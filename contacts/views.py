@@ -16,12 +16,11 @@ def submit_new_contact(request):
     contact_list = []
     contact_names = request.POST.getlist('contactName')
     contact_nos = request.POST.getlist('contactNo')
-    contact_designation = request.POST.getlist('contactDesignation')
     contact_emails = request.POST.getlist('contactEmail')
     contact_remarks = request.POST.getlist('remarks')
 
     for x in range(len(contact_names)):
-        temp = {'Name': contact_names[x].upper(), 'Designation': contact_designation[x].upper(),
+        temp = {'Name': contact_names[x].upper(),
                 'Contact_no': contact_nos[x], 'Email': contact_emails[x], 'Remarks': contact_remarks[x].upper()}
         # check if already exists in db
         if_exists = database.get_contact_detail_from_name_no(temp['Name'], temp['Contact_no'])
@@ -53,16 +52,16 @@ def edit_contact(request, id):
 
 def submit_edit_contact(request):
     r_id = request.POST.get('r_id')
+
     contact_detail = database.get_contact_detail_from_id(r_id)
 
     contact_name = request.POST.get('contactName').upper()
     contact_no = request.POST.get('contactNo')
-    contact_designation = request.POST.get('contactDesignation').upper()
     contact_email = request.POST.get('contactEmail')
     contact_remark = request.POST.get('remarks').upper()
 
     if contact_detail:
-        temp = {'Name': contact_name, 'Designation': contact_designation,
+        temp = {'Name': contact_name,
                 'Contact_no': contact_no, 'Email': contact_email, 'Remarks': contact_remark}
         data_update = database.update_contact_details(r_id, temp)
         contact_detail = database.get_contact_detail_from_id(r_id)

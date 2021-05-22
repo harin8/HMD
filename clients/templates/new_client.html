@@ -11,7 +11,7 @@
             <h4>New Client</h4>
         </div>
         <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
-            <button style="background-color:#0277bd" class="btn btn-secondary back"><a style="color:white" id="backButton" href="{% url 'Client Landing' %}">Back</a></button>
+            <button style="width: 200px;background-color:#0277bd" class="btn btn-secondary back"><a style="color:white" id="backButton" href="{% url 'Client Landing' %}">Back</a></button>
         </div>
     </div>
     <form action="{% url 'Create New Client' %}">
@@ -41,7 +41,7 @@
             </div>
             <div class="col-1">
                 <br>
-                <button type="submit" class="form-control btn btn-primary" id="return-new-search" style="margin-top:7px">Search</button>
+                <button type="submit" class="form-control btn btn-primary" id="return-new-search" style="margin-top:7px">Create</button>
             </div>
         </div>
     </form><br>
@@ -55,16 +55,25 @@
                             <div class="row">
                                 <div class="col-sm-4">
                                     <div class="form-group">
-                                        <label>Client Name:</label>
-                                        <input required style="text-transform:uppercase" type="text" value="" id="c_name" class="form-control" name="name">
-                                    </div>
-                                </div>
-                                <div class="col-sm-4">
-                                    <div class="form-group">
                                         <label>Group Name:</label>
                                         <input required style="text-transform:uppercase" type="text" value="" id="group_name" class="form-control" name="groupName" readonly>
                                     </div>
                                 </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label>Client Type:</label>
+                                        <input required style="text-transform:uppercase" type="text" value="" id="client_type" class="form-control" name="clientType" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label>Client Name:</label>
+                                        <input required style="text-transform:uppercase" type="text" value="" id="c_name" class="form-control" name="name">
+                                    </div>
+                                </div>
+
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         <label>Party Name:</label>
@@ -89,6 +98,7 @@
                                         <label>Audit No:</label>
                                         <!--<input required type="text" onkeyup="Audit_no(this.value)" pattern="[0-9]*" title="Only numbers allowed" id="audit_no" class="form-control" name="auditNo">-->
                                          <select id="audit_no" name="auditNo" class="form-control">
+                                             <option value="0">N.A.</option>
                                             {% for no in Available_Audit_No %}
                                                 <option value="{{ no|safe }}">{{ no }}</option>
                                             {% endfor %}
@@ -98,7 +108,7 @@
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         <label>Note: </label>
-                                        <input type="text" pattern="[0-9]*" title="Only numbers allowed" id="certificate_no" class="form-control" name="certificateNo">
+                                        <input type="text" id="certificate_no" class="form-control" name="certificateNo">
                                     </div>
                                 </div>
                             </div><br>
@@ -186,6 +196,8 @@
     {% if Show_Further %}
         document.getElementById('Group_Name_Form').value = {{Group_Selected}};
         document.getElementById('group_name').value = $('#Group_Name_Form option:selected').text();
+        document.getElementById('Client_Type_Form').value = {{Type_Selected}};
+        document.getElementById('client_type').value = $('#Client_Type_Form option:selected').text();
     {% endif %}
 </script>
 {% endblock %}

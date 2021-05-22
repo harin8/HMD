@@ -33,14 +33,15 @@ def create_new_client(request):
             # convert it no from clientMaster to int
             it_no_list_int = [int(x) for x in it_no_list]
             audit_no_list_int = [int(x) for x in audit_no_list]
-            it_no_range = [x for x in range(it_start, it_end)]
-            audit_no_range = [x for x in range(audit_start, audit_end)]
+            it_no_range = [x for x in range(it_start, it_end + 1)]
+            audit_no_range = [x for x in range(audit_start, audit_end + 1)]
             available_it_no = sorted(list(set(it_no_range) - set(it_no_list_int)))
             available_audit_no = sorted(list(set(audit_no_range) - set(audit_no_list_int)))
             return render(request, 'new_client.html', {'Show_Further': show_further,
                                                        'Available_It_No': available_it_no,
                                                        'Available_Audit_No': available_audit_no,
-                                                       'Group_Selected': group_no})
+                                                       'Group_Selected': group_no,
+                                                       'Type_Selected': client_type_form})
     return render(request, 'new_client.html')
 
 
@@ -71,6 +72,5 @@ def submit_new_client(request):
                  'Audit_no': audit_no,
                  'Contact_details': contact_list
                  }
-    print(data_dict)
     data_add = database.add_client_details(data_dict)
     return render(request, 'new_client.html')

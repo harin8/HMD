@@ -16,7 +16,7 @@
             <h4>Contact List</h4>
         </div>
         <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
-            <button style="background-color:#0277bd" class="btn btn-secondary back"><a style="color:white" id="backButton" href="{% url 'Contacts Landing' %}">Back</a></button>
+            <button style="width: 200px;background-color:#0277bd" class="btn btn-secondary back"><a style="color:white" id="backButton" href="{% url 'Contacts Landing' %}">Back</a></button>
         </div>
     </div>
 
@@ -29,10 +29,9 @@
                             <thead>
                                 <tr>
                                     <th align="left">Name</th>
-                                    <th align="left">Designation</th>
                                     <th align="left">Contact No</th>
                                     <th align="left">Email</th>
-                                    <th align="left">Remarks</th>
+                                    <th align="left">Remarks/Reference</th>
                                     {% if can_edit %}
                                         <th align="left">Action</th>
                                     {% endif %}
@@ -42,7 +41,6 @@
                             {% for each_return in contact_list %}
                                 <tr>
                                     <td align="left">{{ each_return.Name }}</td>
-                                    <td align="left">{{ each_return.Designation }}</td>
                                     <td align="left">{{ each_return.Contact_no }}</td>
                                     <td align="left">{{ each_return.Email }}</td>
                                     <td align="left">{{ each_return.Remarks }}</td>
@@ -55,10 +53,9 @@
                                 <tfoot>
                                     <tr>
                                         <th align="left">Name</th>
-                                        <th align="left">Designation</th>
                                         <th align="left">Contact No</th>
                                         <th align="left">Email</th>
-                                        <th align="left">Remarks</th>
+                                        <th align="left">Remarks/Reference</th>
                                         {% if can_edit %}
                                             <th align="left">Action</th>
                                         {% endif %}

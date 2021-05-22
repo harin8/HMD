@@ -1,12 +1,12 @@
 import ssl
 import pymongo
 
-# __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
-__MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
+__MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
+# __MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
 
 
-# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
-client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
+client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
+# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
 db = client.HMD
 
 
@@ -57,7 +57,7 @@ def get_all_distinct_value(field_name):
 
 
 def add_client_details(data_dict):
-    return db.clientMaster_temp.insert(data_dict)
+    return db.clientMaster.insert(data_dict)
 
 
 def get_it_no_range(group_name, client_type):

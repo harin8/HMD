@@ -13,7 +13,7 @@
         </div>
         <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
             {% if Hide %}
-                <button style="background-color:#0277bd" class="btn btn-secondary back"><a style="color:white" id="backButton" href="{% url 'Edit Contacts' %}">Back</a></button>
+                <button style="width: 200px;background-color:#0277bd" class="btn btn-secondary back"><a style="color:white" id="backButton" href="{% url 'Edit Contacts' %}">Back</a></button>
             {% else %}
                 <button style="background-color:#0277bd" class="btn btn-secondary back"><a style="color:white" id="backButton" href="{% url 'Contacts Landing' %}">Back</a></button>
             {% endif %}
@@ -24,13 +24,13 @@
             <div class="card">
                 <div class="card-body">
                     {% if Hide %}
+
                         <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit Edit Contact' %}" method="post" enctype="multipart/form-data">
-			<input type="hidden" name="r_id" value="{{ Contact_Details|private:'_id' }}">
+                        <input type="hidden" name="r_id" value="{{ Contact_Details|private:'_id' }}">
                     {% else %}
                         <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Contact' %}" method="post" enctype="multipart/form-data">
                     {% endif %}
-		    {% csrf_token %}
-
+                    {% csrf_token %}
                         <div class="row">
                             <div class="col-12">Contact Details</div>
                         </div>
@@ -42,45 +42,35 @@
                         {% endif %}
                         <br>
                         <div class="row">
-                            <div class="col-sm-2">
+                            <div class="col-sm-3">
                                 <div class="form-group">
                                     <label>Name:</label>
                                 </div>
                             </div>
-                            <div class="col-sm-2">
-                                <div class="form-group">
-                                    <label>Designation:</label>
-                                </div>
-                            </div>
-                            <div class="col-sm-2">
+                            <div class="col-sm-3">
                                 <div class="form-group">
                                     <label>Contact No:</label>
                                 </div>
                             </div>
                             <div class="col-sm-3">
                                 <div class="form-group">
-                                    <label>Email:</label>
+                                    <label>Email ID:</label>
                                 </div>
                             </div>
                             <div class="col-sm-3">
                                 <div class="form-group">
-                                    <label>Remarks:</label>
+                                    <label>Remarks/Reference:</label>
                                 </div>
                             </div>
                         </div>
                         <span id="contact_span">
                             <div class="row contacts">
-                                <div class="col-sm-2">
+                                <div class="col-sm-3">
                                     <div class="form-group">
                                         <input required style="text-transform:uppercase" type="text" value="{{Contact_Details.Name}}" class="form-control" name="contactName">
                                     </div>
                                 </div>
-                                <div class="col-sm-2">
-                                    <div class="form-group">
-                                        <input style="text-transform:uppercase" type="text" value="{{Contact_Details.Designation}}" class="form-control" name="contactDesignation">
-                                    </div>
-                                </div>
-                                <div class="col-sm-2">
+                                <div class="col-sm-3">
                                     <div class="form-group">
                                         <input required pattern="[0-9]*" maxlength="10" minlength="10" title="10 digits" type="text" value="{{Contact_Details.Contact_no}}" class="form-control" name="contactNo">
                                     </div>

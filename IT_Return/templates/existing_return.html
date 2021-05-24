@@ -1,0 +1,174 @@
+{% extends "landing.html" %}
+{% block head_block %}
+    {% load static %}
+    <title>HMD|Return List</title>
+    <link href="{% static 'assets/css/fixedColumns.bootstrap4.min.css' %}" rel="stylesheet">
+	<script src="{% static 'assets/js/fixedColumns.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'assets/js/jszip.min.js' %}"></script>
+{% endblock %}
+
+{% block body_block %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6 py-3 mt-2">
+            <h4>Existing Return</h4>
+        </div>
+        <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <button style="width: 200px;background-color:#0277bd" class="btn btn-secondary back"><a style="color:white" id="backButton" href="{% url 'Landing' %}">Back</a></button>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div id="checkbox-group">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="esd" value="ESD" >
+                            <label class="form-check-label" for="esd">ESD</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="ris" value="RIS">
+                            <label class="form-check-label" for="ris">RIS</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                              <input class="form-check-input" type="checkbox" id="vhd" value="VHD">
+                              <label class="form-check-label" for="vhd">VHD</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                              <input class="form-check-input" type="checkbox" id="prb" value="PRB">
+                              <label class="form-check-label" for="prb">PRB</label>
+                        </div>
+                    </div><br>
+                    <div class="table-responsive">
+                        <table cellpadding="1" cellspacing="2" border="0" class="table table-striped table-bordered dataTable" id="existing-returnList" width="100%">
+                            <thead>
+                            <tr>
+                                <th align="left">Client Name</th>
+                                <th align="left">Group Name</th>
+                                <th align="left">IT Code</th>
+                                <th align="left">Accepted By</th>
+                                <th align="left">Acceptance Date</th>
+                                <th align="left">Handled By</th>
+                                <th align="left">Checked By</th>
+                                <th align="left">Filing Date</th>
+                                <th align="left">Verification</th>
+                                <th align="left">Filed By</th>
+                                <th align="left">A.Y.</th>
+                                <th align="left">Type</th>
+                                <th align="left">Status</th>
+                                <th align="left">Remarks</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for each_return in Return_List %}
+                                <tr>
+                                    <td align="left">{{ each_return.Name }}</td>
+                                    <td align="left">{{ each_return.Group_name }}</td>
+                                    <td align="left">{{ each_return.It_no }}</td>
+                                    <td align="left">{{ each_return.Accepted_by }}</td>
+                                    <td align="left">{{ each_return.Acceptance_date }}</td>
+                                    <td align="left">{{ each_return.Handled_by }}</td>
+                                    <td align="left">{{ each_return.Checked_by }}</td>
+                                    <td align="left">{{ each_return.Filing_date }}</td>
+                                    <td align="left">{{ each_return.Verification }}</td>
+                                    <td align="left">{{ each_return.Filed_by }}</td>
+                                    <td align="left">{{ each_return.AY }}</td>
+                                    <td align="left">{{ each_return.Type }}</td>
+                                    <td align="left">{{ each_return.Status }}</td>
+                                    <td align="left">{{ each_return.Remarks }}</td>
+                                    <td>
+                                        {% if each_return.Status == 'Initiated' %}
+                                            <a href="{% url 'Create New Return' it_no=each_return.It_no ay=each_return.AY r_type=each_return.Type_id %}" title="Edit" ><i class="fe-edit text-info"></i></a>&nbsp;&nbsp;
+                                            <a href="{% url 'Further Return Info' it_no=each_return.It_no ay=each_return.AY r_type=each_return.Type_id %}" title="further info"><i class="fas fa-clipboard text-info"></i></a>
+                                        {% endif %}
+                                        {% if each_return.Status == 'Not initiated' %}
+                                            <a href="{% url 'Create New Return' it_no=each_return.It_no ay=each_return.AY r_type=each_return.Type_id %}" title="Edit" ><i class="fe-edit text-info"></i></a>&nbsp;&nbsp;
+                                        {% endif %}
+                                        {% if each_return.Status == 'Completed' %}
+                                            <a href="{% url 'Further Return Info' it_no=each_return.It_no ay=each_return.AY r_type=each_return.Type_id %}" title="View"><i class="fas fa-eye text-success"></i></a>&nbsp;&nbsp;
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th align="left">Client Name</th>
+                                    <th align="left">Group Name</th>
+                                    <th align="left">IT Code</th>
+                                    <th align="left">Accepted By</th>
+                                    <th align="left">Acceptance Date</th>
+                                    <th align="left">Handled By</th>
+                                    <th align="left">Checked By</th>
+                                    <th align="left">Filing Date</th>
+                                    <th align="left">Verification</th>
+                                    <th align="left">Filed By</th>
+                                    <th align="left">A.Y.</th>
+                                    <th align="left">Type</th>
+                                    <th align="left">Status</th>
+                                    <th align="left">Remarks</th>
+                                    <th>Action</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready( function () {
+        /*$('#existing-returnList thead tr').clone(true).appendTo( '#existing-returnList thead' );
+        $('#existing-returnList thead tr:eq(1) th').each( function (i) {
+            var title = $(this).text();
+            $(this).html( '<input style="text-transform:uppercase" type="text" placeholder="Search '+title+'" />' );
+
+            $( 'input', this ).on( 'keyup change', function () {
+                if ( table.column(i).search() !== this.value ) {
+                    table.column(i).search( this.value ).draw();
+                }
+            } );
+        } );*/
+        var table = $('#existing-returnList').DataTable({
+            dom: 'Bfrtip',
+            lengthMenu: [[10,25,50,100,-1],[10,25,50,100,"All"]],
+			buttons: [{
+                extend: 'excel',
+                title: 'IT_Return'
+            },
+            {
+                extend: 'pageLength',
+            }]
+		});
+
+		$('#checkbox-group input[type=checkbox]').change(function() { // while you're at it listen for change rather than click, this is in case something else modifies the checkbox
+            var selected = [];
+            var search_regex = '';
+            $('div#checkbox-group input[type=checkbox]').each(function() {
+                if ($(this).is(":checked")) {
+                    selected.push($(this).val());
+                }
+            });
+            if(selected.length > 0) {
+                for(var i=0;i<selected.length;i++) {
+                    if(i==selected.length-1) {
+                        search_regex = search_regex + selected[i];
+                    }
+                    else {
+                        search_regex = search_regex + selected[i] + '|';
+                    }
+                }
+                table.column(1).search(search_regex, true).draw();
+            }
+            else {
+                table.column(1).search('').draw();
+            }
+        });
+    });
+
+</script>
+{% endblock %}

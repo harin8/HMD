@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block head_block %}
+    <title>HMD|Create New Certificate</title>
+{% endblock %}
+{% block body_block %}
+{% load certificate_tags %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6 py-3 mt-2">
+            <h4>Certificate</h4>
+        </div>
+        <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <button style="width: 200px;background-color:#0277bd" class="btn btn-secondary back"><a style="color: white" id="backButton" href="{% url 'Certificates Landing' %}">Back</a></button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if Data_Dict.Status != 'Completed' %}
+                      <form role="form" name="frmFurAdd" class="form-horizontal" action="{% url 'Further Cert Submit' %}" method="post" enctype="multipart/form-data">
+                          <input type="hidden" value="{{ Data_Dict|private:'_id' }}" name="Record_Id">
+                    {% endif %}
+                    {% csrf_token %}
+                        <div class="row">
+                            <div class="col-2" id="GroupName_div">
+                                <label class="form-label">Group Name:</label>
+                                <select name="Group_Name" class="form-control" id="groupName">
+                                    <option value="{{ Data_Dict.Group_name }}">{{ Data_Dict.Group_name|safe }}</option>
+                                </select>
+                            </div>
+                            <div class="col-2" id="ClientCode_div">
+                                <label class="form-label">Client Code:</label>
+                                <select name="Client_Code" class="form-control" id="clientCode">
+                                    <option value="{{ Data_Dict.Client_code }}">{{ Data_Dict.Client_code|safe }}</option>
+                                </select>
+                            </div>
+                            <div class="col-2" id="ClientName_div">
+                                <label class="form-label">Client Name:</label>
+                                <select name="Client_Name" class="form-control" id="clientName">
+                                    <option value="{{ Data_Dict.Name }}">{{ Data_Dict.Name|safe }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Accepted By:</label>
+                                    <input required readonly style="text-transform:uppercase" type="text" name="Accepted_By" id="acceptedBy" class="form-control eventTodayDateTime" placeholder="Enter Name" value="{{ Data_Dict.Accepted_by }}">
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Received Date:</label>
+                                    <input required readonly type="date" name="Received_Date" id="receivedDate" class="form-control eventTodayDateTime" value="{{ Data_Dict.Received_date }}">
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Description:</label>
+                                    <input required readonly style="text-transform:uppercase" type="text" name="Description" id="description" class="form-control eventTodayDateTime" placeholder="Type Description" value="{{ Data_Dict.Description }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Handled By:</label>
+                                    <input required style="text-transform:uppercase" type="text" name="Handled_By" id="handledBy" class="form-control eventTodayDateTime" placeholder="Enter Name" value="{{ Data_Dict.Handled_by }}">
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Checked By:</label>
+                                    <input required style="text-transform:uppercase" type="text" name="Checked_By" id="checkedBy" class="form-control eventTodayDateTime" value="{{ Data_Dict.Checked_by }}">
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Date of Certificate:</label>
+                                    <input required type="date" name="Date_of_Certificate" id="dateOfCertificate" class="form-control eventTodayDateTime" value="{{ Data_Dict.Date_of_certificate }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                  <label>Signed By:</label>
+                                  <input required style="text-transform:uppercase" type="text" name="Signed_By" id="signedBy" class="form-control eventTodayDateTime" placeholder="Enter Name" value="{{ Data_Dict.Signed_by }}">
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Remarks:</label>
+                                    <input style="text-transform:uppercase" type="text" name="Remarks" id="remarks" class="form-control eventTodayDateTime" placeholder="Enter Remarks" value="{{ Data_Dict.Remarks }}">
+                                </div>
+                            </div>
+                        </div>
+                        {% if Data_Dict.Status != 'Completed' %}
+                            <div class="row">
+                                <div class="form-group col-sm-3">
+                                    <button type="submit" class="btn btn-success" >Submit</button>&nbsp;&nbsp;
+                                    <button type="reset" class="btn btn-secondary back" name="Reset">Reset</button>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

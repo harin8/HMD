@@ -192,16 +192,27 @@ def get_cpc_all_return_list():
     return result
 
 
-def calculate_due_date_cpc(result):
-    if result:
-        try:
-            filing_date = result['Filing_date']
-        except:
-            return result
-        result['Due_date_cpc'] = datetime.datetime.strftime(datetime.datetime.strptime(filing_date, '%Y-%m-%d') +
+def calculate_due_date_cpc(filing_date):
+    due_date = ""
+    if filing_date:
+        due_date = datetime.datetime.strftime(datetime.datetime.strptime(filing_date, '%Y-%m-%d') +
                                                             timedelta(days=120), "%Y-%m-%d")
 
-    return result
+    return due_date
+
+
+def get_group_name_from_client_code(c_code):
+    result = list(db.clientMaster.find({'Client_code': c_code}, {'Group_name': 1}))
+    if result:
+        return result[0]['Group_name']
+    return 'NA'
+
+
+def get_group_name_from_client_name(c_name):
+    result = list(db.clientMaster.find({'Name': c_name}, {'Group_name': 1}))
+    if result:
+        return result[0]['Group_name']
+    return 'NA'
 
 
 def add_cpc_return_record(data_dict):

@@ -3,16 +3,6 @@ import pymongo as pymongo
 from django.shortcuts import render
 from . import database
 
-__MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
-# __MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w
-# =majority&ssl=true'
-
-client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
-# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
-
-db = client.HMD
-
-
 # Create your views here.
 
 def landing(request):
@@ -30,12 +20,12 @@ def submit_certificate(request):
     description = request.POST.get('Description')
 
     data_dict = {
-        'Name': client_name,
-        'Group_name': group_name,
+        'Name': client_name.upper(),
+        'Group_name': group_name.upper(),
         'Client_code': client_code,
-        'Accepted_by': accepted_by,
+        'Accepted_by': accepted_by.upper(),
         'Received_date': received_date,
-        'Description': description
+        'Description': description.upper()
     }
     result = database.add_certificate_data_in_db(data_dict)
     all_client_list = database.get_all_clients_details()
@@ -61,11 +51,11 @@ def further_cert_submit(request):
     remarks = request.POST.get('Remarks')
     r_id = request.POST.get('Record_Id')
     data_dict = {
-        'Handled_by': handled_by,
-        'Checked_by': checked_by,
+        'Handled_by': handled_by.upper(),
+        'Checked_by': checked_by.upper(),
         'Date_of_certificate': date_of_certificate,
-        'Signed_by': signed_by,
-        'Remarks': remarks,
+        'Signed_by': signed_by.upper(),
+        'Remarks': remarks.upper(),
         'Status': 'Completed'
     }
 

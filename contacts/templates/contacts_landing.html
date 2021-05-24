@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block head_block %}
-    <title>HMD|Clients</title>
+    <title>HMD|Contacts</title>
 {% endblock %}
 {% block body_block %}
 <div class="container-fluid">
@@ -9,21 +9,28 @@
             <div class="card">
                 <div class="card-body">
                     <div class="col-12">
-                        <h4 class="header-title mb-3">Clients</h4>
+                        <h4 class="header-title mb-3">Contacts</h4>
                     </div>
                     <div class="row">
                         <div class="col-4" id="main-menu">
                             <div class="card widget-box-three">
                                 <div class="card-body">
-                                    <button type="button" class="btn btn-link" id="it-return">
-                                        <a href="{% url 'Create New Client' %}">Create</a>
+                                    <button type="button" class="btn btn-link" id="client_create">
+                                        <a href="{% url 'Create New Contact' %}">Create</a>
                                     </button>
                                 </div>
                             </div><br>
                             <div class="card widget-box-three">
                                 <div class="card-body">
-                                    <button type="button" class="btn btn-link" id="audit">
-                                        <a href="{% url 'Client Master List' %}">View</a>
+                                    <button type="button" class="btn btn-link" id="client_view">
+                                        <a href="{% url 'Contact Master List' %}">View</a>
+                                    </button>
+                                </div>
+                            </div><br>
+                            <div class="card widget-box-three">
+                                <div class="card-body">
+                                    <button type="button" class="btn btn-link" id="client_edit">
+                                        <a href="{% url 'Edit Contacts' %}">Edit</a>
                                     </button>
                                 </div>
                             </div>

@@ -8,18 +8,6 @@
 	{% block head_block %}
 
 	{% endblock %}
-	<!-- Prefetch DNS -->
-	<link rel="dns-prefetch" href="//maps.googleapis.com" />
-	<link rel="dns-prefetch" href="//maps.gstatic.com" />
-	<link rel="dns-prefetch" href="//fonts.gstatic.com" />
-	<link rel="dns-prefetch" href="//apis.google.com" />
-	<link rel="dns-prefetch" href="//google-analytics.com" />
-	<link rel="dns-prefetch" href="//www.google-analytics.com" />
-	<link rel="dns-prefetch" href="//ssl.google-analytics.com" />
-	<link rel="dns-prefetch" href="//ajax.googleapis.com" />
-	<link rel="dns-prefetch" href="//fonts.googleapis.com" />
-	<link rel="dns-prefetch" href="//api.ggate.app" />
-	<link rel="dns-prefetch" href="//cdn.ggate.app" />
 
 	<!-- CSS Files -->
 	<link href="{% static 'assets/css/dataTables.min.css' %}" rel="stylesheet" type="text/css">
@@ -48,7 +36,6 @@
 	<script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
 	<script src="{% static 'assets/js/metisMenu.min.js' %}"></script>
 	<script src="{% static 'assets/js/tinymce/tinymce.min.js' %}"></script>
-	<script src="https://cdn.datatables.net/fixedcolumns/3.3.2/js/dataTables.fixedColumns.min.js"></script>
 
 </head>
 <body data-layout="horizontal">
@@ -109,16 +96,8 @@
 						<!-- Navigation Menu-->
 						<ul class="navigation-menu">
 							<li><a href="{% url 'Landing' %}"><i class="fe-airplay"></i>Dashboard</a></li>
-
-							<li class="has-submenu">
-								<a href="#">
-									<i class="fe-file-text"></i>Manage Informations <div class="arrow-down"></div>
-								</a>
-								<ul class="submenu">
-									<li><a href="{% url 'Existing Return List' %}" title="File Return">File Return</a></li>
-								</ul>
-							</li>
 							<li><a href="{% url 'Client Landing' %}">Client Master</a></li>
+							<li><a href="{% url 'Contacts Landing' %}">Contact Master</a></li>
 						</ul>
 						<!-- End navigation menu -->
 						<div class="clearfix"></div>

@@ -3,12 +3,12 @@ import pymongo
 import datetime
 from datetime import timedelta
 
-__MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
-# __MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
+# __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
+__MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
 
 
-client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
-# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
+# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
+client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
 db = client.HMD
 
 
@@ -199,6 +199,20 @@ def calculate_due_date_cpc(filing_date):
                                                             timedelta(days=120), "%Y-%m-%d")
 
     return due_date
+
+
+def get_group_name_from_client_code(c_code):
+    result = list(db.clientMaster.find({'Client_code': c_code}, {'Group_name': 1}))
+    if result:
+        return result[0]['Group_name']
+    return 'NA'
+
+
+def get_group_name_from_client_name(c_name):
+    result = list(db.clientMaster.find({'Name': c_name}, {'Group_name': 1}))
+    if result:
+        return result[0]['Group_name']
+    return 'NA'
 
 
 def add_cpc_return_record(data_dict):

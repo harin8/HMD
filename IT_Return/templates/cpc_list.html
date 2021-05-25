@@ -63,9 +63,9 @@
                         <table cellpadding="1" cellspacing="2" border="0" class="table table-striped table-bordered dataTable" id="cpc-returnList" width="100%">
                             <thead>
                             <tr>
+                                <th align="left">Group Name</th>
                                 <th align="left">Client Code</th>
                                 <th align="left">Client Name</th>
-                                <th align="left">Group Name</th>
                                 <th align="left">A.Y.</th>
                                 <th align="left">Type</th>
                                 <th align="left">Filed By</th>
@@ -83,16 +83,16 @@
                             <tbody>
                             {% for each_return in CPC_List %}
                                 <tr>
+                                    <td align="left">{{ each_return.Group_name }}</td>
                                     <td align="left">{{ each_return.Client_code }}</td>
                                     <td align="left">{{ each_return.Name }}</td>
-                                    <td align="left">{{ each_return.Group_name }}</td>
                                     <td align="left">{{ each_return.AY }}</td>
                                     <td align="left">{{ each_return.Type }}</td>
                                     <td align="left">{{ each_return.Filed_by }}</td>
                                     <td align="left">{{ each_return.Filing_date }}</td>
                                     <td align="left">{{ each_return.Ack_no }}</td>
                                     <td align="left">{{ each_return.Verification }}</td>
-                                    <td align="left">{{ each_return.Due_date }}</td>
+                                    <td align="left" style="color:white;background-color:#d32f2f">{{ each_return.Due_date }}</td>
                                     <td align="left">{{ each_return.Completed_by }}</td>
                                     <td align="left">{{ each_return.Completed_on }}</td>
                                     <td align="left">{{ each_return.Received_date }}</td>
@@ -109,9 +109,9 @@
                             </tbody>
                             <tfoot>
                                 <tr>
+                                    <th align="left">Group Name</th>
                                     <th align="left">Client Code</th>
                                     <th align="left">Client Name</th>
-                                    <th align="left">Group Name</th>
                                     <th align="left">A.Y.</th>
                                     <th align="left">Type</th>
                                     <th align="left">Filed By</th>

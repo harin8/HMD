@@ -14,7 +14,7 @@
             <h4>Certificates</h4>
         </div>
         <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
-            <button style="width: 200px;background-color:#0277bd" class="btn btn-secondary back"><a id="backButton" href="{% url 'Landing' %}">Back</a></button>
+            <a style="color:white" id="backButton" href="{% url 'Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
         </div>
   </div>
   <form action="{% url 'Submit Certificate' %}" method="post">
@@ -80,21 +80,37 @@
             <div class="card">
                 <div class="card-body">
                     <div id="checkbox-group">
-                        <div class="form-check form-check-inline">
+                        <div class="form-check form-check-inline col-1">
                             <input class="form-check-input" type="checkbox" id="esd" value="ESD">
                             <label class="form-check-label" for="esd">ESD</label>
                         </div>
-                        <div class="form-check form-check-inline">
+                        <div class="form-check form-check-inline col-1">
                             <input class="form-check-input" type="checkbox" id="ris" value="RIS">
                             <label class="form-check-label" for="ris">RIS</label>
                         </div>
-                        <div class="form-check form-check-inline">
+                        <div class="form-check form-check-inline col-1">
                               <input class="form-check-input" type="checkbox" id="vhd" value="VHD">
                               <label class="form-check-label" for="vhd">VHD</label>
                         </div>
-                        <div class="form-check form-check-inline">
+                        <div class="form-check form-check-inline col-1">
                               <input class="form-check-input" type="checkbox" id="prb" value="PRB">
                               <label class="form-check-label" for="prb">PRB</label>
+                        </div><br>
+                        <div class="form-check form-check-inline col-1">
+                            <input class="form-check-input" type="checkbox" id="os-esd" value="OS-ESD">
+                            <label class="form-check-label" for="os-esd">OS-ESD</label>
+                        </div>
+                        <div class="form-check form-check-inline col-1">
+                            <input class="form-check-input" type="checkbox" id="os-ris" value="OS-RIS">
+                            <label class="form-check-label" for="os-ris">OS-RIS</label>
+                        </div>
+                        <div class="form-check form-check-inline col-1">
+                              <input class="form-check-input" type="checkbox" id="os-vhd" value="OS-VHD">
+                              <label class="form-check-label" for="os-vhd">OS-VHD</label>
+                        </div>
+                        <div class="form-check form-check-inline col-1">
+                              <input class="form-check-input" type="checkbox" id="os-prb" value="OS-PRB">
+                              <label class="form-check-label" for="os-prb">OS-PRB</label>
                         </div>
                     </div><br>
                     <div class="table-responsive">

@@ -1,6 +1,3 @@
-import ssl
-
-import pymongo as pymongo
 from django.shortcuts import render
 from IT_Return import database
 
@@ -20,6 +17,9 @@ def new_it_return(request):
     else:
         return_type_name = database.get_return_type_name_from_id(return_type)
         all_return_list = database.get_all_return_list(ay, return_type_name)
+        for data in all_return_list:
+            data['Client_code'] = database.get_client_code_from_name(data['Name'])
+            data['Group_name'] = database.get_group_name_from_client_code(data['Client_code'])
         return render(request, 'it_return.html', {'AY_Selected': ay, 'AY_list': ay_list,
                                                   'Return_Type_Selected': return_type, 'Return_List': all_return_list})
 

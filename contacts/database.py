@@ -15,14 +15,16 @@ def add_contact_details(data_list):
     return db.contactMaster.insert_many(data_list)
 
 
-def get_all_contact_details():
-    return list(db.contactMaster.find({}))
+def get_all_contact_details(id=True):
+    if id:
+        return list(db.contactMaster.find({}))
+    return list(db.contactMaster.find({}, {'_id': 0}))
 
 
 def get_contact_detail_from_id(id):
     result = list(db.contactMaster.find({'_id': ObjectId(id)}))
     if result:
-       return result[0]
+        return result[0]
     return None
 
 
@@ -35,3 +37,13 @@ def get_contact_detail_from_name_no(name, no):
 
 def update_contact_details(r_id, temp):
     result = db.contactMaster.update({'_id': ObjectId(r_id)}, temp)
+
+
+def get_contact_phone_email_from_name(name):
+    contact_designation = list(db.contactMaster.find({'Name': name}, {'Contact_no': 1, 'Email': 1}))
+    if contact_designation:
+        if contact_designation[0]['Email']:
+            return contact_designation[0]['Contact_no'], contact_designation[0]['Email']
+        else:
+            return contact_designation[0]['Contact_no'], None
+    return None, None

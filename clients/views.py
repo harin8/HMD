@@ -1,7 +1,7 @@
-import ssl
-import pymongo as pymongo
 from django.shortcuts import render
 from clients import database
+from contacts import database as contact_database
+
 
 # Create your views here.
 
@@ -37,11 +37,13 @@ def create_new_client(request):
             audit_no_range = [x for x in range(audit_start, audit_end + 1)]
             available_it_no = sorted(list(set(it_no_range) - set(it_no_list_int)))
             available_audit_no = sorted(list(set(audit_no_range) - set(audit_no_list_int)))
+            contact_list = contact_database.get_all_contact_details(False)
             return render(request, 'new_client.html', {'Show_Further': show_further,
                                                        'Available_It_No': available_it_no,
                                                        'Available_Audit_No': available_audit_no,
                                                        'Group_Selected': group_no,
-                                                       'Type_Selected': client_type_form})
+                                                       'Type_Selected': client_type_form,
+                                                       'Contact_List': contact_list})
     return render(request, 'new_client.html')
 
 
@@ -54,14 +56,17 @@ def submit_new_client(request):
     audit_no = request.POST.get('auditNo')
     contact_list = []
     contact_names = request.POST.getlist('contactName')
-    contact_nos = request.POST.getlist('contactNo')
     contact_designation = request.POST.getlist('contactDesignation')
-    contact_emails = request.POST.getlist('contactEmail')
+    '''contact_nos = request.POST.getlist('contactNo')
+    contact_emails = request.POST.getlist('contactEmail')'''
 
     for x in range(len(contact_names)):
-        temp = {'Name': contact_names[x].upper(), 'Designation': contact_designation[x].upper(),
-                'Contact_no': contact_nos[x], 'Email': contact_emails[x]}
-        contact_list.append(temp)
+        # check if contact exists. if yes get mobile no and email from db
+        contact_no, contact_email = contact_database.get_contact_phone_email_from_name(contact_names[x].upper())
+        if contact_no:
+            temp = {'Name': contact_names[x].upper(), 'Designation': contact_designation[x].upper(),
+                    'Contact_no': contact_no, 'Email': contact_email}
+            contact_list.append(temp)
 
     data_dict = {'Name': client_name.upper(),
                  'Group_name': group_name.upper(),

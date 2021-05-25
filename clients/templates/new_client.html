@@ -11,7 +11,7 @@
             <h4>New Client</h4>
         </div>
         <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
-            <button style="width: 200px;background-color:#0277bd" class="btn btn-secondary back"><a style="color:white" id="backButton" href="{% url 'Client Landing' %}">Back</a></button>
+            <a style="color:white" id="backButton" href="{% url 'Client Landing' %}"><button style="width: 200px;background-color:#0277bd" class="btn btn-secondary back">Back</button></a>
         </div>
     </div>
     <form action="{% url 'Create New Client' %}">
@@ -144,7 +144,12 @@
                                 <div class="row contacts">
                                     <div class="col-sm-3">
                                         <div class="form-group">
-                                            <input style="text-transform:uppercase" type="text" value="" class="form-control" name="contactName">
+                                            <input id="co_name_list" style="text-transform:uppercase" value="" class="form-control" list="co_name" name="contactName">
+                                            <datalist id="co_name">
+                                                {% for data in Contact_List %}
+                                                    <option value="{{ data.Name }}"></option>
+                                                {% endfor %}
+                                            </datalist>
                                         </div>
                                     </div>
                                     <div class="col-sm-3">
@@ -154,12 +159,12 @@
                                     </div>
                                     <div class="col-sm-3">
                                         <div class="form-group">
-                                            <input pattern="[0-9]*" maxlength="10" minlength="10" title="10 digits" type="text" value="" class="form-control" name="contactNo">
+                                            <input id="Contact_No" pattern="[0-9]*" maxlength="10" minlength="10" title="10 digits" type="text" value="" class="form-control" name="contactNo" readonly>
                                         </div>
                                     </div>
                                     <div class="col-sm-3">
                                         <div class="form-group">
-                                            <input pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" type="text" class="form-control" title="Enter Valid email" name="contactEmail">
+                                            <input id="Contact_Email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" type="text" class="form-control" title="Enter Valid email" name="contactEmail" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -191,6 +196,20 @@
 	    if(counter > 1) {
             $('.row.contacts').last().remove();
             counter -= 1;
+        }
+    });
+    $('#co_name_list').on('change', function() {
+        var contact_list = {{ Contact_List|safe }};
+        for (var i=0; i<contact_list.length;i++) {
+            if(this.value == contact_list[i].Name) {
+                $('#Contact_No').val(contact_list[i].Contact_no);
+                $('#Contact_Email').val(contact_list[i].Email);
+                break;
+            }
+            else {
+                $('#Contact_No').val('--None--');
+                $('#Contact_Email').val('--None--');
+            }
         }
     });
     {% if Show_Further %}

@@ -12,6 +12,11 @@ db = client.HMD
 
 
 def initialise_description_id_mapping():
+
+    result = list(db.certificateDescription.find({}, {'_id': 0}))
+
+    if result:
+        return result[0]
     return {'1': 'NETWORTH', '2': 'TURNOVER', '3': 'WORKING CAPITAL', '4': 'INCOME SOURCE', '5': 'DEBTORS AGING',
             '6': 'CREDITORS AGING', '7': 'FORM 15CB', '8': 'NO DUES', '9': 'IMPORT / EXPORT OBLIGATION',
             '10': 'EXEMPTIONS / DEDUCTIONS', '11': 'BANK FINANCE', '12': 'VISA PURPOSE', '13': 'COMPANY LAW',
@@ -19,20 +24,12 @@ def initialise_description_id_mapping():
             '19': 'BANK KYC CERTIFICATE', '20': 'BANK AUDIT', '21': 'OTHERS'}
 
 
-def get_certificate_description_name_from_id(description_id):
-    temp_dict = initialise_description_id_mapping()
-    try:
-        return temp_dict[str(description_id)]
-    except:
-        return 'OTHERS'
-
-
 def get_id_from_certificate_description_name(description):
     temp_dict = initialise_description_id_mapping()
     for key, value in temp_dict.items():
         if value == description:
-            return key
-    return '21'
+            return True
+    return False
 
 
 def get_all_clients_details():

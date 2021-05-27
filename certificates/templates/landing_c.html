@@ -54,27 +54,9 @@
             <!--<input style="text-transform:uppercase" required type="text" name="Description" id="description" class="form-control eventTodayDateTime" placeholder="Type Description" value="">-->
             <input autocomplete="off" name="Description" id="description" list="details" value="" class="form-control">
                 <datalist id="details">
-                    <option value="1">NETWORTH</option>
-                    <option value="2">TURNOVER</option>
-                    <option value="3">WORKING CAPITAL</option>
-                    <option value="4">INCOME SOURCE</option>
-                    <option value="5">DEBTORS AGING</option>
-                    <option value="6">CREDITORS AGING</option>
-                    <option value="7">FORM 15CB</option>
-                    <option value="8">NO DUES</option>
-                    <option value="9">IMPORT / EXPORT OBLIGATION</option>
-                    <option value="10">EXEMPTIONS / DEDUCTIONS</option>
-                    <option value="11">BANK FINANCE</option>
-                    <option value="12">VISA PURPOSE</option>
-                    <option value="13">COMPANY LAW</option>
-                    <option value="14">LLP LAW</option>
-                    <option value="15">RERA LAW</option>
-                    <option value="16">FEMA LAW</option>
-                    <option value="17">TRUST LAW</option>
-                    <option value="18">MSME LAW</option>
-                    <option value="19">BANK KYC CERTIFICATE</option>
-                    <option value="20">BANK AUDIT</option>
-                    <option value="21">OTHERS</option>
+                    {% for k,v in Cert_Desc.items %}
+                        <option>{{v}}</option>
+                    {% endfor %}
                 </datalist>
             </div>
         </div>
@@ -141,9 +123,9 @@
                         <table cellpadding="1" cellspacing="2" border="0" class="table table-striped table-bordered dataTable" id="existing-certificateList" width="100%">
                             <thead>
                                 <tr>
+                                    <th align="left">Group Name</th>
                                     <th align="left">Client Code</th>
                                     <th align="left">Client Name</th>
-                                    <th align="left">Group Name</th>
                                     <th align="left">Accepted By</th>
                                     <th align="left">Received Date</th>
                                     <th align="left">Description</th>
@@ -158,9 +140,9 @@
                             <tbody>
                             {% for each_cert in Cert_list %}
                                 <tr>
+                                    <td align="left">{{ each_cert.Group_name }}</td>
                                     <td align="left">{{ each_cert.Client_code }}</td>
                                     <td align="left">{{ each_cert.Name }}</td>
-                                    <td align="left">{{ each_cert.Group_name }}</td>
                                     <td align="left">{{ each_cert.Accepted_by }}</td>
                                     <td align="left">{{ each_cert.Received_date }}</td>
                                     <td align="left">{{ each_cert.Description }}</td>
@@ -181,9 +163,9 @@
                             </tbody>
                                 <tfoot>
                                     <tr>
+                                        <th align="left">Group Name</th>
                                         <th align="left">Client Code</th>
                                         <th align="left">Client Name</th>
-                                        <th align="left">Group Name</th>
                                         <th align="left">Accepted By</th>
                                         <th align="left">Received Date</th>
                                         <th align="left">Description</th>
@@ -239,10 +221,10 @@
                         search_regex = search_regex + selected[i] + '|';
                     }
                 }
-                certificate_table.column(2).search(search_regex, true).draw();
+                certificate_table.column(0).search(search_regex, true).draw();
             }
             else {
-                certificate_table.column(2).search('').draw();
+                certificate_table.column(0).search('').draw();
             }
         });
     });

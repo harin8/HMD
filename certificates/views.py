@@ -5,6 +5,7 @@ from . import database
 
 # Create your views here.
 
+
 def landing(request):
     all_client_list = database.get_all_clients_details()
     cert_list = database.get_all_certificate_list()
@@ -18,14 +19,14 @@ def submit_certificate(request):
     accepted_by = request.POST.get('Accepted_By')
     received_date = request.POST.get('Received_Date')
     description = request.POST.get('Description')
-
+    description_name = database.get_certificate_description_name_from_id(description)
     data_dict = {
         'Name': client_name.upper(),
         'Group_name': group_name.upper(),
         'Client_code': client_code,
         'Accepted_by': accepted_by.upper(),
         'Received_date': received_date,
-        'Description': description.upper()
+        'Description': description_name
     }
     result = database.add_certificate_data_in_db(data_dict)
     all_client_list = database.get_all_clients_details()
@@ -40,6 +41,8 @@ def further_cert_info(request, id):
         return render(request, 'further_cert_info.html', {'Data_Dict': exist_result})
     all_client_list = database.get_all_clients_details()
     cert_list = database.get_all_certificate_list()
+    for data in cert_list:
+        data['Description_id'] = database.get_id_from_certificate_description_name(data['Description'])
     return render(request, 'landing_c.html', {'Client_list': all_client_list, 'Cert_list': cert_list})
 
 

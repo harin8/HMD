@@ -51,9 +51,33 @@
       <div class="col-sm-3">
         <div class="form-group">
             <label>Description:</label>
-            <input style="text-transform:uppercase" required type="text" name="Description" id="description" class="form-control eventTodayDateTime" placeholder="Type Description" value="">
+            <!--<input style="text-transform:uppercase" required type="text" name="Description" id="description" class="form-control eventTodayDateTime" placeholder="Type Description" value="">-->
+            <input autocomplete="off" name="Description" id="description" list="details" value="" class="form-control">
+                <datalist id="details">
+                    <option value="1">NETWORTH</option>
+                    <option value="2">TURNOVER</option>
+                    <option value="3">WORKING CAPITAL</option>
+                    <option value="4">INCOME SOURCE</option>
+                    <option value="5">DEBTORS AGING</option>
+                    <option value="6">CREDITORS AGING</option>
+                    <option value="7">FORM 15CB</option>
+                    <option value="8">NO DUES</option>
+                    <option value="9">IMPORT / EXPORT OBLIGATION</option>
+                    <option value="10">EXEMPTIONS / DEDUCTIONS</option>
+                    <option value="11">BANK FINANCE</option>
+                    <option value="12">VISA PURPOSE</option>
+                    <option value="13">COMPANY LAW</option>
+                    <option value="14">LLP LAW</option>
+                    <option value="15">RERA LAW</option>
+                    <option value="16">FEMA LAW</option>
+                    <option value="17">TRUST LAW</option>
+                    <option value="18">MSME LAW</option>
+                    <option value="19">BANK KYC CERTIFICATE</option>
+                    <option value="20">BANK AUDIT</option>
+                    <option value="21">OTHERS</option>
+                </datalist>
+            </div>
         </div>
-      </div>
     </div>
     <br>
     <div class="row">

@@ -11,16 +11,16 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-6 py-3 mt-2">
+        <div class="col-md-6 py-3 mt-2">
             <h4>New Return</h4>
         </div>
-        <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
             <a style="color: white" id="backButton" href="{% url 'Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
         </div>
     </div>
     <form action="{% url 'New IT Return' %}">
         <div class="row">
-            <div class="col-2">
+            <div class="col-md-2">
                 <label class="form-label">Select A.Y.:</label>
                 <select name="A.Y" class="form-control" id="A.Y">
                     {% for ay in AY_list %}
@@ -32,7 +32,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-2">
+            <div class="col-md-2">
                 <label class="form-label">Select Type:</label>
                 <select name="Type" class="form-control" id="Type">
                     <option value="1" {% if Return_Type_Selected == '1' %} selected {% endif %}>Original</option>
@@ -46,7 +46,7 @@
                     <option value="9" {% if Return_Type_Selected == '9' %} selected {% endif %}>119(2)(b)</option>
                 </select>
             </div>
-            <div class="col-1">
+            <div class="col-md-1">
                 <br>
                 <button type="submit" class="form-control btn btn-primary" id="return-new-search" style="margin-top:7px">Search</button>
             </div>
@@ -55,40 +55,40 @@
     <br>
     {% if Return_List %}
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
                         <div id="checkbox-group">
-                            <div class="form-check form-check-inline col-1">
+                            <div class="form-check form-check-inline col-md-1">
                                 <input class="form-check-input" type="checkbox" id="esd" value="ESD" >
                                 <label class="form-check-label" for="esd">ESD</label>
                             </div>
-                            <div class="form-check form-check-inline col-1">
+                            <div class="form-check form-check-inline col-md-1">
                                 <input class="form-check-input" type="checkbox" id="ris" value="RIS">
                                 <label class="form-check-label" for="ris">RIS</label>
                             </div>
-                            <div class="form-check form-check-inline col-1">
+                            <div class="form-check form-check-inline col-md-1">
                                   <input class="form-check-input" type="checkbox" id="vhd" value="VHD">
                                   <label class="form-check-label" for="vhd">VHD</label>
                             </div>
-                            <div class="form-check form-check-inline col-1">
+                            <div class="form-check form-check-inline col-md-1">
                                   <input class="form-check-input" type="checkbox" id="prb" value="PRB">
                                   <label class="form-check-label" for="prb">PRB</label>
                             </div><br>
-                            <div class="form-check form-check-inline col-1">
+                            <div class="form-check form-check-inline col-md-1">
                                 <input class="form-check-input" type="checkbox" id="os-esd" value="OS-ESD">
                                 <label class="form-check-label" for="os-esd">OS-ESD</label>
                             </div>
-                            <div class="form-check form-check-inline col-1">
+                            <div class="form-check form-check-inline col-md-1">
                                 <input class="form-check-input" type="checkbox" id="os-ris" value="OS-RIS">
                                 <label class="form-check-label" for="os-ris">OS-RIS</label>
                             </div>
-                            <div class="form-check form-check-inline col-1">
+                            <div class="form-check form-check-inline col-md-1">
                                   <input class="form-check-input" type="checkbox" id="os-vhd" value="OS-VHD">
                                   <label class="form-check-label" for="os-vhd">OS-VHD</label>
                             </div>
-                            <div class="form-check form-check-inline col-1">
+                            <div class="form-check form-check-inline col-md-1">
                                   <input class="form-check-input" type="checkbox" id="os-prb" value="OS-PRB">
                                   <label class="form-check-label" for="os-prb">OS-PRB</label>
                             </div>

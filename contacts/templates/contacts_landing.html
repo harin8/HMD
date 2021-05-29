@@ -5,34 +5,28 @@
 {% block body_block %}
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="col-12">
+                    <div class="col-md-12">
                         <h4 class="header-title mb-3">Contacts</h4>
                     </div>
                     <div class="row">
-                        <div class="col-4" id="main-menu">
+                        <div class="col-md-4" id="main-menu">
                             <div class="card widget-box-three">
-                                <div class="card-body">
-                                    <button type="button" class="btn btn-link" id="client_create">
-                                        <a href="{% url 'Create New Contact' %}">Create</a>
-                                    </button>
-                                </div>
+                                <a id="client_create" role="button" style="text-align:left" class="btn btn-link" href="{% url 'Create New Contact' %}">
+                                    <div class="card-body">Create</div>
+                                </a>
                             </div><br>
                             <div class="card widget-box-three">
-                                <div class="card-body">
-                                    <button type="button" class="btn btn-link" id="client_view">
-                                        <a href="{% url 'Contact Master List' %}">View</a>
-                                    </button>
-                                </div>
+                                <a id="client_view" role="button" style="text-align:left" class="btn btn-link" href="{% url 'Contact Master List' %}">
+                                    <div class="card-body">View</div>
+                                </a>
                             </div><br>
                             <div class="card widget-box-three">
-                                <div class="card-body">
-                                    <button type="button" class="btn btn-link" id="client_edit">
-                                        <a href="{% url 'Edit Contacts' %}">Edit</a>
-                                    </button>
-                                </div>
+                                <a id="client_edit" role="button" style="text-align:left" class="btn btn-link" href="{% url 'Edit Contacts' %}">
+                                    <div class="card-body">Edit</div>
+                                </a>
                             </div>
                         </div>
                     </div>

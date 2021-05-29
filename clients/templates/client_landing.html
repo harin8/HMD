@@ -5,27 +5,23 @@
 {% block body_block %}
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="col-12">
+                    <div class="col-md-12">
                         <h4 class="header-title mb-3">Clients</h4>
                     </div>
                     <div class="row">
-                        <div class="col-4" id="main-menu">
+                        <div class="col-md-4" id="main-menu">
                             <div class="card widget-box-three">
-                                <div class="card-body">
-                                    <button type="button" class="btn btn-link" id="it-return">
-                                        <a href="{% url 'Create New Client' %}">Create</a>
-                                    </button>
-                                </div>
+                                <a role="button" style="text-align:left" class="btn btn-link" href="{% url 'Create New Client' %}">
+                                    <div class="card-body">Create</div>
+                                </a>
                             </div><br>
                             <div class="card widget-box-three">
-                                <div class="card-body">
-                                    <button type="button" class="btn btn-link" id="audit">
-                                        <a href="{% url 'Client Master List' %}">View</a>
-                                    </button>
-                                </div>
+                                <a role="button" style="text-align:left" class="btn btn-link" href="{% url 'Client Master List' %}">
+                                    <div class="card-body">View</div>
+                                </a>
                             </div>
                         </div>
                     </div>

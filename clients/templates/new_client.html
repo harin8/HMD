@@ -7,16 +7,16 @@
 {% block body_block %}
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-6 py-3 mt-2">
+        <div class="col-md-6 py-3 mt-2">
             <h4>New Client</h4>
         </div>
-        <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
             <a style="color:white" id="backButton" href="{% url 'Client Landing' %}"><button style="width: 200px;background-color:#0277bd" class="btn btn-secondary back">Back</button></a>
         </div>
     </div>
     <form action="{% url 'Create New Client' %}">
         <div class="row">
-            <div class="col-2">
+            <div class="col-md-2">
                 <label class="form-label">Select Group Name:</label>
                 <select name="GroupNameForm" class="form-control" id="Group_Name_Form">
                     <option value="1" selected>ESD</option>
@@ -29,7 +29,7 @@
                     <option value="8" >OS-PRB</option>
                 </select>
             </div>
-            <div class="col-2">
+            <div class="col-md-2">
                 <label class="form-label">Select Client Type:</label>
                 <select name="ClientTypeForm" class="form-control" id="Client_Type_Form">
                     <option value="1">COMPANY</option>
@@ -39,7 +39,7 @@
                     <option value="5">IND./HUF/OTHERS</option>
                 </select>
             </div>
-            <div class="col-1">
+            <div class="col-md-1">
                 <br>
                 <button type="submit" class="form-control btn btn-primary" id="return-new-search" style="margin-top:7px">Create</button>
             </div>
@@ -47,19 +47,19 @@
     </form><br>
     {% if Show_Further %}
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
                         <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Client' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="row">
-                                <div class="col-sm-4">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Group Name:</label>
                                         <input required style="text-transform:uppercase" type="text" value="" id="group_name" class="form-control" name="groupName" readonly>
                                     </div>
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Client Type:</label>
                                         <input required style="text-transform:uppercase" type="text" value="" id="client_type" class="form-control" name="clientType" readonly>
@@ -67,14 +67,14 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-sm-4">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Client Name:</label>
                                         <input required style="text-transform:uppercase" type="text" value="" id="c_name" class="form-control" name="name">
                                     </div>
                                 </div>
 
-                                <div class="col-sm-4">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Party Name:</label>
                                         <input required style="text-transform:uppercase" type="text" value="" id="party_name" class="form-control" name="partyName">
@@ -82,7 +82,7 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-sm-4">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>IT No:</label>
                                         <!--<input required type="text" onkeyup="It_no(this.value)" pattern="[0-9]*" title="Only numbers allowed" id="it_no" class="form-control" name="itNo">-->
@@ -93,7 +93,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Audit No:</label>
                                         <!--<input required type="text" onkeyup="Audit_no(this.value)" pattern="[0-9]*" title="Only numbers allowed" id="audit_no" class="form-control" name="auditNo">-->
@@ -105,7 +105,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Note: </label>
                                         <input type="text" id="certificate_no" class="form-control" name="certificateNo">
@@ -113,28 +113,28 @@
                                 </div>
                             </div><br>
                             <div class="row">
-                                <div class="col-12">Contact Details</div>
+                                <div class="col-md-12">Contact Details</div>
                             </div><br>
                             <button id="add_client" class="btn btn-success">Add</button>
                             <button id="remove_client" class="btn btn-danger">Remove</button>
                             <br><br>
                             <div class="row">
-                                <div class="col-sm-3">
+                                <div class="col-md-3">
                                     <div class="form-group">
                                         <label>Name:</label>
                                     </div>
                                 </div>
-                                <div class="col-sm-3">
+                                <div class="col-md-3">
                                     <div class="form-group">
                                         <label>Designation:</label>
                                     </div>
                                 </div>
-                                <div class="col-sm-3">
+                                <div class="col-md-3">
                                     <div class="form-group">
                                         <label>Contact No:</label>
                                     </div>
                                 </div>
-                                <div class="col-sm-3">
+                                <div class="col-md-3">
                                     <div class="form-group">
                                         <label>Email:</label>
                                     </div>
@@ -142,7 +142,7 @@
                             </div>
                             <span id="contact_span">
                                 <div class="row contacts">
-                                    <div class="col-sm-3">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <input id="co_name_list" style="text-transform:uppercase" value="" class="form-control" list="co_name" name="contactName">
                                             <datalist id="co_name">
@@ -152,17 +152,17 @@
                                             </datalist>
                                         </div>
                                     </div>
-                                    <div class="col-sm-3">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <input style="text-transform:uppercase" type="text" value="" class="form-control" name="contactDesignation">
                                         </div>
                                     </div>
-                                    <div class="col-sm-3">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <input id="Contact_No" pattern="[0-9]*" maxlength="10" minlength="10" title="10 digits" type="text" value="" class="form-control" name="contactNo" readonly>
                                         </div>
                                     </div>
-                                    <div class="col-sm-3">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <input id="Contact_Email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" type="text" class="form-control" title="Enter Valid email" name="contactEmail" readonly>
                                         </div>
@@ -170,7 +170,7 @@
                                 </div>
                             </span>
                             <div class="row" id="submit-button">
-                                <div class="form-group col-sm-3">
+                                <div class="form-group col-md-3">
                                     <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
                                     <button type="reset" class="btn btn-secondary back" name="Reset" >Reset</button>
                                 </div>

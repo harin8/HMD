@@ -10,45 +10,45 @@
 {% load certificate_tags %}
 <div class="container-fluid">
   <div class="row">
-        <div class="col-sm-6 py-3 mt-2">
+        <div class="col-md-6 py-3 mt-2">
             <h4>Certificates</h4>
         </div>
-        <div class="col-sm-6 py-3 mt-2 text-right" style="padding-right:20px;">
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
             <a style="color:white" id="backButton" href="{% url 'Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
         </div>
   </div>
   <form action="{% url 'Submit Certificate' %}" method="post">
     {% csrf_token %}
     <div class="row">
-      <div class="col-2" id="GroupName_div">
+      <div class="col-md-2" id="GroupName_div">
         <label class="form-label">Group Name:</label>
           <select name="Group_Name" class="form-control" id="groupName" onchange="select_change_on_group_name(this.value)">
           </select>
       </div>
-      <div class="col-2" id="ClientCode_div">
+      <div class="col-md-2" id="ClientCode_div">
         <label class="form-label">Client Code:</label>
           <select name="Client_Code" class="form-control" id="clientCode" onchange="select_change_on_client_code(this.value)">
           </select>
       </div>
-      <div class="col-2" id="ClientName_div">
+      <div class="col-md-2" id="ClientName_div">
         <label class="form-label">Client Name:</label>
           <select name="Client_Name" class="form-control" id="clientName" onchange="select_change_on_client_name(this.value)">
           </select>
       </div>
 
-      <div class="col-sm-3">
+      <div class="col-md-3">
         <div class="form-group">
             <label>Accepted By:</label>
             <input style="text-transform:uppercase" required type="text" name="Accepted_By" id="acceptedBy" class="form-control eventTodayDateTime" placeholder="Enter Name" value="">
         </div>
       </div>
-      <div class="col-sm-3">
+      <div class="col-md-3">
         <div class="form-group">
             <label>Acceptance Date:</label>
             <input required type="date" name="Received_Date" id="receivedDate" class="form-control eventTodayDateTime" value="">
         </div>
       </div>
-      <div class="col-sm-3">
+      <div class="col-md-3">
         <div class="form-group">
             <label>Description:</label>
             <!--<input style="text-transform:uppercase" required type="text" name="Description" id="description" class="form-control eventTodayDateTime" placeholder="Type Description" value="">-->
@@ -63,7 +63,7 @@
     </div>
     <br>
     <div class="row">
-      <div class="form-group col-sm-3">
+      <div class="form-group col-md-3">
         <button type="submit" class="btn btn-success" >Submit</button>&nbsp;&nbsp;
         <button type="reset" class="btn btn-secondary back" name="Reset">Reset</button>
       </div>
@@ -75,46 +75,46 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-12 py-3 mt-2">
+        <div class="col-md-12 py-3 mt-2">
             <h4>Existing Certificates</h4>
         </div>
     </div>
     <br>
     {% if Cert_list|length > 0 %}
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
                     <div id="checkbox-group">
-                        <div class="form-check form-check-inline col-1">
+                        <div class="form-check form-check-inline col-md-1">
                             <input class="form-check-input" type="checkbox" id="esd" value="ESD">
                             <label class="form-check-label" for="esd">ESD</label>
                         </div>
-                        <div class="form-check form-check-inline col-1">
+                        <div class="form-check form-check-inline col-md-1">
                             <input class="form-check-input" type="checkbox" id="ris" value="RIS">
                             <label class="form-check-label" for="ris">RIS</label>
                         </div>
-                        <div class="form-check form-check-inline col-1">
+                        <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="vhd" value="VHD">
                               <label class="form-check-label" for="vhd">VHD</label>
                         </div>
-                        <div class="form-check form-check-inline col-1">
+                        <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="prb" value="PRB">
                               <label class="form-check-label" for="prb">PRB</label>
                         </div><br>
-                        <div class="form-check form-check-inline col-1">
+                        <div class="form-check form-check-inline col-md-1">
                             <input class="form-check-input" type="checkbox" id="os-esd" value="OS-ESD">
                             <label class="form-check-label" for="os-esd">OS-ESD</label>
                         </div>
-                        <div class="form-check form-check-inline col-1">
+                        <div class="form-check form-check-inline col-md-1">
                             <input class="form-check-input" type="checkbox" id="os-ris" value="OS-RIS">
                             <label class="form-check-label" for="os-ris">OS-RIS</label>
                         </div>
-                        <div class="form-check form-check-inline col-1">
+                        <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="os-vhd" value="OS-VHD">
                               <label class="form-check-label" for="os-vhd">OS-VHD</label>
                         </div>
-                        <div class="form-check form-check-inline col-1">
+                        <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="os-prb" value="OS-PRB">
                               <label class="form-check-label" for="os-prb">OS-PRB</label>
                         </div>
@@ -184,7 +184,7 @@
         </div>
     </div>
     {% else %}
-        <div class="col-sm-12 py-3 mt-2">
+        <div class="col-md-12 py-3 mt-2">
             <h6><center>No Existing Certificates</center></h6>
         </div>
     {% endif %}

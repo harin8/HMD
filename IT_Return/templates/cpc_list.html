@@ -1,12 +1,7 @@
 {% extends "landing.html" %}
 {% block head_block %}
     {% load static %}
-
     <title>HMD|Verify Later</title>
-    <link href="{% static 'assets/css/fixedColumns.bootstrap4.min.css' %}" rel="stylesheet">
-	<script src="{% static 'assets/js/fixedColumns.bootstrap4.min.js' %}"></script>
-    <script src="{% static 'assets/js/jszip.min.js' %}"></script>
-
 {% endblock %}
 
 {% block body_block %}
@@ -163,10 +158,10 @@
                         search_regex = search_regex + selected[i] + '|';
                     }
                 }
-                cpc_table.column(2).search(search_regex, true).draw();
+                cpc_table.column(0).search(search_regex, true).draw();
             }
             else {
-                cpc_table.column(2).search('').draw();
+                cpc_table.column(0).search('').draw();
             }
         });
     });

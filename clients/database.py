@@ -3,7 +3,7 @@ import pymongo
 
 # __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
 __MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
-
+from bson import ObjectId
 
 # client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
 client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
@@ -46,8 +46,11 @@ def get_client_type_name_from_id(c_id):
         return 'COMPANY'
 
 
-def get_client_master_list():
-    result = list(db.clientMaster.find({}, {'_id': 0}))
+def get_client_master_list(id_field=False):
+    if id_field:
+        result = list(db.clientMaster.find({}, {'_id': 1}))
+    else:
+        result = list(db.clientMaster.find({}, {'_id': 0}))
     return result
 
 
@@ -81,3 +84,10 @@ def get_audit_no_range(group_name, client_type):
         return start_no, end_no
 
     return 0, 0
+
+
+def get_client_detail_from_id(id):
+    result = list(db.clientMaster.find({'_id': ObjectId(id)}))
+    if result:
+        return result[0]
+    return None

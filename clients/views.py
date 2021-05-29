@@ -11,7 +11,7 @@ def client_landing(request):
 
 
 def client_master_list(request):
-    all_return_list = database.get_client_master_list()
+    all_return_list = database.get_client_master_list(id_field=False)
     return render(request, 'client_master.html', {'client_List': all_return_list})
 
 
@@ -79,3 +79,13 @@ def submit_new_client(request):
                  }
     data_add = database.add_client_details(data_dict)
     return render(request, 'new_client.html')
+
+
+def edit_clients(request):
+    render(request, 'client_master.html', {'Can_Edit': True})
+
+
+def edit_contact(request, id):
+    contact_detail = database.get_contact_detail_from_id(id)
+    if contact_detail:
+        return render(request, 'create_new_contact.html', {'Hide': True, 'Contact_Details': contact_detail})

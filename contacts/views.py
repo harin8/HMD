@@ -66,4 +66,4 @@ def submit_edit_contact(request):
         data_update = database.update_contact_details(r_id, temp)
         contact_detail = database.get_contact_detail_from_id(r_id)
         return render(request, 'create_new_contact.html', {'Hide': True, 'Contact_Details': contact_detail})
-    return render(request, 'create_new_contact.html', {'Hide': True, 'Contact_Details': contact_detail})
+    return render(request, 'create_new_contact.html', {'Error': True, 'Hide': True, 'Contact_Details': contact_detail})

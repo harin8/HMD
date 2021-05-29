@@ -96,9 +96,9 @@
                         <table cellpadding="1" cellspacing="2" border="0" class="table table-striped table-bordered dataTable" id="returnList" width="100%">
                             <thead>
                                 <tr>
-                                    <th align="left">Client Name</th>
-                                    <th align="left">Client Code</th>
                                     <th align="left">Group Name</th>
+                                    <th align="left">Client Code</th>
+                                    <th align="left">Client Name</th>
                                     <th align="left">Accepted By</th>
                                     <th align="left">Acceptance Date</th>
                                     <th align="left">A.Y.</th>
@@ -110,9 +110,9 @@
                             <tbody>
                             {% for each_return in Return_List %}
                                 <tr>
-                                    <td align="left">{{ each_return.Name }}</td>
-                                    <td align="left">{{ each_return.Client_code }}</td>
                                     <td align="left">{{ each_return.Group_name }}</td>
+                                    <td align="left">{{ each_return.Client_code }}</td>
+                                    <td align="left">{{ each_return.Name }}</td>
                                     <td align="left">{{ each_return.Accepted_by }}</td>
                                     <td align="left">{{ each_return.Acceptance_date }}</td>
                                     <td align="left">{{ each_return.AY }}</td>
@@ -135,9 +135,9 @@
                             </tbody>
                                 <tfoot>
                                 <tr>
-                                    <th align="left">Client Name</th>
-                                    <th align="left">Client Code</th>
                                     <th align="left">Group Name</th>
+                                    <th align="left">Client Code</th>
+                                    <th align="left">Client Name</th>
                                     <th align="left">Accepted By</th>
                                     <th align="left">Acceptance Date</th>
                                     <th align="left">A.Y.</th>
@@ -185,10 +185,10 @@
                         search_regex = search_regex + selected[i] + '|';
                     }
                 }
-                return_table.column(2).search(search_regex, true).draw();
+                return_table.column(0).search(search_regex, true).draw();
             }
             else {
-                return_table.column(2).search('').draw();
+                return_table.column(0).search('').draw();
             }
         });
     });

@@ -9,5 +9,5 @@ urlpatterns = [
     path('edit_contacts', views.edit_contacts, name='Edit Contacts'),
     path('contact_master_list', views.contact_master_list, name='Contact Master List'),
     path('edit_contact/<slug:id>', views.edit_contact, name='Edit One Contact'),
-    path('submit_edit_contact', views.submit_edit_contact, name='Submit Edit Contact'),
+    path('submit_edit_contact', views.submit_edit_contact, name='Submit Edit Contact')
 ]

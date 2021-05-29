@@ -12,26 +12,26 @@
                         <h4 class="header-title mb-3">Menu</h4>
                     </div>
                     <div class="row">
-                        <div class="col-4" id="main-menu">
+                        <div class="col-md-4" id="main-menu">
                             <div class="card widget-box-three">
-                                <div class="card-body">
-                                    <button type="button" class="btn btn-link" id="it-return">IT Return</button>
-                                </div>
+                                <button style="text-align:left;" type="button" class="btn btn-link" id="it-return">
+                                    <div class="card-body">IT Return</div>
+                                </button>
                             </div><br>
                             <div class="card widget-box-three">
-                                <div class="card-body">
-                                    <button type="button" class="btn btn-link" id="audit">Audit</button>
-                                </div>
+                                <button style="text-align:left" type="button" class="btn btn-link" id="audit">
+                                    <div class="card-body">Audit</div>
+                                </button>
                             </div><br>
                             <div class="card widget-box-three">
-                                <div class="card-body">
-                                    <a role="button" href="{% url 'Certificates Landing' %}" class="btn btn-link" id="certificates">Certificates</a>
-                                </div>
+                                <a role="button" style="text-align:left" href="{% url 'Certificates Landing' %}" class="btn btn-link" id="certificates">
+                                    <div class="card-body">Certificates</div>
+                                </a>
                             </div><br>
                             <div class="card widget-box-three">
-                                <div class="card-body">
-                                    <button type="button" class="btn btn-link" id="reports">Reports</button>
-                                </div>
+                                <button style="text-align:left" type="button" class="btn btn-link" id="reports">
+                                    <div class="card-body">Reports</div>
+                                </button>
                             </div>
                         </div>
                         <div class="col-4 m-4" id="sub-menu" style="display: none;">
@@ -48,7 +48,7 @@
 	$('#it-return').on('click', function(event) {
   		event.preventDefault(); // To prevent following the link (optional)
   		if (!modal_toggle) {
-            var div = '<div class="card widget-box-three"><div class="card-body"><a role="button" href="{% url 'New IT Return' %}" class="btn btn-link" id="return-new">New</a></div></div><br><div class="card widget-box-three"><div class="card-body"><a href="{% url 'Existing Return List' %}" role="button" class="btn btn-link" id="return-existing">Existing</a></div></div><br><div class="card widget-box-three"><div class="card-body"><a role="button" href="{% url 'CPC List' %}" class="btn btn-link" id="return-cpc">Verify Later</a></div></div><br>'
+            var div = '<div class="card widget-box-three"><a style="text-align:left" role="button" href="{% url 'New IT Return' %}" class="btn btn-link" id="return-new"><div class="card-body">New</div></a></div><br><div class="card widget-box-three"><a style="text-align:left" href="{% url 'Existing Return List' %}" role="button" class="btn btn-link" id="return-existing"><div class="card-body">Existing</div></a></div><br><div class="card widget-box-three"><a style="text-align:left" role="button" href="{% url 'CPC List' %}" class="btn btn-link" id="return-cpc"><div class="card-body">Verify Later</div></a></div><br>'
             $('#sub-menu').append(div);
             $('#sub-menu').css('display', 'block');
             modal_toggle = true;

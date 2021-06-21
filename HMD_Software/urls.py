@@ -21,5 +21,7 @@ urlpatterns = [
     path('certificates/', include('certificates.urls')),
     path('admin/', admin.site.urls),
     path('clients/', include('clients.urls')),
-    path('contacts/', include('contacts.urls'))
+    path('contacts/', include('contacts.urls')),
+    path('other_forms/', include('other_forms.urls')),
+    path('reports/', include('reports.urls'))
 ]

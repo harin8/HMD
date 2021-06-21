@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'HMD_Software',
     'certificates',
     'clients',
-    'contacts'
+    'contacts',
+    'other_forms',
+    'reports'
 ]
 
 MIDDLEWARE = [

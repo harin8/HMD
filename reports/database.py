@@ -30,7 +30,7 @@ def get_all_clients_details():
 
 
 def get_roi_result(client_name, group_name_list, ay, read):
-    if read == 'All':
+    if read == 'All'or read == 'No':
         result = list(db.returnMaster.find({'Name': client_name, 'AY': ay}))
     else:
         result = list(db.returnMaster.find({'Read': read, 'Name': client_name, 'AY': ay}))
@@ -48,7 +48,7 @@ def get_roi_result(client_name, group_name_list, ay, read):
 
 
 def get_cert_result(client_name, group_name_list, period, read):
-    if read == 'All':
+    if read == 'All'or read == 'No':
         result = list(db.certificateMaster.find({'Name': client_name, 'Group_name': {'$in': group_name_list}}))
     else:
         result = list(db.certificateMaster.find({'Read': read, 'Name': client_name, 'Group_name': {'$in': group_name_list}}))
@@ -79,7 +79,7 @@ def get_cert_result(client_name, group_name_list, period, read):
 
 
 def get_other_result(client_name, group_name_list, period, read):
-    if read == 'All':
+    if read == 'All'or read == 'No':
         result = list(db.certificateMaster.find({'Name': client_name, 'Group_name': {'$in': group_name_list}}))
     else:
         result = list(db.certificateMaster.find({'Read': read, 'Name': client_name, 'Group_name': {'$in': group_name_list}}))

@@ -77,7 +77,11 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Party Name:</label>
-                                        <input required style="text-transform:uppercase" type="text" value="" id="party_name" class="form-control" name="partyName">
+                                        <select required style="text-transform:uppercase" id="party_name" class="form-control" name="partyName">
+                                            {% for one_party in Party_List %}
+                                            <option value="{{ one_party }}">{{ one_party|safe }}</option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -199,6 +203,7 @@
         }
     });
     $('#co_name_list').on('change', function() {
+        console.log('hi');
         var contact_list = {{ Contact_List|safe }};
         for (var i=0; i<contact_list.length;i++) {
             if(this.value == contact_list[i].Name) {

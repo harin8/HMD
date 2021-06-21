@@ -70,7 +70,6 @@
                                 <th align="left">Due date</th>
                                 <th align="left">Completed By</th>
                                 <th align="left">Completed On</th>
-                                <th align="left">Received Date</th>
                                 <th align="left">Remarks</th>
                                 <th>Action</th>
                             </tr>
@@ -87,10 +86,13 @@
                                     <td align="left">{{ each_return.Filing_date }}</td>
                                     <td align="left">{{ each_return.Ack_no }}</td>
                                     <td align="left">{{ each_return.Verification }}</td>
-                                    <td align="left" style="color:white;background-color:#d32f2f">{{ each_return.Due_date }}</td>
+                                    {% if each_return.Submitted_cpc %}
+                                        <td align="left" style="background-color:green">{{ each_return.Due_date }}</td>
+                                    {% else %}
+                                        <td align="left" style="color:white;background-color:#d32f2f">{{ each_return.Due_date }}</td>
+                                    {% endif %}
                                     <td align="left">{{ each_return.Completed_by }}</td>
                                     <td align="left">{{ each_return.Completed_on }}</td>
-                                    <td align="left">{{ each_return.Received_date }}</td>
                                     <td align="left">{{ each_return.Remarks }}</td>
                                     <td>
                                         {% if each_return.Submitted_cpc %}
@@ -116,7 +118,6 @@
                                     <th align="left">Due date</th>
                                     <th align="left">Completed By</th>
                                     <th align="left">Completed On</th>
-                                    <th align="left">Received Date</th>
                                     <th align="left">Remarks</th>
                                     <th>Action</th>
                             </tfoot>

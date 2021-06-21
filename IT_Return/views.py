@@ -54,6 +54,9 @@ def submit_new_return(request):
         'Submitted_ini': True}
     return_result = database.add_return_record(return_data_dict)
     all_return_list = database.get_all_return_list(ay, return_type_name)
+    for data in all_return_list:
+        data['Client_code'] = database.get_client_code_from_name(data['Name'])
+        data['Group_name'] = database.get_group_name_from_client_code(data['Client_code'])
     return render(request, 'it_return.html', {'AY_list': ay_list, 'AY_Selected': ay,
                                               'Return_Type_Selected': return_type,
                                               'Return_List': all_return_list})
@@ -99,6 +102,9 @@ def further_return_submit(request):
 
     return_result = database.add_further_return_record(return_data_dict)
     all_return_list = database.get_existing_completed_return_list()
+    for data in all_return_list:
+        data['Client_code'] = database.get_client_code_from_name(data['Name'])
+        data['Group_name'] = database.get_group_name_from_client_code(data['Client_code'])
     if all_return_list:
         for data in all_return_list:
             data['Type_id'] = database.get_return_type_id_from_name(data['Type'])
@@ -146,7 +152,6 @@ def further_cpc_submit(request):
     return_type_name = database.get_return_type_name_from_id(return_type)
     return_proof = request.POST.get('verification')
     return_proof_name = database.get_return_proof_name_from_id(return_proof)
-    all_return_list = database.get_cpc_all_return_list()
     if ay and return_type and return_proof:
         return_data_dict = {'Name': request.POST.get('clientName').upper(),
                             'AY': ay,
@@ -158,8 +163,11 @@ def further_cpc_submit(request):
                             'Verification': return_proof_name}
 
         return_result = database.add_cpc_return_record(return_data_dict)
+    all_return_list = database.get_cpc_all_return_list()
     if all_return_list:
         for data in all_return_list:
+            data['Client_code'] = database.get_client_code_from_name(data['Name'])
+            data['Group_name'] = database.get_group_name_from_client_code(data['Client_code'])
             data['Type_id'] = database.get_return_type_id_from_name(data['Type'])
             data['Due_date'] = database.calculate_due_date_cpc(data['Filing_date'])
     return render(request, 'cpc_list.html', {'CPC_List': all_return_list})

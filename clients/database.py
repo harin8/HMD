@@ -63,6 +63,16 @@ def add_client_details(data_dict):
     return db.clientMaster.insert(data_dict)
 
 
+def add_party_details(data_dict):
+    # check if exists
+    result = list(db.partyMaster.find(data_dict, {'_id': 1}))
+    if result:
+        print('Not Inserted')
+        return []
+    else:
+        return db.partyMaster.insert(data_dict)
+
+
 def get_it_no_range(group_name, client_type):
     group_no_range = db.clientCodeRule.find({'Group': group_name}, {'_id': 0})
     type_no_range = db.clientCodeRule.find({'Name': client_type, 'Type': "IT"}, {'_id': 0})
@@ -86,8 +96,31 @@ def get_audit_no_range(group_name, client_type):
     return 0, 0
 
 
+def get_party_list_from_group_name(group_name):
+    return db.partyMaster.distinct('Party_name', {'Group_name': group_name})
+
+
 def get_client_detail_from_id(id):
     result = list(db.clientMaster.find({'_id': ObjectId(id)}))
     if result:
         return result[0]
     return None
+
+
+def get_party_master_list(id_field=False):
+    if id_field:
+        result = list(db.partyMaster.find({}))
+    else:
+        result = list(db.partyMaster.find({}, {'_id': 0}))
+    return result
+
+
+def get_party_detail_from_id(id):
+    result = list(db.partyMaster.find({'_id': ObjectId(id)}))
+    if result:
+        return result[0]
+    return None
+
+
+def update_party_details(r_id, temp):
+    result = db.partyMaster.update({'_id': ObjectId(r_id)}, temp)

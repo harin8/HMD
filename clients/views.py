@@ -26,7 +26,7 @@ def create_new_client(request):
         audit_no_list = database.get_all_distinct_value('Audit_no')
         it_start, it_end = database.get_it_no_range(group_name, client_type_form_name)
         audit_start, audit_end = database.get_audit_no_range(group_name, client_type_form_name)
-
+        party_list = database.get_party_list_from_group_name(group_name)
         if it_start == 0 or it_end == 0 or audit_start == 0 or audit_end == 0:
             return render(request, 'new_client.html')
         else:
@@ -43,7 +43,8 @@ def create_new_client(request):
                                                        'Available_Audit_No': available_audit_no,
                                                        'Group_Selected': group_no,
                                                        'Type_Selected': client_type_form,
-                                                       'Contact_List': contact_list})
+                                                       'Contact_List': contact_list,
+                                                       'Party_List': party_list})
     return render(request, 'new_client.html')
 
 
@@ -89,3 +90,55 @@ def edit_contact(request, id):
     contact_detail = database.get_contact_detail_from_id(id)
     if contact_detail:
         return render(request, 'create_new_contact.html', {'Hide': True, 'Contact_Details': contact_detail})
+
+
+def party_master_list(request):
+    all_party_list = database.get_party_master_list(id_field=False)
+    return render(request, 'party_master.html', {'Party_List': all_party_list})
+
+
+def create_new_party(request):
+    return render(request, 'new_party.html')
+
+
+def submit_new_party(request):
+    group_no = request.POST.get('GroupNameForm', '')
+    party_name = request.POST.get('partyName', '')
+    group_name = database.get_group_name_from_id(group_no)
+    if group_no != '' and party_name != '':
+        data_dict = {'Group_name': group_name.upper(),
+                     'Party_name': party_name.upper(),
+                     }
+        data_add = database.add_party_details(data_dict)
+    all_party_list = database.get_party_master_list(id_field=False)
+    return render(request, 'party_master.html', {'Party_List': all_party_list})
+
+
+def edit_party_list(request):
+    party_list = database.get_party_master_list(id_field=True)
+    return render(request, 'party_master.html', {'can_edit': True, 'Party_List': party_list})
+
+
+def edit_party(request, id):
+    party_detail = database.get_party_detail_from_id(id)
+    if party_detail:
+        return render(request, 'new_party.html', {'Hide': True, 'Party_Details': party_detail})
+
+    return render(request, 'new_party.html')
+
+
+def submit_edit_party(request):
+    r_id = request.POST.get('r_id')
+    group_no = request.POST.get('GroupNameForm', '')
+    party_name = request.POST.get('partyName', '')
+    group_name = database.get_group_name_from_id(group_no)
+    party_detail = database.get_party_detail_from_id(r_id)
+
+    if group_no != '' and party_name != '':
+        data_dict = {'Group_name': group_name.upper(),
+                     'Party_name': party_name.upper(),
+                     }
+        data_update = database.update_party_details(r_id, data_dict)
+        party_detail = database.get_party_detail_from_id(r_id)
+        return render(request, 'new_party.html', {'Hide': True, 'Party_Details': party_detail})
+    return render(request, 'new_party.html', {'Error': True, 'Hide': True, 'Party_Details': party_detail})

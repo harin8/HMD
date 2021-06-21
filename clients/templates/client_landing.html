@@ -30,5 +30,38 @@
         </div>
     </div>
 </div>
+<br>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="col-md-12">
+                        <h4 class="header-title mb-3">Party</h4>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4" id="main-party-menu">
+                            <div class="card widget-box-three">
+                                <a role="button" style="text-align:left" class="btn btn-link" href="{% url 'Create New Party' %}">
+                                    <div class="card-body">Create</div>
+                                </a>
+                            </div><br>
+                            <div class="card widget-box-three">
+                                <a role="button" style="text-align:left" class="btn btn-link" href="{% url 'Party Master List' %}">
+                                    <div class="card-body">View</div>
+                                </a>
+                            </div><br>
+                            <div class="card widget-box-three">
+                                <a role="button" style="text-align:left" class="btn btn-link" href="{% url 'Edit Party List' %}">
+                                    <div class="card-body">Edit</div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

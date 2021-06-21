@@ -128,7 +128,7 @@
                         {% if not Data_Dict.Submitted_fur %}
                             <div class="row">
                                 <div class="form-group col-md-3">
-                                    <button type="button" id="save_button" class="btn btn-success">Save</button>&nbsp;&nbsp;
+                                    <button type="button" id="save_button" class="btn btn-primary">Save</button>&nbsp;&nbsp;
                                     <button type="submit" id="submit-button" class="btn btn-success" >Submit</button>&nbsp;&nbsp;
                                     <button type="reset" class="btn btn-secondary back" name="Reset">Reset</button>
                                 </div>
@@ -198,6 +198,7 @@
             },
             success: function(result){
                 alert("Details Saved");
+                document.getElementById('backButton').click();
             }
         });
     });

@@ -30,25 +30,29 @@
           <select name="Client_Code" class="form-control" id="clientCode" onchange="select_change_on_client_code(this.value)">
           </select>
       </div>
-      <div class="col-md-2" id="ClientName_div">
+      <div class="col-md-5" id="ClientName_div">
         <label class="form-label">Client Name:</label>
-          <select name="Client_Name" class="form-control" id="clientName" onchange="select_change_on_client_name(this.value)">
-          </select>
+          <input autocomplete="off" name="Client_Name" id="clientName" list="client_names" value="" class="form-control" onchange="select_change_on_client_name(this.value)">
+          <datalist id="client_names">
+          <!--<select name="Client_Name" class="form-control" id="clientName" onchange="select_change_on_client_name(this.value)">
+          </select>-->
+          </datalist>
       </div>
-
-      <div class="col-md-3">
+    </div><br>
+    <div class="row">
+      <div class="col-md-2">
         <div class="form-group">
             <label>Accepted By:</label>
             <input style="text-transform:uppercase" required type="text" name="Accepted_By" id="acceptedBy" class="form-control eventTodayDateTime" placeholder="Enter Name" value="">
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <div class="form-group">
             <label>Acceptance Date:</label>
-            <input required type="date" name="Received_Date" id="receivedDate" class="form-control eventTodayDateTime" value="">
+            <input required type="date" name="Acceptance_Date" id="acceptanceDate" class="form-control eventTodayDateTime" value="">
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-5">
         <div class="form-group">
             <label>Description:</label>
             <!--<input style="text-transform:uppercase" required type="text" name="Description" id="description" class="form-control eventTodayDateTime" placeholder="Type Description" value="">-->
@@ -127,12 +131,13 @@
                                     <th align="left">Client Code</th>
                                     <th align="left">Client Name</th>
                                     <th align="left">Accepted By</th>
-                                    <th align="left">Received Date</th>
+                                    <th align="left">Acceptance Date</th>
                                     <th align="left">Description</th>
                                     <th align="left">Handled By</th>
                                     <th align="left">Checked By</th>
-                                    <th align="left">Date of Certificate</th>
                                     <th align="left">Signed By</th>
+                                    <th align="left">Date of Certificate</th>
+                                    <th align="left">UDIN</th>
                                     <th align="left">Remarks</th>
                                     <th>Action</th>
                                 </tr>
@@ -144,12 +149,13 @@
                                     <td align="left">{{ each_cert.Client_code }}</td>
                                     <td align="left">{{ each_cert.Name }}</td>
                                     <td align="left">{{ each_cert.Accepted_by }}</td>
-                                    <td align="left">{{ each_cert.Received_date }}</td>
+                                    <td align="left">{{ each_cert.Acceptance_date }}</td>
                                     <td align="left">{{ each_cert.Description }}</td>
                                     <td align="left">{{ each_cert.Handled_by }}</td>
                                     <td align="left">{{ each_cert.Checked_by }}</td>
-                                    <td align="left">{{ each_cert.Date_of_certificate }}</td>
                                     <td align="left">{{ each_cert.Signed_by }}</td>
+                                    <td align="left">{{ each_cert.Date_of_certificate }}</td>
+                                    <td align="left">{{ each_cert.Udin }}</td>
                                     <td align="left">{{ each_cert.Remarks }}</td>
                                     <td>
                                         {% if each_cert.Status == 'Completed' %}
@@ -167,12 +173,13 @@
                                         <th align="left">Client Code</th>
                                         <th align="left">Client Name</th>
                                         <th align="left">Accepted By</th>
-                                        <th align="left">Received Date</th>
+                                        <th align="left">Acceptance Date</th>
                                         <th align="left">Description</th>
                                         <th align="left">Handled By</th>
                                         <th align="left">Checked By</th>
-                                        <th align="left">Date of Certificate</th>
                                         <th align="left">Signed By</th>
+                                        <th align="left">Date of Certificate</th>
+                                        <th align="left">UDIN</th>
                                         <th align="left">Remarks</th>
                                         <th>Action</th>
                                     </tr>
@@ -244,13 +251,14 @@
 
     initialize('groupName', group_name_list);
     initialize('clientCode', client_code_list);
-    initialize('clientName', client_name_list);
+    initialize('client_names', client_name_list);
 
     function initialize(ele_name, list_data) {
 
       html_cont = '';
       for(var i=0; i<list_data.length;i++) {
-        html_cont += '<option value="' + list_data[i] + '">' + list_data[i] + '</option>';
+        //html_cont += '<option value="' + list_data[i] + '">' + list_data[i] + '</option>';
+        html_cont += '<option>' + list_data[i] + '</option>';
       }
       $('#' + ele_name).html(html_cont);
     }
@@ -269,8 +277,6 @@
     }
 
     function select_change_on_client_name(c_name) {
-      console.log(c_name);
-      c_name = c_name.replace('_', ' ');
       var client_code_list_temp = new Array();
       var group_name_list_temp = new Array();
       for(var i=0; i<client_list.length; i++) {

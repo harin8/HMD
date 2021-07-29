@@ -32,6 +32,12 @@ def get_group_name_from_id(g_id):
         return 'ESD-DHD'
 
 
+def check_it_code_present(it_no):
+    result = list(db.clientMaster.find({'It_no': it_no}))
+    if result:
+        return True
+    return False
+
 def get_group_code_from_group_name(g_name):
     group_list = list(db.groupCode.find({}, {'_id': 0}))
     for data in group_list:
@@ -44,7 +50,7 @@ def get_group_code_from_group_name(g_name):
 
 def get_it_audit_size(it_id):
     if it_id == '0':
-        return 'N.A'
+        return 'NA'
     elif it_id == '1':
         return 'Big'
     elif it_id == '2':
@@ -52,7 +58,7 @@ def get_it_audit_size(it_id):
     elif it_id == '3':
         return 'Small'
     else:
-        return 'N.A'
+        return 'NA'
 
 
 def get_client_type_name_from_id(c_id):
@@ -72,9 +78,9 @@ def get_client_type_name_from_id(c_id):
 
 def get_client_master_list(id_field=False):
     if id_field:
-        result = list(db.clientMaster.find({}, {'_id': 1}))
+        result = list(db.clientMaster.find({}, {'_id': 1, 'Contact_details.r_id':0}))
     else:
-        result = list(db.clientMaster.find({}, {'_id': 0}))
+        result = list(db.clientMaster.find({}, {'_id': 0, 'Contact_details.r_id':0}))
     return result
 
 

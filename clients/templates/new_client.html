@@ -69,7 +69,14 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label class="form-check-label" for="tds">TDS/TCS:</label>
-                                        <input style="width: 50px;" type="checkbox" value="tds" id="tds" class="form-control" name="TDS">
+                                        <div class="form-check form-check">
+                                            <input class="form-check-input" type="radio" name="TDS" id="yes" value="yes">
+                                            <label class="form-check-label" for="yes">Yes</label>
+                                        </div>
+                                        <div class="form-check form-check">
+                                          <input checked class="form-check-input" type="radio" name="TDS" id="no" value="no">
+                                          <label class="form-check-label" for="no">No</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

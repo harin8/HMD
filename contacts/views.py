@@ -77,6 +77,8 @@ def submit_edit_contact(request):
             return render(request, 'create_new_contact.html', {'Error': True, 'Message': message, 'Hide': True,
                                                                'Contact_Details': contact_detail})
         data_update = database.update_contact_details(r_id, temp)
+        # update contact detail in clientMasterDB
+        client_contact_update = database.update_contact_details_in_clientMaster(r_id, temp)
         contact_detail = database.get_contact_detail_from_id(r_id)
         contact_list = database.get_all_contact_details()
         return render(request, 'contact_master.html', {'can_edit': True, 'contact_list': contact_list})

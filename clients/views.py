@@ -59,9 +59,9 @@ def submit_new_client(request):
     audit_no = request.POST.get('auditNo', '0')
     it_size = request.POST.get('itSize', '0')
     audit_size = request.POST.get('auditSize', '0')
-    tds = request.POST.get('TDS', '')
+    tds = request.POST.get('TDS', 'no')
     tds_bool = 'True'
-    if tds == 'tds':
+    if tds == 'no':
         tds_bool = 'False'
     contact_list = []
     contact_names = request.POST.getlist('contactName')
@@ -71,29 +71,34 @@ def submit_new_client(request):
     '''contact_nos = request.POST.getlist('contactNo')
     contact_emails = request.POST.getlist('contactEmail')'''
     if client_type != '' and group_name != '' and party_name != '':
-        for x in range(len(contact_names)):
-            # check if contact exists. if yes get mobile no and email from db
-            contact_no, contact_email, contact_remarks = contact_database.get_contact_phone_email_from_name(contact_names[x].upper())
-            if contact_no:
-                temp = {'Name': contact_names[x].upper(), 'Designation': contact_designation[x].upper(),
-                        'Contact_no': contact_no, 'Email': contact_email, 'Remarks': contact_remarks}
-                contact_list.append(temp)
+        # check if it_code is already taken or not
+        it_code_present = database.check_it_code_present(it_no)
+        if not it_code_present:
+            for x in range(len(contact_names)):
+                # check if contact exists. if yes get mobile no and email from db
+                contact_db = contact_database.get_contact_phone_email_from_name(contact_names[x].upper())
+                if contact_db:
+                    temp = {'r_id': contact_db['_id'],
+                            'Name': contact_db['Name'], 'Designation': contact_designation[x].upper(),
+                            'Contact_no': contact_db['Contact_no'], 'Email': contact_db['Email'],
+                            'Remarks': contact_db['Remarks']}
+                    contact_list.append(temp)
 
-        data_dict = {'Name': client_name.upper(),
-                     'Group_name': group_name.upper(),
-                     'Client_type': client_type.upper(),
-                     'Party_name': party_name.upper(),
-                     'Client_code': it_no,
-                     'It_no': it_no,
-                     'It_size': it_size_name,
-                     'It_note': it_note,
-                     'Audit_no': audit_no,
-                     'Audit_size': audit_size_name,
-                     'Audit_note': audit_note,
-                     'TDS': tds_bool,
-                     'Contact_details': contact_list
-                     }
-        data_add = database.add_client_details(data_dict)
+            data_dict = {'Name': client_name.upper(),
+                         'Group_name': group_name.upper(),
+                         'Client_type': client_type.upper(),
+                         'Party_name': party_name.upper(),
+                         'Client_code': it_no,
+                         'It_no': it_no,
+                         'It_size': it_size_name,
+                         'It_note': it_note,
+                         'Audit_no': audit_no,
+                         'Audit_size': audit_size_name,
+                         'Audit_note': audit_note,
+                         'TDS': tds_bool,
+                         'Contact_details': contact_list
+                         }
+            data_add = database.add_client_details(data_dict)
     all_return_list = database.get_client_master_list(id_field=False)
     return render(request, 'client_master.html', {'client_List': all_return_list})
 

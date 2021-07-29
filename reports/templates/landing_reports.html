@@ -26,7 +26,7 @@
             <div class="col-md-3" id="GroupName_div">
                 <label class="form-label">Group Name:</label>
                 <select required multiple name="groupName" class="form-control selectpicker" id="Group_Name" data-live-search="true" data-actions-box="true">
-                    <option value="ESD-DHD" selected>ESD-DHD</option>
+                    <option value="ESD-DHD">ESD-DHD</option>
                     <option value="ESD-NRJ">ESD-NRJ</option>
                     <option value="VHD">VHD</option>
                     <option value="PRB">PRB</option>
@@ -61,7 +61,7 @@
         <div class="row" id="period" style="display:none">
             <div class="col-md-3" id="ay_period" style="display:none">
                 <label class="form-label">A.Y.: </label>
-                <select required multiple name="A.Y" data-dropup-auto="false" class="form-control selectpicker dropdown" id="A.Y" data-live-search="true" data-actions-box="true">
+                <select multiple name="A.Y" data-dropup-auto="false" class="form-control selectpicker dropdown" id="A.Y" data-live-search="true" data-actions-box="true">
                     {% for ay in AY_list %}
                         {% if ay == AY_Selected %}
                             <option value="{{ay}}" selected>{{ay|title}}</option>
@@ -74,12 +74,12 @@
             </div>
             <div class="col-md-4" id="cert_period" style="display:none">
                 <label class="form-label">Certificated Period: </label>
-                <input required id="cert_date" type="date" name="certificateStartDate" class="form-control eventTodayDateTime" placeholder="Select Date">
+                <input id="cert_date" type="date" name="certificateStartDate" class="form-control eventTodayDateTime" placeholder="Select Date">
                 <p>*For entire list, choose any date prior to 01-01-2021</p>
             </div>
             <div class="col-md-4" id="form_period" style="display:none">
                 <label class="form-label">Form Period: </label>
-                <input required id="form_date" type="date" name="otherFormsStartDate" class="form-control eventTodayDateTime" placeholder="Select Date">
+                <input id="form_date" type="date" name="otherFormsStartDate" class="form-control eventTodayDateTime" placeholder="Select Date">
                 <p>*For entire list, choose any date prior to 01-01-2021</p>
             </div>
         </div>
@@ -159,7 +159,6 @@
         $('#Group_Name').on('change', function() {
             var selected_group_names = $('#Group_Name').val();
             var party_list = {{ Party_list|safe }};
-            console.log(party_list);
             var final_party_list = new Array();
             for (i=0; i<selected_group_names.length; i++) {
                 for (j=0; j<party_list.length; j++) {
@@ -180,25 +179,38 @@
 
         $('#Task').on('change', function() {
             var selected_tasks = $('#Task').val();
+
             if (selected_tasks.length == 0) {
                 $("#ay_period").css('display','none');
                 $("#cert_period").css('display','none');
                 $("#form_period").css('display','none');
+                $('#A.Y').removeAttr('required');
+                $('#cert_date').removeAttr('required');
+                $('#form_date').removeAttr('required');
+
             }
             else {
+
                 $("#period").css('display','block');
                 $("#ay_period").css('display','none');
                 $("#cert_period").css('display','none');
                 $("#form_period").css('display','none');
+                $('#A.Y').removeAttr('required');
+                $('#cert_date').removeAttr('required');
+                $('#form_date').removeAttr('required');
+
                 for(i=0;i<selected_tasks.length;i++) {
                     if(selected_tasks[i]=='ROI') {
                         $("#ay_period").css('display','inline-block');
+                        $('#A.Y').attr('required', true);
                     }
                     if(selected_tasks[i]=='Certificates') {
                         $("#cert_period").css('display','inline-block');
+                        $('#cert_date').attr('required',true);
                     }
                     if(selected_tasks[i]=='Other') {
                         $("#form_period").css('display','inline-block');
+                        $('#form_date').attr('required', true);
                     }
                 }
             }
@@ -224,24 +236,6 @@
             $('select').selectpicker('refresh');
         });
 
-        $('#Task').on('change', function() {
-            var x = $('#Task').val();
-            $('#A.Y').removeAttr('required');
-            $('#cert_date').removeAttr('required');
-            $('#form_date').removeAttr('required');
-            for (i=0;i<x.length;i++) {
-                console.log(x[i]);
-                if('ROI' == x[i]) {
-                    $('#A.Y').attr('required', true);
-                }
-                if('Certificates' == x[i]) {
-                    $('#cert_date').attr('required',true);
-                }
-                if('Other' == x[i]) {
-                    $('#form_date').attr('required', true);
-                }
-            }
-        });
     });
 
 </script>

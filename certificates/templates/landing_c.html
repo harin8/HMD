@@ -2,9 +2,6 @@
 {% block head_block %}
     {% load static %}
     <title>HMD|Certificates</title>
-    <link href="{% static 'assets/css/fixedColumns.bootstrap4.min.css' %}" rel="stylesheet">
-	<script src="{% static 'assets/js/fixedColumns.bootstrap4.min.js' %}"></script>
-    <script src="{% static 'assets/js/jszip.min.js' %}"></script>
 {% endblock %}
 {% block body_block %}
 {% load certificate_tags %}
@@ -22,21 +19,21 @@
     <div class="row">
       <div class="col-md-2" id="GroupName_div">
         <label class="form-label">Group Name:</label>
-          <select name="Group_Name" class="form-control" id="groupName" onchange="select_change_on_group_name(this.value)">
+          <select required data-size="12" name="Group_Name" class="form-control selectpicker dropdown" data-live-search="true" data-dropup-auto="false" id="groupName" onchange="select_change_on_group_name(this.value)">
           </select>
       </div>
       <div class="col-md-2" id="ClientCode_div">
         <label class="form-label">Client Code:</label>
-          <select name="Client_Code" class="form-control" id="clientCode" onchange="select_change_on_client_code(this.value)">
+          <select required data-size="12" name="Client_Code" class="form-control selectpicker dropdown" data-live-search="true" data-dropup-auto="false" id="clientCode" onchange="select_change_on_client_code(this.value)">
           </select>
       </div>
       <div class="col-md-5" id="ClientName_div">
         <label class="form-label">Client Name:</label>
-          <input autocomplete="off" name="Client_Name" id="clientName" list="client_names" value="" class="form-control" onchange="select_change_on_client_name(this.value)">
+          <select required data-size="12" name="Client_Name" class="form-control selectpicker dropdown" data-live-search="true" data-dropup-auto="false" id="clientName" onchange="select_change_on_client_name(this.value)">
+          </select>
+          <!--<input required autocomplete="off" placeholder="--Select--" name="Client_Name" id="clientName" list="client_names" value="" class="form-control" onchange="select_change_on_client_name(this.value)">
           <datalist id="client_names">
-          <!--<select name="Client_Name" class="form-control" id="clientName" onchange="select_change_on_client_name(this.value)">
-          </select>-->
-          </datalist>
+          </datalist>-->
       </div>
     </div><br>
     <div class="row">
@@ -55,13 +52,18 @@
       <div class="col-md-5">
         <div class="form-group">
             <label>Description:</label>
+            <select required data-size="8" name="Description" class="form-control selectpicker dropdown" data-live-search="true" data-dropup-auto="false" id="description">
+                {% for k,v in Cert_Desc.items %}
+                    <option value="{{ v|safe }}">{{v}}</option>
+                {% endfor %}
+            </select>
             <!--<input style="text-transform:uppercase" required type="text" name="Description" id="description" class="form-control eventTodayDateTime" placeholder="Type Description" value="">-->
-            <input autocomplete="off" name="Description" id="description" list="details" value="" class="form-control">
+            <!--<input required autocomplete="off" placeholder="--Select--" name="Description" id="description" list="details" class="form-control">
                 <datalist id="details">
                     {% for k,v in Cert_Desc.items %}
                         <option>{{v}}</option>
                     {% endfor %}
-                </datalist>
+                </datalist>-->
             </div>
         </div>
     </div>
@@ -91,13 +93,17 @@
                 <div class="card-body">
                     <div id="checkbox-group">
                         <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="esd" value="ESD">
-                            <label class="form-check-label" for="esd">ESD</label>
+                            <input class="form-check-input" type="checkbox" id="esd-dhd" value="ESD-DHD">
+                            <label class="form-check-label" for="esd-dhd">ESD-DHD</label>
                         </div>
                         <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="ris" value="RIS">
-                            <label class="form-check-label" for="ris">RIS</label>
+                            <input class="form-check-input" type="checkbox" id="esd-nrj" value="ESD-NRJ">
+                            <label class="form-check-label" for="esd-nrj">ESD-NRJ</label>
                         </div>
+                        <div class="form-check form-check-inline col-md-1">
+                            <input class="form-check-input" type="checkbox" id="os-esd" value="OS-ESD">
+                            <label class="form-check-label" for="os-esd">OS-ESD</label>
+                        </div><br>
                         <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="vhd" value="VHD">
                               <label class="form-check-label" for="vhd">VHD</label>
@@ -105,15 +111,11 @@
                         <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="prb" value="PRB">
                               <label class="form-check-label" for="prb">PRB</label>
+                        </div>
+                        <div class="form-check form-check-inline col-md-1">
+                            <input class="form-check-input" type="checkbox" id="ris" value="RIS">
+                            <label class="form-check-label" for="ris">RIS</label>
                         </div><br>
-                        <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="os-esd" value="OS-ESD">
-                            <label class="form-check-label" for="os-esd">OS-ESD</label>
-                        </div>
-                        <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="os-ris" value="OS-RIS">
-                            <label class="form-check-label" for="os-ris">OS-RIS</label>
-                        </div>
                         <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="os-vhd" value="OS-VHD">
                               <label class="form-check-label" for="os-vhd">OS-VHD</label>
@@ -121,6 +123,10 @@
                         <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="os-prb" value="OS-PRB">
                               <label class="form-check-label" for="os-prb">OS-PRB</label>
+                        </div>
+                        <div class="form-check form-check-inline col-md-1">
+                            <input class="form-check-input" type="checkbox" id="os-ris" value="OS-RIS">
+                            <label class="form-check-label" for="os-ris">OS-RIS</label>
                         </div>
                     </div><br>
                     <div class="table-responsive">
@@ -199,6 +205,11 @@
 
 <script>
     $(document).ready( function () {
+
+        $('select').selectpicker();
+        $('select').prepend('<option value="-1" selected disabled>--Select--</option>');
+        $('select').selectpicker('refresh');
+
         var certificate_table = $('#existing-certificateList').DataTable({
             dom: 'Bfrtip',
             lengthMenu: [[10,25,50,100,-1],[10,25,50,100,"All"]],
@@ -222,10 +233,10 @@
             if(selected.length > 0) {
                 for(var i=0;i<selected.length;i++) {
                     if(i==selected.length-1) {
-                        search_regex = search_regex + selected[i];
+                        search_regex = search_regex + '^' +  selected[i] + '$';
                     }
                     else {
-                        search_regex = search_regex + selected[i] + '|';
+                        search_regex = search_regex + '^' + selected[i] + '$|';
                     }
                 }
                 certificate_table.column(0).search(search_regex, true).draw();
@@ -251,7 +262,7 @@
 
     initialize('groupName', group_name_list);
     initialize('clientCode', client_code_list);
-    initialize('client_names', client_name_list);
+    initialize('clientName', client_name_list);
 
     function initialize(ele_name, list_data) {
 
@@ -272,6 +283,7 @@
           $('#clientName').val(client_list[i].Name);
           client_code_list_temp.push(client_list[i].Client_code);
           client_name_list_temp.push(client_list[i].Name);
+          $('select').selectpicker('refresh');
         }
       }
     }
@@ -285,6 +297,7 @@
           $('#groupName').val(client_list[i].Group_name);
           client_code_list_temp.push(client_list[i].Client_code);
           group_name_list_temp.push(client_list[i].Group_name);
+          $('select').selectpicker('refresh');
         }
       }
     }
@@ -298,6 +311,7 @@
           $('#clientName').val(client_list[i].Name);
           group_name_list_temp.push(client_list[i].Group_name);
           client_name_list_temp.push(client_list[i].Name);
+          $('select').selectpicker('refresh');
         }
       }
     }

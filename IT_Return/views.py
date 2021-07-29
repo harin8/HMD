@@ -1,6 +1,8 @@
+import datetime
+
 from django.shortcuts import render
 from IT_Return import database
-
+from datetime import timedelta
 
 # Create your views here.
 
@@ -71,7 +73,7 @@ def further_return_info(request, it_no, ay, r_type):
         return render(request, 'further_return_info.html', {'AY_Selected': ay, 'AY_list': ay_list,
                                                             'Type': r_type, 'Data_Dict': exist_result,
                                                             'Allow_Further': True})
-    return render(request, 'create_new_return.html', {'Name': it_no, 'AY_Selected': ay, 'Type': r_type,
+    return render(request, 'create_new_return.html', {'Name': exist_result['Name'], 'AY_Selected': ay, 'Type': r_type,
                                                       'AY_list': ay_list})
 
 

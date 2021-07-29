@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block head_block %}
+    {% load static %}
+    <title>HMD|Create New TDS</title>
+{% endblock %}
+{% block body_block %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 py-3 mt-2">
+            <h4>
+            {% if Data_Dict.Submitted_ini %}
+                TDS/TCS
+            {% else %}
+                New TDS/TCS
+            {% endif %}
+            </h4>
+        </div>
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <a style="color: white" id="backButton" href="{% url 'Existing TDS List' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if not Data_Dict.Submitted_ini %}
+                        <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New TDS' %}" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="clientNo" id="client_no" value="{{ Data_Dict.Client_code }}">
+                        {% csrf_token %}
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label>Client Name:</label>
+                                <input required style="text-transform:uppercase" type="text" value="{{ Data_Dict.Name|safe }}" id="c_name" class="form-control" name="tdsName" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>A.Y.:</label>
+                                <input required style="text-transform:uppercase" type="text" value="{{ Data_Dict.AY|safe }}" id="ay" class="form-control" name="tdsAY" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Quarter:</label>
+                                <input required style="text-transform:uppercase" type="text" value="{{ Data_Dict.Quarter|safe }}" id="tds_quarter" class="form-control" name="tdsQuarter" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Form:</label>
+                                <input required style="text-transform:uppercase" type="text" value="{{ Data_Dict.Form|safe }}" id="form" class="form-control" name="tdsForm" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Type:</label>
+                                <input required style="text-transform:uppercase" type="text" value="{{ Data_Dict.Type|safe }}" id="type" class="form-control" name="tdsType" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label>Accepted By:</label>
+                                <input required style="text-transform:uppercase" type="text" placeholder="Name" id="accepted_by" class="form-control" name="acceptedBy" value="{{ Data_Dict.Accepted_by|safe }}" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Acceptance Date:</label>
+                                <input required type="date" name="acceptedDate" id="accepted_date" class="form-control eventTodayDateTime" placeholder="Select Date" value="{{ Data_Dict.Acceptance_date|safe }}" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
+                            </div>
+                        </div>
+                    </div>
+                    {% if not Data_Dict.Submitted_ini %}
+                        <div class="row">
+                            <div class="form-group col-md-3">
+                                <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
+                                <button type="reset" class="btn btn-secondary back" name="Reset" >Reset</button>
+                            </div>
+                        </div>
+                    {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

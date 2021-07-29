@@ -5,11 +5,18 @@
 {% block body_block %}
 <div class="container-fluid">
     <div class="row">
+        <div class="col-md-6 py-3 mt-2">
+        </div>
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <a style="color:white" id="backButton" href="{% url 'Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
                     <div class="col-md-12">
-                        <h4 class="header-title mb-3">Clients</h4>
+                        <h4 class="header-title mb-3">Client</h4>
                     </div>
                     <div class="row">
                         <div class="col-md-4" id="main-menu">
@@ -51,11 +58,6 @@
                                     <div class="card-body">View</div>
                                 </a>
                             </div><br>
-                            <div class="card widget-box-three">
-                                <a role="button" style="text-align:left" class="btn btn-link" href="{% url 'Edit Party List' %}">
-                                    <div class="card-body">Edit</div>
-                                </a>
-                            </div>
                         </div>
                     </div>
                 </div>

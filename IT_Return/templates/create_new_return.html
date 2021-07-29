@@ -8,10 +8,16 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-6 py-3 mt-2">
-            <h4>New Return</h4>
+            <h4>
+            {% if Data_Dict.Submitted_ini %}
+                Return
+            {% else %}
+                New Return
+            {% endif %}
+            </h4>
         </div>
         <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
-            <a style="color: white" id="backButton" href="{% url 'New IT Return' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
+            <a style="color: white" id="backButton" href="{% url 'Existing Return List' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
         </div>
     </div>
     <div class="row">
@@ -24,22 +30,10 @@
                         {% csrf_token %}
                     {% endif %}
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-5">
                                 <div class="form-group">
                                     <label>Client Name:</label>
-                                    <input required style="text-transform:uppercase" type="text" value="{{ Name|safe }}" id="c_name" class="form-control" name="name" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Accepted By:</label>
-                                    <input required style="text-transform:uppercase" type="text" placeholder="Name" id="accepted_by" class="form-control" name="acceptedBy" value="{{ Data_Dict.Accepted_by|safe }}" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Acceptance Date:</label>
-                                    <input required type="date" name="acceptedDate" id="accepted_date" class="form-control eventTodayDateTime" placeholder="Select Date" value="{{ Data_Dict.Acceptance_date|safe }}" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
+                                    <input required style="text-transform:uppercase" type="text" value="{{ Name|safe }}" id="c_name" class="form-control" name="name" readonly>
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -58,7 +52,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label>Select Type:</label>
+                                    <label>Type:</label>
                                     <select required name="type" class="form-control" id="r_type" {% if Data_Dict.Submitted_ini %} disabled {% endif %}>
                                         <option value="1" {% if Type == '1' %} selected {% endif %}> Original </option>
                                         <option value="2" {% if Type == '2' %} selected {% endif %}>Revised</option>
@@ -72,6 +66,22 @@
                                     </select>
                                 </div>
                             </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label>Accepted By:</label>
+                                    <input required style="text-transform:uppercase" type="text" placeholder="Name" id="accepted_by" class="form-control" name="acceptedBy" value="{{ Data_Dict.Accepted_by|safe }}" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Acceptance Date:</label>
+                                    <input required type="date" name="acceptedDate" id="accepted_date" class="form-control eventTodayDateTime" placeholder="Select Date" value="{{ Data_Dict.Acceptance_date|safe }}" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
+                                </div>
+                            </div>
+
+
                         </div>
                         {% if not Data_Dict.Submitted_ini %}
                             <div class="row">

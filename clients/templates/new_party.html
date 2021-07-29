@@ -25,36 +25,47 @@
     {% else %}
         <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Party' %}" method="post" enctype="multipart/form-data">
     {% endif %}
-        {% csrf_token %}
-        <div class="row">
-            <div class="col-md-2">
-                <label class="form-label">Select Group Name:</label>
-                <select name="GroupNameForm" class="form-control" id="Group_Name_Form">
-                    <option value="1" selected>ESD</option>
-                    <option value="2" >RIS</option>
-                    <option value="3" >VHD</option>
-                    <option value="4" >PRB</option>
-                    <option value="5" >OS-ESD</option>
-                    <option value="6" >OS-RIS</option>
-                    <option value="7" >OS-VHD</option>
-                    <option value="8" >OS-PRB</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label>Party Name:</label>
-                    <input required style="text-transform:uppercase" type="text" id="party_name" class="form-control" value="{{Party_Details.Party_name}}" name="partyName">
-                </div>
-            </div>
-        </div><br>
-
-        <div class="row" id="submit-button">
-            <div class="form-group col-md-3">
-                <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
-                <button type="reset" class="btn btn-secondary back" name="Reset" >Reset</button>
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-2">
+            <label class="form-label">Select Group Name:</label>
+            <select name="GroupNameForm" class="form-control selectpicker dropdown" data-live-search="true"  data-dropup-auto="false" id="Group_Name_Form">
+                <option value="0">ESD-DHD</option>
+                <option value="1">ESD-NRJ</option>
+                <option value="3">VHD</option>
+                <option value="4">PRB</option>
+                <option value="5">RIS</option>
+                <option value="2">OS-ESD</option>
+                <option value="6">OS-VHD</option>
+                <option value="7">OS-PRB</option>
+                <option value="8">OS-RIS</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Party Name:</label>
+                <input required style="text-transform:uppercase" type="text" id="party_name" class="form-control" value="{{Party_Details.Party_name}}" name="partyName">
             </div>
         </div>
+    </div><br>
+    <div class="row" id="submit-button">
+        <div class="form-group col-md-3">
+            <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
+            <button type="reset" class="btn btn-secondary back" name="Reset" >Reset</button>
+        </div>
+    </div>
     </form>
 </div>
 
+<script>
+    $(document).ready( function () {
+        $('select').selectpicker();
+        $('select').prepend('<option value="-1" selected disabled>--Select--</option>');
+        {% if G_Code %}
+        var x = {{ G_Code }};
+        $('#Group_Name_Form').val(x);
+        {% endif %}
+        $('select').selectpicker('refresh');
+    });
+</script>
 {% endblock %}

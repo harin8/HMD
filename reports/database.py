@@ -3,13 +3,23 @@ import pymongo
 import datetime
 from bson.objectid import ObjectId
 
-# __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
+__MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
 
-__MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
+# __MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
 
-# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
-client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
+client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
+# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
 db = client.HMD
+
+
+def get_group_name_from_id(g_id):
+    group_code = list(db.groupCode.find({}, {'_id': 0}))
+
+    try:
+        group_name = group_code[0][g_id]
+        return group_name
+    except:
+        return 'ESD-DHD'
 
 
 def get_ay_list():
@@ -29,31 +39,41 @@ def get_all_clients_details():
     return list(db.clientMaster.find({}, {'_id': 0, 'Client_no': 0}))
 
 
-def get_roi_result(client_name, group_name_list, ay, read):
-    if read == 'All'or read == 'No':
-        result = list(db.returnMaster.find({'Name': client_name, 'AY': ay}))
+def get_party_list():
+    return list(db.partyMaster.aggregate([{'$group': {'_id': '$Group_name', 'party': {'$addToSet': '$Party_name'}}},
+                                          {'$project': {'group': '$_id', '_id': 0, 'party': 1}}]))
+
+
+def get_roi_result(client_name, group_name_list, ay, read, party):
+    if read == 'All':
+        result = list(db.returnMaster.find({'Name': {'$in': client_name}, 'AY': {'$in': ay}}))
+    elif read == 'Unread':
+        result = list(db.returnMaster.find({'Read': {'$ne': 'Read'}, 'Name': {'$in': client_name}, 'AY': {'$in': ay}}))
     else:
-        result = list(db.returnMaster.find({'Read': read, 'Name': client_name, 'AY': ay}))
-    c_code = get_client_code_from_name(client_name)
-    g_name = get_group_name_from_client_name(client_name)
+        result = list(db.returnMaster.find({'Read': 'Read', 'Name': {'$in': client_name}, 'AY': {'$in': ay}}))
     for data in result:
-        data['Group_name'] = g_name
-        data['Client_code'] = c_code
-        data['Task'] = "ROI - " + data['Type']
+        data['Group_name'] = get_group_name_from_client_name(data['Name'])
+        data['Client_code'] = get_client_code_from_name(data['Name'])
+        data['Party_name'] = get_party_name_from_name(data['Name'])
+        data['Task'] = "IT Return - " + data['Type']
         data['Start_date'] = data['Acceptance_date']
-        data['End_date'] = data['Filing_date']
+        try:
+            data['End_date'] = data['Filing_date']
+        except:
+            data['End_date'] = '-'
         data['Type'] = 'ROI'
 
     return result
 
 
-def get_cert_result(client_name, group_name_list, period, read):
-    if read == 'All'or read == 'No':
-        result = list(db.certificateMaster.find({'Name': client_name, 'Group_name': {'$in': group_name_list}}))
+def get_cert_result(client_name, group_name_list, period, read, party):
+    if read == 'All':
+        result = list(db.certificateMaster.find({'Name':  {'$in': client_name}}))
+    elif read == 'Unread':
+        result = list(db.certificateMaster.find({'Read': {'$ne': 'Read'}, 'Name': {'$in': client_name}}))
     else:
-        result = list(db.certificateMaster.find({'Read': read, 'Name': client_name, 'Group_name': {'$in': group_name_list}}))
+        result = list(db.certificateMaster.find({'Read': 'Read', 'Name': {'$in': client_name}}))
     new_result = []
-    c_code = get_client_code_from_name(client_name)
 
     for data in result:
         date_of_accept_str = data['Acceptance_date']
@@ -70,21 +90,24 @@ def get_cert_result(client_name, group_name_list, period, read):
             new_result.append(data)
 
     for data in new_result:
-        data['Client_code'] = c_code
+        data['Group_name'] = get_group_name_from_client_name(data['Name'])
+        data['Client_code'] = get_client_code_from_name(data['Name'])
+        data['Party_name'] = get_party_name_from_name(data['Name'])
         data['Task'] = "Certificate - " + data['Description']
         data['Start_date'] = date_of_accept_str
         data['End_date'] = date_of_cert
         data['Type'] = 'Certificate'
-    return result
+    return new_result
 
 
-def get_other_result(client_name, group_name_list, period, read):
-    if read == 'All'or read == 'No':
-        result = list(db.certificateMaster.find({'Name': client_name, 'Group_name': {'$in': group_name_list}}))
+def get_other_result(client_name, group_name_list, period, read, party):
+    if read == 'All':
+        result = list(db.otherFormsMaster.find({'Name': {'$in': client_name}}))
+    elif read == 'Unread':
+        result = list(db.otherFormsMaster.find({'Read': {'$ne': 'Read'}, 'Name': {'$in': client_name}}))
     else:
-        result = list(db.certificateMaster.find({'Read': read, 'Name': client_name, 'Group_name': {'$in': group_name_list}}))
+        result = list(db.otherFormsMaster.find({'Read': 'Read', 'Name': {'$in': client_name}}))
     new_result = []
-    c_code = get_client_code_from_name(client_name)
 
     for data in result:
         date_of_accept_str = data['Acceptance_date']
@@ -100,12 +123,14 @@ def get_other_result(client_name, group_name_list, period, read):
             new_result.append(data)
 
     for data in new_result:
-        data['Client_code'] = c_code
-        data['Task'] = "Other Forms - " + data['Description']
+        data['Group_name'] = get_group_name_from_client_name(data['Name'])
+        data['Client_code'] = get_client_code_from_name(data['Name'])
+        data['Party_name'] = get_party_name_from_name(data['Name'])
+        data['Task'] = "Other - " + data['Description']
         data['Start_date'] = date_of_accept_str
         data['End_date'] = date_of_cert
-        data['Type'] = 'Other Forms'
-    return result
+        data['Type'] = 'Other'
+    return new_result
 
 
 def get_client_code_from_name(name):
@@ -123,13 +148,21 @@ def get_group_name_from_client_name(c_name):
     return 'NA'
 
 
+def get_party_name_from_name(name):
+    clientMaster_result = list(db.clientMaster.find({'Name': name}, {'Party_name': 1}))
+    if clientMaster_result:
+        return clientMaster_result[0]['Party_name']
+    else:
+        return ''
+
+
 def get_r_type(r_type):
     if r_type == 'ROI':
         return 'ROI'
     elif 'Certificate' in r_type:
         return 'Certificate'
-    elif 'Other Forms' in r_type:
-        return 'Other Forms'
+    elif 'Other' in r_type:
+        return 'Other'
     else:
         return None
 
@@ -140,7 +173,7 @@ def get_record_from_db(r_id, type_name):
         result = list(db.returnMaster.find({'_id': ObjectId(r_id)}))
     elif type_name == 'Certificate':
         result = list(db.certificateMaster.find({'_id': ObjectId(r_id)}))
-    elif type_name == 'Other Forms':
+    elif type_name == 'Other':
         result = list(db.otherFormsMaster.find({'_id': ObjectId(r_id)}))
 
     if result:
@@ -149,15 +182,18 @@ def get_record_from_db(r_id, type_name):
         return None
 
 
-def submit_read_info(r_id, type_name, read, reader):
+def submit_read_info(r_id, type_name, read, reader, remark):
     if type_name == 'ROI':
-        x = db.returnMaster.update_one({'_id': ObjectId(r_id)}, {'$set': {'Read': read, 'Reader': reader}})
+        x = db.returnMaster.update_one({'_id': ObjectId(r_id)}, {'$set': {'Read': read, 'Reader': reader,
+                                                                          'Report_remarks': remark}})
         return x
     elif type_name == 'Certificate':
-        x = db.certificateMaster.update_one({'_id': ObjectId(r_id)}, {'$set': {'Read': read, 'Reader': reader}})
+        x = db.certificateMaster.update_one({'_id': ObjectId(r_id)}, {'$set': {'Read': read, 'Reader': reader,
+                                                                               'Report_remarks': remark}})
         return x
-    elif type_name == 'Other Forms':
-        x = db.otherFormsMaster.update_one({'_id': ObjectId(r_id)}, {'$set': {'Read': read, 'Reader': reader}})
+    elif type_name == 'Other':
+        x = db.otherFormsMaster.update_one({'_id': ObjectId(r_id)}, {'$set': {'Read': read, 'Reader': reader,
+                                                                              'Report_remarks': remark}})
         return x
     else:
         return []
@@ -207,3 +243,4 @@ def get_return_type_id_from_name(name):
         return '9'
     else:
         return '1'
+

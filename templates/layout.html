@@ -10,14 +10,19 @@
 	{% endblock %}
 
 	<!-- CSS Files -->
-	<link href="{% static 'assets/css/dataTables.min.css' %}" rel="stylesheet" type="text/css">
+	<link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+
+	<link href="{% static 'assets/css/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet" type="text/css">
+	<link href="{% static 'assets/css/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet" type="text/css">
+	<link href="{% static 'assets/css/datatables/buttons.bootstrap4.min.css' %}" rel="stylesheet" type="text/css">
+
 	<link href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet" type="text/css">
 	<link href="{% static 'assets/css/bootstrap-select.min.css' %}" rel="stylesheet" type="text/css">
 	<link href="{% static 'assets/css/bootstrap-editable.css' %}" rel="stylesheet" type="text/css">
 	<link href="{% static 'assets/css/metisMenu.min.css' %}" rel="stylesheet" type="text/css">
-	<link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
 	<link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
 	<link href="{% static 'assets/css/app.min.css' %}" rel="stylesheet" type="text/css">
+	<link href="{% static 'assets/css/bootstrap-icons-1.5.0/bootstrap-icons.css' %}" rel="stylesheet" type="text/css">
 
 
 	<!-- JS Files -->
@@ -26,9 +31,16 @@
 	<script src="{% static 'assets/js/popper.min.js' %}"></script>
 	<script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
 	<script src="{% static 'assets/js/waves.min.js' %}"></script>
-	<script src="{% static 'assets/js/datatables.min.js' %}"></script>
-	<script src="{% static 'assets/js/jquery.dataTables.min.js' %}"></script>
-	<script src="{% static 'assets/js/dataTables.bootstrap.min.js' %}"></script>
+
+	<script src="{% static 'assets/js/datatables/datatables.min.js' %}"></script>
+	<script src="{% static 'assets/js/datatables/dataTables.bootstrap4.min.js' %}"></script>
+	<script src="{% static 'assets/js/datatables/jquery.dataTables.min.js' %}"></script>
+	<script src="{% static 'assets/js/datatables/dataTables.bootstrap4.min.js' %}"></script>
+	<script src="{% static 'assets/js/datatables/dataTables.buttons.min.js' %}"></script>
+	<script src="{% static 'assets/js/datatables/buttons.bootstrap4.min.js' %}"></script>
+	<script src="{% static 'assets/js/datatables/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'assets/js/datatables/jszip.min.js' %}"></script>
+
 	<script src="{% static 'assets/js/tinymce/tinymce.min.js' %}"></script>
 	<script src="{% static 'assets/js/bootstrap-editable.min.js' %}"></script>
 	<script src="{% static 'assets/js/bootstrap-select.min.js' %}"></script>
@@ -76,11 +88,12 @@
 					</ul>
 
 					<!-- LOGO -->
-					<div class="logo-box">
+
+					<div class="">
 						<a href="{% url 'Landing' %}" class="logo text-center logo-light">
 							<span class="logo-lg">
-								<img style="height:60px;" src="{% static 'assets/images/logo_diwan.jpeg' %}" alt="" class="img-fluid">
-								<img style="height:60px;" src="{% static 'assets/images/logo_diwan_2.png' %}" alt="" class="img-fluid">
+								<img style="padding-top:9px;height:60px;" src="{% static 'assets/images/logo_diwan.jpeg' %}" alt="" class="float-left img-fluid">
+								<img style="padding-top:9px;height:60px;" src="{% static 'assets/images/logo_diwan_2.png' %}" alt="" class="float-right img-fluid">
 							</span>
 							<!-- <span class="logo-sm">
 								<img style="height:60px;" src="assets/images/logo.svg" alt="" class="img-fluid">
@@ -140,5 +153,34 @@
 </html>
 
 <script>
-	window.addEventListener("keyup", function(e){ if(e.keyCode == 27) document.getElementById('backButton').click(); }, false);
+	$(document).ready( function () {
+		var today = new Date();
+		var dd = today.getDate();
+		var mm = today.getMonth()+1; //January is 0!
+		var yyyy = today.getFullYear();
+		if(dd<10){
+				dd='0'+dd
+		}
+		if(mm<10){
+				mm='0'+mm
+		}
+		today = yyyy+'-'+mm+'-'+dd;
+		$('.eventTodayDateTime').attr('max', today);
+
+
+		$('button').on('click',function(e){
+            if (e.target.className == 'filter-option-inner-inner') {
+                $(e.target).parent().parent().parent().siblings('.dropdown-menu').css('overflow','auto');
+            }
+            else {
+                $(e.target).siblings('.dropdown-menu').css('overflow','auto');
+            }
+        });
+        $('.dropdown-menu').mouseleave(function(e){
+            $(e.target).parents().siblings('select').selectpicker('toggle');
+        });
+
+
+		window.addEventListener("keyup", function(e){ if(e.keyCode == 27) document.getElementById('backButton').click(); }, false);
+	});
 </script>

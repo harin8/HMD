@@ -1,14 +1,10 @@
-import ssl
 import pymongo
 import datetime
-from datetime import timedelta
+from datetime import timedelta, datetime
 
-# __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
-__MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
+__MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
 
-
-# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
-client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
+client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
 db = client.HMD
 
 
@@ -69,8 +65,10 @@ def get_return_proof_name_from_id(r_id):
         return 'Verify Later'
     elif r_id == '5':
         return 'EVC'
+    elif r_id == '-1':
+        return ''
     else:
-        return '--Select--'
+        return 'Not Selected'
 
 
 def get_all_return_list(r_ay, r_type):
@@ -85,11 +83,12 @@ def get_all_return_list(r_ay, r_type):
             x['AY'] = r_ay
             x['Status'] = 'Not initiated'
         result.extend(result_client)
+
     return result
 
 
 def get_ay_list():
-    today_date = datetime.datetime.now()
+    today_date = datetime.now()
     current_year = today_date.year
     start_year = 2010
     ay_list = []
@@ -98,7 +97,7 @@ def get_ay_list():
         start_year += 1
         ay_list.append(temp)
 
-    return ay_list
+    return ay_list[::-1]
 
 
 def add_return_record(data_dict):
@@ -182,7 +181,7 @@ def get_existing_completed_return_list():
 def get_cpc_all_return_list():
     result = list(db.returnMaster.find({'$and': [{'Submitted_fur': True},
                                                  {'$or': [{'Verification': 'Verify Later'}, {'Verification': 'Aadhar'},
-                                                          {'Verification': 'EVC'}]}]}, {'_id': 0}))
+                                                          {'Verification': 'EVC'}, {'Verification': 'CPC'}]}]}, {'_id': 0}))
     for x in result:
         clientMaster_result = list(db.clientMaster.find({'Name': x['Name']}, {'It_no': 1}))
         if clientMaster_result:
@@ -195,8 +194,8 @@ def get_cpc_all_return_list():
 def calculate_due_date_cpc(filing_date):
     due_date = ""
     if filing_date:
-        due_date = datetime.datetime.strftime(datetime.datetime.strptime(filing_date, '%Y-%m-%d') +
-                                                            timedelta(days=120), "%Y-%m-%d")
+        due_date = datetime.strftime(datetime.strptime(filing_date, '%Y-%m-%d') +
+                                                            timedelta(days=100), "%Y-%m-%d")
 
     return due_date
 

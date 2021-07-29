@@ -2,7 +2,6 @@
 {% block head_block %}
     {% load static %}
     <title>HMD|Reports</title>
-    <script src="{% static 'assets/js/jszip.min.js' %}"></script>
 {% endblock %}
 {% block body_block %}
 <div class="container-fluid">
@@ -11,143 +10,77 @@
             <h4>Reports</h4>
         </div>
         <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
-            <a style="color:white" id="backButton" href="{% url 'Reports Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
+            <a style="color:white" id="backButton" href="{% url 'Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
         </div>
     </div>
     <form action="{% url 'Submit Reports' %}" method="post">
         {% csrf_token %}
-        <div class="row">
-            <div class="col-md-2" id="Status_div">
+        <div class="row" >
+            <div class="col-md-3" id="Status_div">
                 <label class="form-label">Status:</label>
-                <select name="Status" class="form-control" id="status">
+                <select required multiple name="Status" class="selectpicker" id="status" data-actions-box="true">
                     <option value="1">Read</option>
                     <option value="2">Unread</option>
-                    <option value="3">All</option>
                 </select>
             </div>
-            <div class="col-md-3" id="Task_div">
-                <label class="form-label">Task:</label>
-                <div id="checkbox-task">
-                    <div class="form-check col-md-12">
-                        <input class="form-check-input" name="ROI" type="checkbox" id="roi" value="ROI">
-                        <label class="form-check-label" for="roi">ROI</label>
-                    </div>
-                    <div class="form-check col-md-12">
-                        <input class="form-check-input" name="Cert" type="checkbox" id="certificates" value="Certificates">
-                        <label class="form-check-label" for="certificates">Certificates</label>
-                    </div>
-                    <div class="form-check col-md-12">
-                        <input class="form-check-input" name="Other" type="checkbox" id="other_forms" value="otherForms">
-                        <label class="form-check-label" for="other_forms">Other Forms/Activities</label>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3" id="Period_div">
-                <label class="form-label">Period:</label>
-                <div id="accordion">
-                    <div class="card">
-                        <div class="card-header" id="headingOne">
-                            <h5 class="mb-0">
-                                <button type="button" class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                  ROI Period
-                                </button>
-                            </h5>
-                        </div>
-                        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-                            <div class="card-body">
-                                <div class="col-md-12">
-                                    <label class="form-label">Select A.Y.:</label>
-                                    <select name="A.Y" class="form-control" id="A.Y">
-                                        {% for ay in AY_list %}
-                                            {% if ay == AY_Selected %}
-                                                <option value="{{ay}}" selected>{{ay|title}}</option>
-                                            {% else %}
-                                                <option value="{{ay}}">{{ay|title}}</option>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header" id="headingTwo">
-                            <h5 class="mb-0">
-                                <button type="button" class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                    Certificate Period
-                                </button>
-                            </h5>
-                        </div>
-                        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-                            <div class="card-body">
-                                <input type="date" name="certificateStartDate" class="form-control" placeholder="Select Date">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header" id="headingThree">
-                            <h5 class="mb-0">
-                                <button type="button" class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                    Other Forms/Activities
-                                </button>
-                            </h5>
-                        </div>
-                        <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
-                            <div class="card-body">
-                                <input type="date" name="otherFormsStartDate" class="form-control" placeholder="Select Date">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-4" id="GroupName_div">
+            <div class="col-md-3" id="GroupName_div">
                 <label class="form-label">Group Name:</label>
-                <div id="checkbox-group">
-                    <div class="form-check form-check-inline col-md-4">
-                        <input checked class="form-check-input" name="ESD" type="checkbox" id="esd" value="ESD" >
-                        <label class="form-check-label" for="esd">ESD</label>
-                    </div>
-                    <div class="form-check form-check-inline col-md-4">
-                        <input checked class="form-check-input" name="RIS" type="checkbox" id="ris" value="RIS">
-                        <label class="form-check-label" for="ris">RIS</label>
-                    </div>
-                    <div class="form-check form-check-inline col-md-4">
-                          <input checked class="form-check-input" name="VHD" type="checkbox" id="vhd" value="VHD">
-                          <label class="form-check-label" for="vhd">VHD</label>
-                    </div>
-                    <div class="form-check form-check-inline col-md-4">
-                          <input checked class="form-check-input" name="PRB" type="checkbox" id="prb" value="PRB">
-                          <label class="form-check-label" for="prb">PRB</label>
-                    </div><br>
-                    <div class="form-check form-check-inline col-md-4">
-                        <input checked class="form-check-input" name="OS-ESD" type="checkbox" id="os-esd" value="OS-ESD">
-                        <label class="form-check-label" for="os-esd">OS-ESD</label>
-                    </div>
-                    <div class="form-check form-check-inline col-md-4">
-                        <input checked class="form-check-input" name="OS-RIS" type="checkbox" id="os-ris" value="OS-RIS">
-                        <label class="form-check-label" for="os-ris">OS-RIS</label>
-                    </div>
-                    <div class="form-check form-check-inline col-md-4">
-                          <input checked class="form-check-input" name="OS-VHD" type="checkbox" id="os-vhd" value="OS-VHD">
-                          <label class="form-check-label" for="os-vhd">OS-VHD</label>
-                    </div>
-                    <div class="form-check form-check-inline col-md-4">
-                          <input checked class="form-check-input" name="OS-PRB" type="checkbox" id="os-prb" value="OS-PRB">
-                          <label class="form-check-label" for="os-prb">OS-PRB</label>
-                    </div>
-                </div>
+                <select required multiple name="groupName" class="form-control selectpicker" id="Group_Name" data-live-search="true" data-actions-box="true">
+                    <option value="ESD-DHD" selected>ESD-DHD</option>
+                    <option value="ESD-NRJ">ESD-NRJ</option>
+                    <option value="VHD">VHD</option>
+                    <option value="PRB">PRB</option>
+                    <option value="RIS">RIS</option>
+                    <option value="OS-ESD">OS-ESD</option>
+                    <option value="OS-VHD">OS-VHD</option>
+                    <option value="OS-PRB">OS-PRB</option>
+                    <option value="OS-RIS">OS-RIS</option>
+                </select>
             </div>
-            <div class="col-md-5" id="ClientName_div">
+        </div><br>
+        <div class="row">
+            <div class="col-md-3" id="Task_div" >
+                <label class="form-label">Task:</label>
+                <select required multiple name="task" class="selectpicker" id="Task" data-live-search="true" data-actions-box="true">
+                    <option value="ROI">IT-Returns</option>
+                    <option value="Certificates">Certificates</option>
+                    <option value="Other">Other Forms/Activities</option>
+                </select>
+            </div>
+            <div class="col-md-3" id="PartyName_div">
+                <label class="form-label">Party Name:</label>
+                <select required multiple name="partyName" class="selectpicker" id="Party_Name" data-live-search="true" data-actions-box="true">
+                </select>
+            </div>
+            <div class="col-md-3" id="ClientName_div">
                 <label class="form-label">Client Name:</label>
-                <input autocomplete="off" name="Client_Name" id="clientName" list="client_names" value="" class="form-control" onchange="select_change_on_client_name(this.value)">
-                <datalist id="client_names">
-                <!--<select name="Client_Name" class="form-control" id="clientName" onchange="select_change_on_client_name(this.value)">
-                </select>-->
-                </datalist>
+                <select required multiple autocomplete="off" data-dropup-auto="false" name="Client_Name" class="form-control dropdown" id="clientName" data-live-search="true" data-actions-box="true">
+                </select>
+            </div>
+        </div><br>
+        <div class="row" id="period" style="display:none">
+            <div class="col-md-3" id="ay_period" style="display:none">
+                <label class="form-label">A.Y.: </label>
+                <select required multiple name="A.Y" data-dropup-auto="false" class="form-control selectpicker dropdown" id="A.Y" data-live-search="true" data-actions-box="true">
+                    {% for ay in AY_list %}
+                        {% if ay == AY_Selected %}
+                            <option value="{{ay}}" selected>{{ay|title}}</option>
+                        {% else %}
+                            <option value="{{ay}}">{{ay|title}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <p>*Select AY</p>
+            </div>
+            <div class="col-md-4" id="cert_period" style="display:none">
+                <label class="form-label">Certificated Period: </label>
+                <input required id="cert_date" type="date" name="certificateStartDate" class="form-control eventTodayDateTime" placeholder="Select Date">
+                <p>*For entire list, choose any date prior to 01-01-2021</p>
+            </div>
+            <div class="col-md-4" id="form_period" style="display:none">
+                <label class="form-label">Form Period: </label>
+                <input required id="form_date" type="date" name="otherFormsStartDate" class="form-control eventTodayDateTime" placeholder="Select Date">
+                <p>*For entire list, choose any date prior to 01-01-2021</p>
             </div>
         </div>
         <br><br>
@@ -161,7 +94,7 @@
 </div>
 
 
-
+{% if Result_list|length > 0 %}
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12 py-3 mt-2">
@@ -169,7 +102,6 @@
         </div>
     </div>
     <br>
-    {% if Result_list|length > 0 %}
     <div class="row">
         <div class="col-md-12">
             <div class="card">
@@ -185,6 +117,7 @@
                                     <th align="left">Start Date</th>
                                     <th align="left">End Date</th>
                                     <th align="left">Read/Unread</th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -216,33 +149,100 @@
             </div>
         </div>
     </div>
-    {% else %}
-        <div class="col-md-12 py-3 mt-2">
-            <h6><center>No Results</center></h6>
-        </div>
-    {% endif %}
 </div>
-
+{% endif %}
 <script>
     $(document).ready( function () {
-        var client_list = {{ Client_list|safe }};
-        var client_name_list = new Array();
-        for(var i=0; i<client_list.length; i++) {
-          client_name_list.push(client_list[i].Name);
-        }
 
-        initialize('client_names', client_name_list);
+        $('select').selectpicker();
 
-        function initialize(ele_name, list_data) {
+        $('#Group_Name').on('change', function() {
+            var selected_group_names = $('#Group_Name').val();
+            var party_list = {{ Party_list|safe }};
+            console.log(party_list);
+            var final_party_list = new Array();
+            for (i=0; i<selected_group_names.length; i++) {
+                for (j=0; j<party_list.length; j++) {
+                    if (selected_group_names[i] == party_list[j]['group']) {
+                        final_party_list = final_party_list.concat(party_list[j]['party']);
+                    }
+                }
+            }
+            var option_html = '';
+            for (i=0; i<final_party_list.length; i++) {
+                var temp = '<option value="' + final_party_list[i] + '">' + final_party_list[i] + '</option>';
+                option_html = option_html + temp;
+            }
+            $('#Party_Name').empty().html(option_html);
+            $('#Party_Name').selectpicker('refresh');
+            $('.dropdown-menu show').css('overflow','auto');
+        });
 
-          html_cont = '';
-          for(var i=0; i<list_data.length;i++) {
-            //html_cont += '<option value="' + list_data[i] + '">' + list_data[i] + '</option>';
-            html_cont += '<option>' + list_data[i] + '</option>';
-          }
-          $('#' + ele_name).html(html_cont);
-        }
+        $('#Task').on('change', function() {
+            var selected_tasks = $('#Task').val();
+            if (selected_tasks.length == 0) {
+                $("#ay_period").css('display','none');
+                $("#cert_period").css('display','none');
+                $("#form_period").css('display','none');
+            }
+            else {
+                $("#period").css('display','block');
+                $("#ay_period").css('display','none');
+                $("#cert_period").css('display','none');
+                $("#form_period").css('display','none');
+                for(i=0;i<selected_tasks.length;i++) {
+                    if(selected_tasks[i]=='ROI') {
+                        $("#ay_period").css('display','inline-block');
+                    }
+                    if(selected_tasks[i]=='Certificates') {
+                        $("#cert_period").css('display','inline-block');
+                    }
+                    if(selected_tasks[i]=='Other') {
+                        $("#form_period").css('display','inline-block');
+                    }
+                }
+            }
+        });
+
+        $('#Party_Name').on('change', function() {
+            var selected_party_names = $('#Party_Name').val();
+            var client_list = {{ Client_list|safe }};
+            var final_client_list = new Array();
+            for (i=0; i<selected_party_names.length; i++) {
+                for (j=0; j<client_list.length; j++) {
+                    if (selected_party_names[i] == client_list[j]['Party_name']) {
+                        final_client_list = final_client_list.concat(client_list[j]['Name']);
+                    }
+                }
+            }
+            var option_html = '';
+            for (i=0; i<final_client_list.length; i++) {
+                var temp = '<option value="' + final_client_list[i] + '">' + final_client_list[i] + '</option>';
+                option_html = option_html + temp;
+            }
+            $('#clientName').empty().html(option_html);
+            $('select').selectpicker('refresh');
+        });
+
+        $('#Task').on('change', function() {
+            var x = $('#Task').val();
+            $('#A.Y').removeAttr('required');
+            $('#cert_date').removeAttr('required');
+            $('#form_date').removeAttr('required');
+            for (i=0;i<x.length;i++) {
+                console.log(x[i]);
+                if('ROI' == x[i]) {
+                    $('#A.Y').attr('required', true);
+                }
+                if('Certificates' == x[i]) {
+                    $('#cert_date').attr('required',true);
+                }
+                if('Other' == x[i]) {
+                    $('#form_date').attr('required', true);
+                }
+            }
+        });
     });
-</script>
 
+</script>
 {% endblock %}

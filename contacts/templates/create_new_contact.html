@@ -21,6 +21,12 @@
     </div>
     <div class="row">
         <div class="col-md-12">
+            <div style="display:none" class="alert alert-danger alert-dismissible" role="alert">
+                {{Message|safe}}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
             <div class="card">
                 <div class="card-body">
                     {% if Hide %}
@@ -71,12 +77,12 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
-                                        <input required pattern="[0-9]*" maxlength="10" minlength="10" title="10 digits" type="text" value="{{Contact_Details.Contact_no}}" class="form-control" name="contactNo">
+                                        <input required pattern="[0-9]*" maxlength="10" minlength="10" title="10 digits" type="tel" value="{{Contact_Details.Contact_no}}" class="form-control" name="contactNo">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
-                                        <input pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" value="{{Contact_Details.Email}}" type="text" class="form-control" title="Enter Valid email" name="contactEmail">
+                                        <input pattern="[aA-zZ0-9._%+-]+@[aA-zZ0-9.-]+\.[aA-zZ]{2,}$" value="{{Contact_Details.Email}}" type="text" class="form-control" title="Enter Valid email" name="contactEmail">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -98,29 +104,37 @@
         </div>
     </div>
 </div>
-
 {% if not Hide %}
 <script>
-  var counter = 1;
-    $('#add_contact').on('click', function(e) {
-        e.preventDefault();
-        $('.row.contacts').last().clone().appendTo('#contact_span').find('input').val("");
-        counter += 1;
-    });
+    $(document).ready( function () {
+        var counter = 1;
+        $('#add_contact').on('click', function(e) {
+            e.preventDefault();
+            $('.row.contacts').last().clone().appendTo('#contact_span').find('input').val("");
+            counter += 1;
+        });
 
-	$('#remove_contact').on('click', function(e) {
-	    e.preventDefault();
-	    if(counter > 1) {
-            $('.row.contacts').last().remove();
-            counter -= 1;
-        }
+        $('#remove_contact').on('click', function(e) {
+            e.preventDefault();
+            if(counter > 1) {
+                $('.row.contacts').last().remove();
+                counter -= 1;
+            }
+        });
     });
 </script>
 {% endif %}
 
 {% if Error %}
 <script>
-    alert('Could not update the database! Please Try Again.')
+    $(document).ready( function () {
+        {% if Message %}
+            $('.alert').css('display','block');
+            $('.alert').alert();
+        {% else %}
+            alert('Could not update the database! Please Try Again.');
+        {% endif %}
+    });
 </script>
 {% endif %}
 

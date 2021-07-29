@@ -50,17 +50,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label>Verification:</label>
-                                    <select required name="verification" class="form-control" id="verification">
-                                        <option value="2" {% if Data_Dict.Verification == "Aadhar" %} selected {% endif %}> Aadhar </option>
-                                        <option value="3" {% if Data_Dict.Verification == "CPC" %} selected {% endif %}> CPC </option>
-                                        <option value="5" {% if Data_Dict.Verification == "EVC" %} selected {% endif %}> EVC </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Select Type:</label>
+                                    <label>Type:</label>
                                     <select required name="type" class="form-control" readonly>
                                         <option value="1" {% if Type == '1' %} selected {% endif %}>Original</option>
                                         <option value="2" {% if Type == '2' %} selected {% endif %}>Revised</option>
@@ -94,6 +84,22 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
+                                    <label>Due Date:</label>
+                                    <input required type="date" name="dueDate_CPC" class="form-control" placeholder="Select Date" value="{{ Data_Dict.Due_date}}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Verification:</label>
+                                    <select required name="verification" class="form-control selectpicker" id="verification">
+                                        <option value="2" {% if Data_Dict.Verification == "Aadhar" %} selected {% endif %}> Aadhar </option>
+                                        <option value="3" {% if Data_Dict.Verification == "CPC" %} selected {% endif %}> CPC </option>
+                                        <option value="5" {% if Data_Dict.Verification == "EVC" %} selected {% endif %}> EVC </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
                                     <label>Completed By:</label>
                                     <input required style="text-transform:uppercase" type="text" name="completedBy" class="form-control" placeholder="Write Name" value="{{ Data_Dict.Completed_by|safe }}" {% if Data_Dict.Submitted_cpc %} readonly {% endif %}>
                                 </div>
@@ -101,7 +107,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Completed On:</label>
-                                    <input required type="date" name="completedOn" class="form-control" placeholder="Select Date" value="{{ Data_Dict.Completed_on}}" {% if Data_Dict.Submitted_cpc %} readonly {% endif %}>
+                                    <input required type="date" name="completedOn" class="form-control eventTodayDateTime" placeholder="Select Date" value="{{ Data_Dict.Completed_on}}" {% if Data_Dict.Submitted_cpc %} readonly {% endif %}>
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -110,12 +116,7 @@
                                     <input required style="text-transform:uppercase" type="text" name="remarksCPC" class="form-control" placeholder="Write Remarks" value="{{ Data_Dict.Remarks_cpc|safe }}" {% if Data_Dict.Submitted_cpc %} readonly {% endif %}>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Due Date:</label>
-                                    <input required type="date" name="dueDate_CPC" class="form-control" placeholder="Select Date" value="{{ Data_Dict.Due_date}}" readonly>
-                                </div>
-                            </div>
+
                         </div>
                         {% if not Data_Dict.Submitted_cpc %}
                             <div class="row">
@@ -131,4 +132,13 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready( function () {
+        $('.selectpicker').selectpicker();
+        $('.selectpicker').prepend('<option value="-1" selected disabled>--Select--</option>');
+        $('.selectpicker').selectpicker('refresh');
+    });
+</script>
+
 {% endblock %}

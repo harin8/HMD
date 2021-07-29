@@ -22,13 +22,17 @@
                 <div class="card-body">
                     <div id="checkbox-group">
                         <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="esd" value="ESD" >
-                            <label class="form-check-label" for="esd">ESD</label>
+                            <input class="form-check-input" type="checkbox" id="esd-dhd" value="ESD-DHD">
+                            <label class="form-check-label" for="esd-dhd">ESD-DHD</label>
                         </div>
                         <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="ris" value="RIS">
-                            <label class="form-check-label" for="ris">RIS</label>
+                            <input class="form-check-input" type="checkbox" id="esd-nrj" value="ESD-NRJ">
+                            <label class="form-check-label" for="esd-nrj">ESD-NRJ</label>
                         </div>
+                        <div class="form-check form-check-inline col-md-1">
+                            <input class="form-check-input" type="checkbox" id="os-esd" value="OS-ESD">
+                            <label class="form-check-label" for="os-esd">OS-ESD</label>
+                        </div><br>
                         <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="vhd" value="VHD">
                               <label class="form-check-label" for="vhd">VHD</label>
@@ -36,15 +40,11 @@
                         <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="prb" value="PRB">
                               <label class="form-check-label" for="prb">PRB</label>
+                        </div>
+                        <div class="form-check form-check-inline col-md-1">
+                            <input class="form-check-input" type="checkbox" id="ris" value="RIS">
+                            <label class="form-check-label" for="ris">RIS</label>
                         </div><br>
-                        <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="os-esd" value="OS-ESD">
-                            <label class="form-check-label" for="os-esd">OS-ESD</label>
-                        </div>
-                        <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="os-ris" value="OS-RIS">
-                            <label class="form-check-label" for="os-ris">OS-RIS</label>
-                        </div>
                         <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="os-vhd" value="OS-VHD">
                               <label class="form-check-label" for="os-vhd">OS-VHD</label>
@@ -52,6 +52,10 @@
                         <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="os-prb" value="OS-PRB">
                               <label class="form-check-label" for="os-prb">OS-PRB</label>
+                        </div>
+                        <div class="form-check form-check-inline col-md-1">
+                            <input class="form-check-input" type="checkbox" id="os-ris" value="OS-RIS">
+                            <label class="form-check-label" for="os-ris">OS-RIS</label>
                         </div>
                     </div><br>
                     <div class="table-responsive">
@@ -87,7 +91,7 @@
                                     <td align="left">{{ each_return.Ack_no }}</td>
                                     <td align="left">{{ each_return.Verification }}</td>
                                     {% if each_return.Submitted_cpc %}
-                                        <td align="left" style="background-color:green">{{ each_return.Due_date }}</td>
+                                        <td align="left" style="background-color:#98cc65">{{ each_return.Due_date }}</td>
                                     {% else %}
                                         <td align="left" style="color:white;background-color:#d32f2f">{{ each_return.Due_date }}</td>
                                     {% endif %}
@@ -153,10 +157,10 @@
             if(selected.length > 0) {
                 for(var i=0;i<selected.length;i++) {
                     if(i==selected.length-1) {
-                        search_regex = search_regex + selected[i];
+                        search_regex = search_regex + '^' +  selected[i] + '$';
                     }
                     else {
-                        search_regex = search_regex + selected[i] + '|';
+                        search_regex = search_regex + '^' + selected[i] + '$|';
                     }
                 }
                 cpc_table.column(0).search(search_regex, true).draw();

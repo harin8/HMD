@@ -1,20 +1,14 @@
+from . import database
+
 def get_selected_tasks(form_data_dict):
     task_list = []
-    try:
-        roi = form_data_dict['ROI']
-        task_list.append(roi)
-    except:
-        pass
-    try:
-        cert = form_data_dict['Cert']
-        task_list.append(cert)
-    except:
-        pass
-    try:
-        other = form_data_dict['Other']
-        task_list.append(other)
-    except:
-        pass
+    selected_task_list = form_data_dict.getlist('task')
+    if 'ROI' in selected_task_list:
+        task_list.append('ROI')
+    if 'Certificates' in selected_task_list:
+        task_list.append('Certificates')
+    if 'Other' in selected_task_list:
+        task_list.append('Other')
 
     return task_list
 
@@ -22,35 +16,42 @@ def get_selected_tasks(form_data_dict):
 def get_period(form_data_dict, task_list):
     period_list = {}
     if "ROI" in task_list:
-        ay = form_data_dict['A.Y']
+        ay = form_data_dict.getlist('A.Y')
         period_list['ROI'] = ay
     if "Certificates" in task_list:
         cert_start_date = form_data_dict['certificateStartDate']
         period_list['Certificates'] = {'Start_date': cert_start_date}
-    if "otherForms" in task_list:
+    if "Other" in task_list:
         cert_start_date = form_data_dict['otherFormsStartDate']
-        period_list['OtherForms'] = {'Start_date': cert_start_date}
+        period_list['Other'] = {'Start_date': cert_start_date}
 
     return period_list
 
 
 def get_group_name(form_data_dict):
     group_name_list = []
-    if "ESD" in form_data_dict:
-        group_name_list.append("ESD")
-    if "RIS" in form_data_dict:
+    selected_group_list = form_data_dict.getlist('groupName')
+    if "ESD-DHD" in selected_group_list:
+        group_name_list.append("ESD-DHD")
+    if "ESD-NRJ" in selected_group_list:
+        group_name_list.append("ESD-NRJ")
+    if "RIS" in selected_group_list:
         group_name_list.append("RIS")
-    if "VHD" in form_data_dict:
+    if "VHD" in selected_group_list:
         group_name_list.append("VHD")
-    if "PRB" in form_data_dict:
+    if "PRB" in selected_group_list:
         group_name_list.append("PRB")
-    if "OS-ESD" in form_data_dict:
+    if "OS-ESD" in selected_group_list:
         group_name_list.append("OS-ESD")
-    if "OS-RIS" in form_data_dict:
+    if "OS-RIS" in selected_group_list:
         group_name_list.append("OS-RIS")
-    if "OS-VHD" in form_data_dict:
+    if "OS-VHD" in selected_group_list:
         group_name_list.append("OS-VHD")
-    if "OS-PRB" in form_data_dict:
+    if "OS-PRB" in selected_group_list:
         group_name_list.append("OS-PRB")
-
     return group_name_list
+
+
+def get_party_name(form_data_dict):
+    selected_party_list = form_data_dict.getlist('partyName')
+    return selected_party_list

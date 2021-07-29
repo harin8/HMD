@@ -7,7 +7,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-6 py-3 mt-2">
-            <h4>New Return</h4>
+            <h4>Return</h4>
         </div>
         <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
             <a style="color: white" id="backButton" href="{% url 'Existing Return List' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
@@ -44,8 +44,8 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>A.Y.:</label>
-                                    <input type="hidden" name="AY" value="{{ ay|safe }}" />
-                                    <select required name="AY" class="form-control" id="ay" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
+                                    <input type="hidden" name="AY" value="{{ AY_Selected|safe }}" />
+                                    <select disabled required name="AY_dummy" class="form-control" id="ay" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
                                         {% for ay in AY_list %}
                                             {% if ay == AY_Selected %}
                                                 <option value="{{ ay|safe }}" selected> {{ay|title}} </option>
@@ -60,7 +60,8 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Select Type:</label>
-                                    <select required name="type" class="form-control" id="r_type" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
+                                    <input type="hidden" name="type" value="{{ Type|safe }}" />
+                                    <select disabled required name="type_dummy" class="form-control" id="r_type" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>
                                         <option value="1" {% if Type == '1' %} selected {% endif %}>Original</option>
                                         <option value="2" {% if Type == '2' %} selected {% endif %}>Revised</option>
                                         <option value="3" {% if Type == '3' %} selected {% endif %}>142(1)</option>
@@ -108,12 +109,11 @@
                                 <div class="col-md-3">
 									<div class="form-group">
 										<label>Verification:</label>
-										<select required name="verification" class="form-control" id="verification" {% if Data_Dict.Submitted_fur %} disabled {% endif %}>
-                                            <option value="0" {% if Data_Dict.Verification == "--Select--" %} selected {% endif %}> --Select-- </option>
-                                            <option value="1" {% if Data_Dict.Verification == "DSC" %} selected {% endif %}> DSC </option>
+										<select required name="verification" class="form-control selectpicker" id="verification" {% if Data_Dict.Submitted_fur %} disabled {% endif %}>
                                             <option value="2" {% if Data_Dict.Verification == "Aadhar" %} selected {% endif %}> Aadhar </option>
-                                            <option value="4" {% if Data_Dict.Verification == "Verify Later" %} selected {% endif %}> Verify Later </option>
+                                            <option value="1" {% if Data_Dict.Verification == "DSC" %} selected {% endif %}> DSC </option>
                                             <option value="5" {% if Data_Dict.Verification == "EVC" %} selected {% endif %}> EVC </option>
+                                            <option value="4" {% if Data_Dict.Verification == "Verify Later" %} selected {% endif %}> Verify Later </option>
 										</select>
 									</div>
 								</div>
@@ -122,7 +122,7 @@
                                         <label>Remarks:</label>
                                         <input required style="text-transform:uppercase" type="text" name="remarks" id="remarks" class="form-control eventTodayDateTime" placeholder="Write Remarks" value="{{ Data_Dict.Remarks|safe }}" {% if Data_Dict.Submitted_fur %} readonly {% endif %}>
                                     </div>
-                            </div>
+                                </div>
                             {% endif %}
                         </div>
                         {% if not Data_Dict.Submitted_fur %}
@@ -142,64 +142,70 @@
 </div>
 
 <script>
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+    $(document).ready( function () {
+        $('.selectpicker').selectpicker();
+        $('.selectpicker').prepend('<option value="-1" selected disabled>--Select--</option>');
+        $('.selectpicker').selectpicker('refresh');
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
                 }
             }
+            return cookieValue;
         }
-        return cookieValue;
-    }
-    const csrftoken = getCookie('csrftoken');
+        const csrftoken = getCookie('csrftoken');
 
-    $("#save_button").click(function(e){
-        e.preventDefault();
-        it_no = $("#it_no").val();
-        c_name = $("#c_name").val();
-        accepted_by = $("#accepted_by").val();
-        accepted_date = $("#accepted_date").val();
-        ay = $("#ay").val();
-        r_type = $("#r_type").val();
-        remarks = $("#remarks").val();
-        handled_by = $("#handled_by").val();
-        checked_by = $("#checked_by").val();
-        filing_date = $("#filing_date").val();
-        ack_no = $("#ack_no").val();
-        verification = $("#verification").val();
-        filed_by = $("#filed_by").val();
-        $.ajax({
-            type: "POST",
-            url: "{% url 'Further Return Submit' %}",
-            beforeSend: function(xhr, settings) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            },
-            data: {
-                name: c_name,
-                It_No: it_no,
-                acceptedBy: accepted_by,
-                acceptedDate: accepted_date,
-                AY: ay,
-                type: r_type,
-                remarks: remarks,
-                handledBy: handled_by,
-                checkedBy: checked_by,
-                filingDate: filing_date,
-                acknowledgmentNo: ack_no,
-                verification: verification,
-                filedBy: filed_by,
-                save_fur: false
-            },
-            success: function(result){
-                alert("Details Saved");
-                document.getElementById('backButton').click();
-            }
+        $("#save_button").click(function(e){
+            e.preventDefault();
+            it_no = $("#it_no").val();
+            c_name = $("#c_name").val();
+            accepted_by = $("#accepted_by").val();
+            accepted_date = $("#accepted_date").val();
+            ay = $("#ay").val();
+            r_type = $("#r_type").val();
+            remarks = $("#remarks").val();
+            handled_by = $("#handled_by").val();
+            checked_by = $("#checked_by").val();
+            filing_date = $("#filing_date").val();
+            ack_no = $("#ack_no").val();
+            verification = $("#verification").val();
+            filed_by = $("#filed_by").val();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'Further Return Submit' %}",
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                },
+                data: {
+                    name: c_name,
+                    It_No: it_no,
+                    acceptedBy: accepted_by,
+                    acceptedDate: accepted_date,
+                    AY: ay,
+                    type: r_type,
+                    remarks: remarks,
+                    handledBy: handled_by,
+                    checkedBy: checked_by,
+                    filingDate: filing_date,
+                    acknowledgmentNo: ack_no,
+                    verification: verification,
+                    filedBy: filed_by,
+                    save_fur: false
+                },
+                success: function(result){
+                    alert("Details Saved");
+                    document.getElementById('backButton').click();
+                }
+            });
         });
     });
 

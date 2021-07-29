@@ -15,7 +15,7 @@
                         <div class="col-md-4" id="main-menu">
                             <div class="card widget-box-three">
                                 <button style="text-align:left;" type="button" class="btn btn-link" id="it-return">
-                                    <div style="text-align: center" class="card-body">IT Return</div>
+                                    <div style="text-align: center" class="card-body">IT Returns</div>
                                 </button>
                             </div><br>
                             <div class="card widget-box-three">
@@ -27,6 +27,11 @@
                                 <a role="button" style="text-align:left" href="{% url 'Other Forms Landing' %}" class="btn btn-link" id="otherForms">
                                     <div style="text-align: center" class="card-body">Other Forms/Activities</div>
                                 </a>
+                            </div><br>
+                            <div class="card widget-box-three">
+                                <button style="text-align:left;" type="button" class="btn btn-link" id="tds">
+                                    <div style="text-align: center" class="card-body">TDS/TCS</div>
+                                </button>
                             </div><br>
                             <div class="card widget-box-three">
                                 <a role="button" style="text-align:left" href="{% url 'Reports Landing' %}" class="btn btn-link" id="reports">
@@ -44,21 +49,38 @@
 </div>
 
 <script type="text/javascript">
-    var modal_toggle = false;
-	$('#it-return').on('click', function(event) {
-  		event.preventDefault(); // To prevent following the link (optional)
-  		if (!modal_toggle) {
-            var div = '<div class="card widget-box-three"><a style="text-align:left" role="button" href="{% url 'New IT Return' %}" class="btn btn-link" id="return-new"><div class="card-body">New</div></a></div><br><div class="card widget-box-three"><a style="text-align:left" href="{% url 'Existing Return List' %}" role="button" class="btn btn-link" id="return-existing"><div class="card-body">Existing</div></a></div><br><div class="card widget-box-three"><a style="text-align:left" role="button" href="{% url 'CPC List' %}" class="btn btn-link" id="return-cpc"><div class="card-body">Verify Later</div></a></div><br>'
-            $('#sub-menu').append(div);
-            $('#sub-menu').css('display', 'block');
-            modal_toggle = true;
-        }
-        else {
-            document.getElementById('sub-menu').innerHTML = "";
-            $('#sub-menu').css('display', 'none');
-            modal_toggle = false;
-        }
-	});
+    $(document).ready( function () {
+        var modal_toggle = false;
+        $('#it-return').on('click', function(event) {
+            event.preventDefault(); // To prevent following the link (optional)
+            if (!modal_toggle) {
+                var div = '<div style="text-align: center" class="card widget-box-three"><a style="text-align:left" role="button" href="{% url 'New IT Return' %}" class="btn btn-link" id="return-new"><div style="text-align: center" class="card-body">New</div></a></div><br><div class="card widget-box-three"><a style="text-align:left" href="{% url 'Existing Return List' %}" role="button" class="btn btn-link" id="return-existing"><div style="text-align: center" class="card-body">Existing</div></a></div><br><div class="card widget-box-three"><a style="text-align:left" role="button" href="{% url 'CPC List' %}" class="btn btn-link" id="return-cpc"><div style="text-align: center" class="card-body">Verify Later</div></a></div><br>'
+                $('#sub-menu').append(div);
+                $('#sub-menu').css('display', 'block');
+                modal_toggle = true;
+            }
+            else {
+                document.getElementById('sub-menu').innerHTML = "";
+                $('#sub-menu').css('display', 'none');
+                modal_toggle = false;
+            }
+        });
+
+        $('#tds').on('click', function(event) {
+            event.preventDefault(); // To prevent following the link (optional)
+            if (!modal_toggle) {
+                var div = '<div style="text-align: center" class="card widget-box-three"><a style="text-align:left" role="button" href="{% url 'TDS Landing' %}" class="btn btn-link" id="tds-new"><div style="text-align: center" class="card-body">New</div></a></div><br><div class="card widget-box-three"><a style="text-align:left" href="{% url 'Existing TDS List' %}" role="button" class="btn btn-link" id="tds-existing"><div style="text-align: center" class="card-body">Existing</div></a></div><br>'
+                $('#sub-menu').append(div);
+                $('#sub-menu').css('display', 'block');
+                modal_toggle = true;
+            }
+            else {
+                document.getElementById('sub-menu').innerHTML = "";
+                $('#sub-menu').css('display', 'none');
+                modal_toggle = false;
+            }
+        });
+    });
 
 </script>
 {% endblock %}

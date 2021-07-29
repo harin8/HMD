@@ -1,14 +1,17 @@
-import ssl
 import pymongo
 from bson.objectid import ObjectId
 
-# __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
+__MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
 
-__MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
-
-# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
-client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
+client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
 db = client.HMD
+
+
+def check_client_from_client_code(client_code):
+    result = list(db.clientMaster.find({'Client_code': client_code}, {'_id': 1, 'Name': 1}))
+    if result:
+        return True, result[0]['Name']
+    return False, ''
 
 
 def initialise_description_id_mapping():
@@ -65,3 +68,18 @@ def add_further_cert_record(data_dict, r_id):
         x = None
         print('not updated')
     return x
+
+
+def get_group_name_from_client_name(c_name):
+    result = list(db.clientMaster.find({'Name': c_name}, {'Group_name': 1}))
+    if result:
+        return result[0]['Group_name']
+    return 'NA'
+
+
+def get_client_code_from_name(name):
+    clientMaster_result = list(db.clientMaster.find({'Name': name}, {'Client_code': 1}))
+    if clientMaster_result:
+        return clientMaster_result[0]['Client_code']
+    else:
+        return ''

@@ -1,0 +1,217 @@
+{% extends "landing.html" %}
+{% block head_block %}
+    {% load static %}
+    <title>HMD|New TDS/TCS</title>
+{% endblock %}
+
+{% block body_block %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 py-3 mt-2">
+            <h4>New TDS/TCS</h4>
+        </div>
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <a style="color: white" id="backButton" href="{% url 'Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
+        </div>
+    </div>
+    <form action="{% url 'TDS Landing' %}">
+        <div class="row">
+            <div class="col-md-2">
+                <label class="form-label">Select A.Y.:</label>
+                <select name="A.Y" data-size="8" class="form-control selectpicker dropdown" data-live-search="true" data-dropup-auto="false" id="A.Y">
+                    {% for ay in AY_List %}
+                        <option value="{{ay}}">{{ay|title}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Select Quarter:</label>
+                <select name="tdsQuarter" data-size="8" class="form-control selectpicker dropdown" data-live-search="true" data-dropup-auto="false" id="tds_quarter">
+                    {% for x,y in TDS_Quarter.items %}
+                    <option value="{{ x }}">{{ y|safe }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Select Form:</label>
+                <select name="tdsForm" class="form-control selectpicker dropdown" data-live-search="true" data-dropup-auto="false" id="tds_form">
+                    {% for x,y in TDS_Form.items %}
+                    <option value="{{ x }}">{{ y|safe }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Select Type:</label>
+                <select name="tdsType" class="form-control selectpicker dropdown" data-live-search="true" data-dropup-auto="false" id="tds_type">
+                    {% for x,y in TDS_Type.items %}
+                    <option value="{{ x }}">{{ y|safe }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-1">
+                <br>
+                <button type="submit" class="form-control btn btn-primary" id="return-new-search" style="margin-top:7px">Search</button>
+            </div>
+        </div>
+    </form>
+    <br>
+    {% if All_TDS_List %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <div id="checkbox-group">
+                            <div class="form-check form-check-inline col-md-1">
+                                <input class="form-check-input" type="checkbox" id="esd-dhd" value="ESD-DHD">
+                                <label class="form-check-label" for="esd-dhd">ESD-DHD</label>
+                            </div>
+                            <div class="form-check form-check-inline col-md-1">
+                                <input class="form-check-input" type="checkbox" id="esd-nrj" value="ESD-NRJ">
+                                <label class="form-check-label" for="esd-nrj">ESD-NRJ</label>
+                            </div>
+                            <div class="form-check form-check-inline col-md-1">
+                                <input class="form-check-input" type="checkbox" id="os-esd" value="OS-ESD">
+                                <label class="form-check-label" for="os-esd">OS-ESD</label>
+                            </div><br>
+                            <div class="form-check form-check-inline col-md-1">
+                                  <input class="form-check-input" type="checkbox" id="vhd" value="VHD">
+                                  <label class="form-check-label" for="vhd">VHD</label>
+                            </div>
+                            <div class="form-check form-check-inline col-md-1">
+                                  <input class="form-check-input" type="checkbox" id="prb" value="PRB">
+                                  <label class="form-check-label" for="prb">PRB</label>
+                            </div>
+                            <div class="form-check form-check-inline col-md-1">
+                                <input class="form-check-input" type="checkbox" id="ris" value="RIS">
+                                <label class="form-check-label" for="ris">RIS</label>
+                            </div><br>
+                            <div class="form-check form-check-inline col-md-1">
+                                  <input class="form-check-input" type="checkbox" id="os-vhd" value="OS-VHD">
+                                  <label class="form-check-label" for="os-vhd">OS-VHD</label>
+                            </div>
+                            <div class="form-check form-check-inline col-md-1">
+                                  <input class="form-check-input" type="checkbox" id="os-prb" value="OS-PRB">
+                                  <label class="form-check-label" for="os-prb">OS-PRB</label>
+                            </div>
+                            <div class="form-check form-check-inline col-md-1">
+                                <input class="form-check-input" type="checkbox" id="os-ris" value="OS-RIS">
+                                <label class="form-check-label" for="os-ris">OS-RIS</label>
+                            </div>
+                        </div><br>
+                        <table cellpadding="1" cellspacing="2" border="0" class="table table-striped table-bordered dataTable" id="tdsList" width="100%">
+                            <thead>
+                                <tr>
+                                    <th align="left">Group Name</th>
+                                    <th align="left">Client Code</th>
+                                    <th align="left">Client Name</th>
+                                    <th align="left">A.Y.</th>
+                                    <th align="left">Quarter</th>
+                                    <th align="left">Form</th>
+                                    <th align="left">Type</th>
+                                    <th align="left">Handled By</th>
+                                    <th align="left">Checked By</th>
+                                    <th align="left">Filing Date</th>
+                                    <th align="left">Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for each_return in All_TDS_List %}
+                                <tr>
+                                    <td align="left">{{ each_return.Group_name }}</td>
+                                    <td align="left">{{ each_return.Client_code }}</td>
+                                    <td align="left">{{ each_return.Name }}</td>
+                                    <td align="left">{{ each_return.AY }}</td>
+                                    <td align="left">{{ each_return.Quarter }}</td>
+                                    <td align="left">{{ each_return.Form }}</td>
+                                    <td align="left">{{ each_return.Type }}</td>
+                                    <td align="left">{{ each_return.Handled_by }}</td>
+                                    <td align="left">{{ each_return.Checked_by }}</td>
+                                    <td align="left">{{ each_return.Filing_date }}</td>
+                                    <td align="left">{{ each_return.Status }}</td>
+                                    <td>
+                                    {% if each_return.Status == 'Initiated' %}
+                                        <a href="{% url 'Create New TDS' client_no=each_return.Client_code ay=each_return.AY quarter=each_return.Quarter_id form=each_return.Form_id type=each_return.Type_id %}" title="Edit" ><i class="fe-edit text-info"></i></a>&nbsp;&nbsp;
+                                        <a href="{% url 'Further TDS Info' client_no=each_return.Client_code ay=each_return.AY quarter=each_return.Quarter_id form=each_return.Form_id type=each_return.Type_id %}" title="further info"><i class="fas fa-clipboard text-info"></i></a>
+                                    {% endif %}
+                                    {% if each_return.Status == 'Not initiated' %}
+                                        <a href="{% url 'Create New TDS' client_no=each_return.Client_code ay=each_return.AY quarter=each_return.Quarter_id form=each_return.Form_id type=each_return.Type_id %}" title="Edit" ><i class="fe-edit text-info"></i></a>&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if each_return.Status == 'Completed' %}
+                                        <a href="{% url 'Further TDS Info' client_no=each_return.Client_code ay=each_return.AY quarter=each_return.Quarter_id form=each_return.Form_id type=each_return.Type_id %}" title="View"><i class="fas fa-eye text-success"></i></a>&nbsp;&nbsp;
+                                    {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                                <tfoot>
+                                <tr>
+                                    <th align="left">Group Name</th>
+                                    <th align="left">Client Code</th>
+                                    <th align="left">Client Name</th>
+                                    <th align="left">A.Y.</th>
+                                    <th align="left">Quarter</th>
+                                    <th align="left">Form</th>
+                                    <th align="left">Type</th>
+                                    <th align="left">Handled By</th>
+                                    <th align="left">Checked By</th>
+                                    <th align="left">Filing Date</th>
+                                    <th align="left">Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<script>
+    $(document).ready( function () {
+        var return_table = $('#tdsList').DataTable({
+            dom: 'Bfrtip',
+            lengthMenu: [[10,25,50,100,-1],[10,25,50,100,"All"]],
+			buttons: [{
+                extend: 'excel',
+                title: 'TDS'
+            },
+            {
+                extend: 'pageLength'
+            }]
+		});
+
+		$('#checkbox-group input[type=checkbox]').change(function() { // while you're at it listen for change rather than click, this is in case something else modifies the checkbox
+            var selected = [];
+            var search_regex = '';
+            $('div#checkbox-group input[type=checkbox]').each(function() {
+                if ($(this).is(":checked")) {
+                    selected.push($(this).val());
+                }
+            });
+            if(selected.length > 0) {
+                for(var i=0;i<selected.length;i++) {
+                    if(i==selected.length-1) {
+                        search_regex = search_regex + '^' +  selected[i] + '$';
+                    }
+                    else {
+                        search_regex = search_regex + '^' + selected[i] + '$|';
+                    }
+                }
+                return_table.column(0).search(search_regex, true).draw();
+            }
+            else {
+                return_table.column(0).search('').draw();
+            }
+        });
+    });
+
+    $('select').selectpicker();
+	$('select').prepend('<option value="-1" selected disabled>--Select--</option>');
+	$('select').selectpicker('refresh');
+
+</script>
+{% endblock %}

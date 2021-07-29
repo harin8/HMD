@@ -2,9 +2,7 @@
 {% block head_block %}
     {% load static %}
     <title>HMD|Return List</title>
-    <link href="{% static 'assets/css/fixedColumns.bootstrap4.min.css' %}" rel="stylesheet">
-	<script src="{% static 'assets/js/fixedColumns.bootstrap4.min.js' %}"></script>
-    <script src="{% static 'assets/js/jszip.min.js' %}"></script>
+
 {% endblock %}
 
 {% block body_block %}
@@ -22,28 +20,24 @@
         <div class="row">
             <div class="col-md-2">
                 <label class="form-label">Select A.Y.:</label>
-                <select name="A.Y" class="form-control" id="A.Y">
+                <select name="A.Y" data-size="8" class="form-control selectpicker dropdown" data-live-search="true" data-dropup-auto="false" id="A.Y">
                     {% for ay in AY_list %}
-                        {% if ay == AY_Selected %}
-                            <option value="{{ay}}" selected>{{ay|title}}</option>
-                        {% else %}
-                            <option value="{{ay}}">{{ay|title}}</option>
-                        {% endif %}
+                        <option value="{{ay}}">{{ay|title}}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-md-2">
                 <label class="form-label">Select Type:</label>
-                <select name="Type" class="form-control" id="Type">
-                    <option value="1" {% if Return_Type_Selected == '1' %} selected {% endif %}>Original</option>
-                    <option value="2" {% if Return_Type_Selected == '2' %} selected {% endif %}>Revised</option>
-                    <option value="3" {% if Return_Type_Selected == '3' %} selected {% endif %}>142(1)</option>
-                    <option value="4" {% if Return_Type_Selected == '4' %} selected {% endif %}>148</option>
-                    <option value="5" {% if Return_Type_Selected == '5' %} selected {% endif %}>139(9)</option>
-                    <option value="6" {% if Return_Type_Selected == '6' %} selected {% endif %}>153A</option>
-                    <option value="7" {% if Return_Type_Selected == '7' %} selected {% endif %}>153C r.w 153A</option>
-                    <option value="8" {% if Return_Type_Selected == '8' %} selected {% endif %}>92CD</option>
-                    <option value="9" {% if Return_Type_Selected == '9' %} selected {% endif %}>119(2)(b)</option>
+                <select name="Type" class="form-control selectpicker dropdown" data-live-search="true" data-dropup-auto="false" id="Type">
+                    <option value="1">Original</option>
+                    <option value="2">Revised</option>
+                    <option value="3">142(1)</option>
+                    <option value="4">148</option>
+                    <option value="5">139(9)</option>
+                    <option value="6">153A</option>
+                    <option value="7">153C r.w 153A</option>
+                    <option value="8">92CD</option>
+                    <option value="9">119(2)(b)</option>
                 </select>
             </div>
             <div class="col-md-1">
@@ -61,13 +55,17 @@
                     <div class="table-responsive">
                         <div id="checkbox-group">
                             <div class="form-check form-check-inline col-md-1">
-                                <input class="form-check-input" type="checkbox" id="esd" value="ESD" >
-                                <label class="form-check-label" for="esd">ESD</label>
+                                <input class="form-check-input" type="checkbox" id="esd-dhd" value="ESD-DHD">
+                                <label class="form-check-label" for="esd-dhd">ESD-DHD</label>
                             </div>
                             <div class="form-check form-check-inline col-md-1">
-                                <input class="form-check-input" type="checkbox" id="ris" value="RIS">
-                                <label class="form-check-label" for="ris">RIS</label>
+                                <input class="form-check-input" type="checkbox" id="esd-nrj" value="ESD-NRJ">
+                                <label class="form-check-label" for="esd-nrj">ESD-NRJ</label>
                             </div>
+                            <div class="form-check form-check-inline col-md-1">
+                                <input class="form-check-input" type="checkbox" id="os-esd" value="OS-ESD">
+                                <label class="form-check-label" for="os-esd">OS-ESD</label>
+                            </div><br>
                             <div class="form-check form-check-inline col-md-1">
                                   <input class="form-check-input" type="checkbox" id="vhd" value="VHD">
                                   <label class="form-check-label" for="vhd">VHD</label>
@@ -75,15 +73,11 @@
                             <div class="form-check form-check-inline col-md-1">
                                   <input class="form-check-input" type="checkbox" id="prb" value="PRB">
                                   <label class="form-check-label" for="prb">PRB</label>
+                            </div>
+                            <div class="form-check form-check-inline col-md-1">
+                                <input class="form-check-input" type="checkbox" id="ris" value="RIS">
+                                <label class="form-check-label" for="ris">RIS</label>
                             </div><br>
-                            <div class="form-check form-check-inline col-md-1">
-                                <input class="form-check-input" type="checkbox" id="os-esd" value="OS-ESD">
-                                <label class="form-check-label" for="os-esd">OS-ESD</label>
-                            </div>
-                            <div class="form-check form-check-inline col-md-1">
-                                <input class="form-check-input" type="checkbox" id="os-ris" value="OS-RIS">
-                                <label class="form-check-label" for="os-ris">OS-RIS</label>
-                            </div>
                             <div class="form-check form-check-inline col-md-1">
                                   <input class="form-check-input" type="checkbox" id="os-vhd" value="OS-VHD">
                                   <label class="form-check-label" for="os-vhd">OS-VHD</label>
@@ -92,6 +86,10 @@
                                   <input class="form-check-input" type="checkbox" id="os-prb" value="OS-PRB">
                                   <label class="form-check-label" for="os-prb">OS-PRB</label>
                             </div>
+                            <div class="form-check form-check-inline col-md-1">
+                                <input class="form-check-input" type="checkbox" id="os-ris" value="OS-RIS">
+                                <label class="form-check-label" for="os-ris">OS-RIS</label>
+                            </div>
                         </div><br>
                         <table cellpadding="1" cellspacing="2" border="0" class="table table-striped table-bordered dataTable" id="returnList" width="100%">
                             <thead>
@@ -99,10 +97,10 @@
                                     <th align="left">Group Name</th>
                                     <th align="left">Client Code</th>
                                     <th align="left">Client Name</th>
-                                    <th align="left">Accepted By</th>
-                                    <th align="left">Acceptance Date</th>
                                     <th align="left">A.Y.</th>
                                     <th align="left">Type</th>
+                                    <th align="left">Accepted By</th>
+                                    <th align="left">Acceptance Date</th>
                                     <th align="left">Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -113,10 +111,10 @@
                                     <td align="left">{{ each_return.Group_name }}</td>
                                     <td align="left">{{ each_return.Client_code }}</td>
                                     <td align="left">{{ each_return.Name }}</td>
-                                    <td align="left">{{ each_return.Accepted_by }}</td>
-                                    <td align="left">{{ each_return.Acceptance_date }}</td>
                                     <td align="left">{{ each_return.AY }}</td>
                                     <td align="left">{{ each_return.Type }}</td>
+                                    <td align="left">{{ each_return.Accepted_by }}</td>
+                                    <td align="left">{{ each_return.Acceptance_date }}</td>
                                     <td align="left">{{ each_return.Status }}</td>
                                     <td>
                                         {% if each_return.Status == 'Initiated' %}
@@ -138,10 +136,10 @@
                                     <th align="left">Group Name</th>
                                     <th align="left">Client Code</th>
                                     <th align="left">Client Name</th>
-                                    <th align="left">Accepted By</th>
-                                    <th align="left">Acceptance Date</th>
                                     <th align="left">A.Y.</th>
                                     <th align="left">Type</th>
+                                    <th align="left">Accepted By</th>
+                                    <th align="left">Acceptance Date</th>
                                     <th align="left">Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -179,10 +177,10 @@
             if(selected.length > 0) {
                 for(var i=0;i<selected.length;i++) {
                     if(i==selected.length-1) {
-                        search_regex = search_regex + selected[i];
+                        search_regex = search_regex + '^' +  selected[i] + '$';
                     }
                     else {
-                        search_regex = search_regex + selected[i] + '|';
+                        search_regex = search_regex + '^' + selected[i] + '$|';
                     }
                 }
                 return_table.column(0).search(search_regex, true).draw();
@@ -193,11 +191,9 @@
         });
     });
 
-    var current_year = new Date().getFullYear();
-    var next_year = current_year + 1;
-    year_string = String(current_year) + '-' + String(next_year);
-    document.getElementById('A.Y').value = year_string;
-
+    $('select').selectpicker();
+	$('select').prepend('<option value="-1" selected disabled>--Select--</option>');
+	$('select').selectpicker('refresh');
 
 </script>
 {% endblock %}

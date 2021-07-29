@@ -2,9 +2,6 @@
 {% block head_block %}
     {% load static %}
     <title>HMD|Return List</title>
-    <link href="{% static 'assets/css/fixedColumns.bootstrap4.min.css' %}" rel="stylesheet">
-	<script src="{% static 'assets/js/fixedColumns.bootstrap4.min.js' %}"></script>
-    <script src="{% static 'assets/js/jszip.min.js' %}"></script>
 {% endblock %}
 
 {% block body_block %}
@@ -25,13 +22,17 @@
                 <div class="card-body">
                     <div id="checkbox-group">
                         <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="esd" value="ESD" >
-                            <label class="form-check-label" for="esd">ESD</label>
+                            <input class="form-check-input" type="checkbox" id="esd-dhd" value="ESD-DHD">
+                            <label class="form-check-label" for="esd-dhd">ESD-DHD</label>
                         </div>
                         <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="ris" value="RIS">
-                            <label class="form-check-label" for="ris">RIS</label>
+                            <input class="form-check-input" type="checkbox" id="esd-nrj" value="ESD-NRJ">
+                            <label class="form-check-label" for="esd-nrj">ESD-NRJ</label>
                         </div>
+                        <div class="form-check form-check-inline col-md-1">
+                            <input class="form-check-input" type="checkbox" id="os-esd" value="OS-ESD">
+                            <label class="form-check-label" for="os-esd">OS-ESD</label>
+                        </div><br>
                         <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="vhd" value="VHD">
                               <label class="form-check-label" for="vhd">VHD</label>
@@ -39,15 +40,11 @@
                         <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="prb" value="PRB">
                               <label class="form-check-label" for="prb">PRB</label>
+                        </div>
+                        <div class="form-check form-check-inline col-md-1">
+                            <input class="form-check-input" type="checkbox" id="ris" value="RIS">
+                            <label class="form-check-label" for="ris">RIS</label>
                         </div><br>
-                        <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="os-esd" value="OS-ESD">
-                            <label class="form-check-label" for="os-esd">OS-ESD</label>
-                        </div>
-                        <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="os-ris" value="OS-RIS">
-                            <label class="form-check-label" for="os-ris">OS-RIS</label>
-                        </div>
                         <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="os-vhd" value="OS-VHD">
                               <label class="form-check-label" for="os-vhd">OS-VHD</label>
@@ -55,6 +52,10 @@
                         <div class="form-check form-check-inline col-md-1">
                               <input class="form-check-input" type="checkbox" id="os-prb" value="OS-PRB">
                               <label class="form-check-label" for="os-prb">OS-PRB</label>
+                        </div>
+                        <div class="form-check form-check-inline col-md-1">
+                            <input class="form-check-input" type="checkbox" id="os-ris" value="OS-RIS">
+                            <label class="form-check-label" for="os-ris">OS-RIS</label>
                         </div>
                     </div><br>
                     <div class="table-responsive">
@@ -64,6 +65,8 @@
                                 <th align="left">Group Name</th>
                                 <th align="left">IT Code</th>
                                 <th align="left">Client Name</th>
+                                <th align="left">A.Y.</th>
+                                <th align="left">Type</th>
                                 <th align="left">Accepted By</th>
                                 <th align="left">Acceptance Date</th>
                                 <th align="left">Handled By</th>
@@ -71,8 +74,6 @@
                                 <th align="left">Filing Date</th>
                                 <th align="left">Verification</th>
                                 <th align="left">Filed By</th>
-                                <th align="left">A.Y.</th>
-                                <th align="left">Type</th>
                                 <th align="left">Status</th>
                                 <th align="left">Remarks</th>
                                 <th>Action</th>
@@ -84,6 +85,8 @@
                                     <td align="left">{{ each_return.Group_name }}</td>
                                     <td align="left">{{ each_return.It_no }}</td>
                                     <td align="left">{{ each_return.Name }}</td>
+                                    <td align="left">{{ each_return.AY }}</td>
+                                    <td align="left">{{ each_return.Type }}</td>
                                     <td align="left">{{ each_return.Accepted_by }}</td>
                                     <td align="left">{{ each_return.Acceptance_date }}</td>
                                     <td align="left">{{ each_return.Handled_by }}</td>
@@ -91,8 +94,6 @@
                                     <td align="left">{{ each_return.Filing_date }}</td>
                                     <td align="left">{{ each_return.Verification }}</td>
                                     <td align="left">{{ each_return.Filed_by }}</td>
-                                    <td align="left">{{ each_return.AY }}</td>
-                                    <td align="left">{{ each_return.Type }}</td>
                                     <td align="left">{{ each_return.Status }}</td>
                                     <td align="left">{{ each_return.Remarks }}</td>
                                     <td>
@@ -115,6 +116,8 @@
                                     <th align="left">Group Name</th>
                                     <th align="left">IT Code</th>
                                     <th align="left">Client Name</th>
+                                    <th align="left">A.Y.</th>
+                                    <th align="left">Type</th>
                                     <th align="left">Accepted By</th>
                                     <th align="left">Acceptance Date</th>
                                     <th align="left">Handled By</th>
@@ -122,8 +125,6 @@
                                     <th align="left">Filing Date</th>
                                     <th align="left">Verification</th>
                                     <th align="left">Filed By</th>
-                                    <th align="left">A.Y.</th>
-                                    <th align="left">Type</th>
                                     <th align="left">Status</th>
                                     <th align="left">Remarks</th>
                                     <th>Action</th>
@@ -141,6 +142,7 @@
         var table = $('#existing-returnList').DataTable({
             dom: 'Bfrtip',
             lengthMenu: [[10,25,50,100,-1],[10,25,50,100,"All"]],
+            scrollX:        true,
 			buttons: [{
                 extend: 'excel',
                 title: 'IT_Return'
@@ -161,10 +163,10 @@
             if(selected.length > 0) {
                 for(var i=0;i<selected.length;i++) {
                     if(i==selected.length-1) {
-                        search_regex = search_regex + selected[i];
+                        search_regex = search_regex + '^' +  selected[i] + '$';
                     }
                     else {
-                        search_regex = search_regex + selected[i] + '|';
+                        search_regex = search_regex + '^' + selected[i] + '$|';
                     }
                 }
                 table.column(0).search(search_regex, true).draw();

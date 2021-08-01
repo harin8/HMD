@@ -36,7 +36,7 @@ def get_ay_list():
 
 
 def get_all_clients_details():
-    return list(db.clientMaster.find({}, {'_id': 0, 'Client_no': 0}))
+    return list(db.clientMaster.find({}, {'_id': 0, 'Client_no': 0, 'Contact_details.r_id': 0}))
 
 
 def get_party_list():
@@ -57,6 +57,7 @@ def get_roi_result(client_name, group_name_list, ay, read, party):
         data['Party_name'] = get_party_name_from_name(data['Name'])
         data['Task'] = "IT Return - " + data['Type']
         data['Start_date'] = data['Acceptance_date']
+        data['Year'] = "AY - " + data['AY']
         try:
             data['End_date'] = data['Filing_date']
         except:
@@ -94,6 +95,7 @@ def get_cert_result(client_name, group_name_list, period, read, party):
         data['Client_code'] = get_client_code_from_name(data['Name'])
         data['Party_name'] = get_party_name_from_name(data['Name'])
         data['Task'] = "Certificate - " + data['Description']
+        data['Year'] = ''
         data['Start_date'] = date_of_accept_str
         data['End_date'] = date_of_cert
         data['Type'] = 'Certificate'
@@ -127,6 +129,7 @@ def get_other_result(client_name, group_name_list, period, read, party):
         data['Client_code'] = get_client_code_from_name(data['Name'])
         data['Party_name'] = get_party_name_from_name(data['Name'])
         data['Task'] = "Other - " + data['Description']
+        data['Year'] = ''
         data['Start_date'] = date_of_accept_str
         data['End_date'] = date_of_cert
         data['Type'] = 'Other'

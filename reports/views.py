@@ -57,7 +57,11 @@ def read_unread(request, r_type, r_id):
         record = database.get_record_from_db(r_id, type_name)
         if record:
             return render(request, 'read_unread.html', {'r_type': r_type, 'Record_Data': record})
-    return render(request, 'report_list.html')
+    ay_list = database.get_ay_list()
+    all_client_list = database.get_all_clients_details()
+    party_list = database.get_party_list()
+    return render(request, 'landing_reports.html', {'Client_list': all_client_list, 'AY_list': ay_list,
+                                                    'Party_list': party_list})
 
 
 def read_submit(request):

@@ -26,15 +26,7 @@
             <div class="col-md-3" id="GroupName_div">
                 <label class="form-label">Group Name:</label>
                 <select required multiple name="groupName" class="form-control selectpicker" id="Group_Name" data-live-search="true" data-actions-box="true">
-                    <option value="ESD-DHD">ESD-DHD</option>
-                    <option value="ESD-NRJ">ESD-NRJ</option>
-                    <option value="VHD">VHD</option>
-                    <option value="PRB">PRB</option>
-                    <option value="RIS">RIS</option>
-                    <option value="OS-ESD">OS-ESD</option>
-                    <option value="OS-VHD">OS-VHD</option>
-                    <option value="OS-PRB">OS-PRB</option>
-                    <option value="OS-RIS">OS-RIS</option>
+
                 </select>
             </div>
         </div><br>
@@ -45,6 +37,8 @@
                     <option value="ROI">IT-Returns</option>
                     <option value="Certificates">Certificates</option>
                     <option value="Other">Other Forms/Activities</option>
+                    <option value="TDS">TDS</option>
+                    <option value="Proceedings">Proceedings</option>
                 </select>
             </div>
             <div class="col-md-3" id="PartyName_div">
@@ -60,7 +54,7 @@
         </div><br>
         <div class="row" id="period" style="display:none">
             <div class="col-md-3" id="ay_period" style="display:none">
-                <label class="form-label">A.Y.: </label>
+                <label class="form-label">IT Returns Period: </label>
                 <select multiple name="A.Y" data-dropup-auto="false" class="form-control selectpicker dropdown" id="A.Y" data-live-search="true" data-actions-box="true">
                     {% for ay in AY_list %}
                         {% if ay == AY_Selected %}
@@ -70,17 +64,43 @@
                         {% endif %}
                     {% endfor %}
                 </select>
-                <p>*Select AY</p>
+                <p>*Select AY for IT Returns</p>
             </div>
             <div class="col-md-4" id="cert_period" style="display:none">
-                <label class="form-label">Certificated Period: </label>
+                <label class="form-label">Certificates Period: </label>
                 <input id="cert_date" type="date" name="certificateStartDate" class="form-control eventTodayDateTime" placeholder="Select Date">
-                <p>*For entire list, choose any date prior to 01-01-2021</p>
+                <p>*For entire list, choose any date prior to 01-04-2021</p>
             </div>
             <div class="col-md-4" id="form_period" style="display:none">
-                <label class="form-label">Form Period: </label>
+                <label class="form-label">Other Forms/Activities Period: </label>
                 <input id="form_date" type="date" name="otherFormsStartDate" class="form-control eventTodayDateTime" placeholder="Select Date">
-                <p>*For entire list, choose any date prior to 01-01-2021</p>
+                <p>*For entire list, choose any date prior to 01-04-2021</p>
+            </div>
+            <div class="col-md-3" id="tds_period" style="display:none">
+                <label class="form-label">TDS/TCS Period: </label>
+                <select multiple name="tds" data-dropup-auto="false" class="form-control selectpicker dropdown" id="TDS" data-live-search="true" data-actions-box="true">
+                    {% for ay in TDS_list %}
+                        {% if ay == TDS_Selected %}
+                            <option value="{{ay}}" selected>{{ay|title}}</option>
+                        {% else %}
+                            <option value="{{ay}}">{{ay|title}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <p>*Select AY for TDS/TDS</p>
+            </div>
+            <div class="col-md-4" id="proceedings_period" style="display:none">
+                <label class="form-label">Proceedings Period: </label>
+                <select multiple name="proceedings" data-dropup-auto="false" class="form-control selectpicker dropdown" id="Proceedings" data-live-search="true" data-actions-box="true">
+                    {% for ay in Proceedings_list %}
+                        {% if ay == Proceedings_Selected %}
+                            <option value="{{ay}}" selected>{{ay|title}}</option>
+                        {% else %}
+                            <option value="{{ay}}">{{ay|title}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <p>*Select AY for Proceedings</p>
             </div>
         </div>
         <br><br>
@@ -153,8 +173,14 @@
 {% endif %}
 <script>
     $(document).ready( function () {
-
         $('select').selectpicker();
+
+        //Dynamically add group code and name to #group_name select list
+        let Group_names = {{Party_list|safe}};
+        for(let k in Group_names) {
+            $('#Group_Name').append('<option value="'+Group_names[k]["group"]+'">'+Group_names[k]["group"]+'</option>');
+        }
+        $('select').selectpicker('refresh');
 
         $('#Group_Name').on('change', function() {
             var selected_group_names = $('#Group_Name').val();
@@ -182,22 +208,30 @@
 
             if (selected_tasks.length == 0) {
                 $("#ay_period").css('display','none');
-                $("#cert_period").css('display','none');
-                $("#form_period").css('display','none');
                 $('#A.Y').removeAttr('required');
+                $("#cert_period").css('display','none');
                 $('#cert_date').removeAttr('required');
+                $("#form_period").css('display','none');
                 $('#form_date').removeAttr('required');
+                $('#tds_period').css('display','none');
+                $('#TDS').removeAttr('required');
+                $('#proceedings_period').css('display','none');
+                $('#Proceedings').removeAttr('required');
 
             }
             else {
 
                 $("#period").css('display','block');
                 $("#ay_period").css('display','none');
-                $("#cert_period").css('display','none');
-                $("#form_period").css('display','none');
                 $('#A.Y').removeAttr('required');
+                $("#cert_period").css('display','none');
                 $('#cert_date').removeAttr('required');
+                $("#form_period").css('display','none');
                 $('#form_date').removeAttr('required');
+                $('#tds_period').css('display','none');
+                $('#TDS').removeAttr('required');
+                $('#proceedings_period').css('display','none');
+                $('#Proceedings').removeAttr('required');
 
                 for(i=0;i<selected_tasks.length;i++) {
                     if(selected_tasks[i]=='ROI') {
@@ -211,6 +245,14 @@
                     if(selected_tasks[i]=='Other') {
                         $("#form_period").css('display','inline-block');
                         $('#form_date').attr('required', true);
+                    }
+                     if(selected_tasks[i]=='TDS') {
+                        $("#tds_period").css('display','inline-block');
+                        $('#TDS').attr('required', true);
+                    }
+                    if(selected_tasks[i]=='Proceedings') {
+                        $("#proceedings_period").css('display','inline-block');
+                        $('#Proceedings').attr('required', true);
                     }
                 }
             }

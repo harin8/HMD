@@ -1,13 +1,20 @@
 import datetime
 
+from django.http import JsonResponse
 from django.shortcuts import render
 from IT_Return import database
 from datetime import timedelta
+from proceedings import database as proc_database
 
 # Create your views here.
 
+
 def landing(request):
-    return render(request, 'landing.html')
+    proc_list = proc_database.live_board_proceedings_list()
+    for data in proc_list:
+        data['Client_code'] = proc_database.get_client_code_from_name(data['Name'])
+        data['Group_name'] = proc_database.get_group_name_from_client_name(data['Name'])
+    return render(request, 'landing.html', {'Live_Board': proc_list})
 
 
 def new_it_return(request):
@@ -45,11 +52,13 @@ def submit_new_return(request):
     ay = request.POST.get('AY')
     return_type = request.POST.get('type')
     return_type_name = database.get_return_type_name_from_id(return_type)
+    acceptance_date = request.POST.get('acceptedDate')
+    #acceptance_date_type = database.string_to_date(acceptance_date)
     return_data_dict = {
         'It_no': request.POST.get('It_No'),
         'Name': request.POST.get('name').upper(),
         'Accepted_by': request.POST.get('acceptedBy').upper(),
-        'Acceptance_date': request.POST.get('acceptedDate'),
+        'Acceptance_date': acceptance_date,
         'AY': ay,
         'Type': return_type_name,
         'Status': 'Initiated',
@@ -116,10 +125,19 @@ def further_return_submit(request):
 
 def cpc_list(request):
     all_return_list = database.get_cpc_all_return_list()
+
     if all_return_list:
         for data in all_return_list:
             data['Type_id'] = database.get_return_type_id_from_name(data['Type'])
             data['Due_date'] = database.calculate_due_date_cpc(data['Filing_date'])
+            try:
+                data['Acceptance_date'] = database.ymd_str_to_IST_format(data['Acceptance_date'])
+            except Exception:
+                pass
+            try:
+                data['Filing_date'] = database.ymd_str_to_IST_format(data['Filing_date'])
+            except Exception:
+                pass
             data['Group_name'] = database.get_group_name_from_client_code(data['Client_code'])
     return render(request, 'cpc_list.html', {'CPC_List': all_return_list})
 
@@ -128,6 +146,14 @@ def existing_return_list(request):
     all_return_list = database.get_existing_completed_return_list()
     if all_return_list:
         for data in all_return_list:
+            try:
+                data['Acceptance_date'] = database.ymd_str_to_IST_format(data['Acceptance_date'])
+            except Exception:
+                pass
+            try:
+                data['Filing_date'] = database.ymd_str_to_IST_format(data['Filing_date'])
+            except Exception:
+                pass
             data['Type_id'] = database.get_return_type_id_from_name(data['Type'])
             data['Group_name'] = database.get_group_name_from_client_name(data['Name'])
     return render(request, 'existing_return.html', {'Return_List': all_return_list})
@@ -173,3 +199,8 @@ def further_cpc_submit(request):
             data['Type_id'] = database.get_return_type_id_from_name(data['Type'])
             data['Due_date'] = database.calculate_due_date_cpc(data['Filing_date'])
     return render(request, 'cpc_list.html', {'CPC_List': all_return_list})
+
+
+def group_filter_list(request):
+    group_list = database.get_all_available_group_code()
+    return JsonResponse(group_list[0], safe=False)

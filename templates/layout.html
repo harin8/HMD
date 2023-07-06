@@ -15,6 +15,8 @@
 	<link href="{% static 'assets/css/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet" type="text/css">
 	<link href="{% static 'assets/css/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet" type="text/css">
 	<link href="{% static 'assets/css/datatables/buttons.bootstrap4.min.css' %}" rel="stylesheet" type="text/css">
+	<link href="https://cdn.datatables.net/select/1.3.4/css/select.dataTables.min.css" rel="stylesheet" type="text/css">
+
 
 	<link href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet" type="text/css">
 	<link href="{% static 'assets/css/bootstrap-select.min.css' %}" rel="stylesheet" type="text/css">
@@ -40,6 +42,11 @@
 	<script src="{% static 'assets/js/datatables/buttons.bootstrap4.min.js' %}"></script>
 	<script src="{% static 'assets/js/datatables/buttons.html5.min.js' %}"></script>
     <script src="{% static 'assets/js/datatables/jszip.min.js' %}"></script>
+    <script src="{% static 'assets/js/datatables/pdfmake.js' %}"></script>
+    <script src="{% static 'assets/js/datatables/pdfmake.min.js' %}"></script>
+    <script src="{% static 'assets/js/datatables/vfs_fonts.js' %}"></script>
+	<script src="https://cdn.datatables.net/select/1.3.4/js/dataTables.select.min.js"></script>
+
 
 	<script src="{% static 'assets/js/tinymce/tinymce.min.js' %}"></script>
 	<script src="{% static 'assets/js/bootstrap-editable.min.js' %}"></script>
@@ -48,6 +55,8 @@
 	<script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
 	<script src="{% static 'assets/js/metisMenu.min.js' %}"></script>
 	<script src="{% static 'assets/js/tinymce/tinymce.min.js' %}"></script>
+
+	<script src="{% static 'assets/js/custom_page/datatable_group_filter.js' %}"></script>
 
 </head>
 <body data-layout="horizontal">
@@ -110,8 +119,9 @@
 						<!-- Navigation Menu-->
 						<ul class="navigation-menu">
 							<li><a href="{% url 'Landing' %}"><i class="fe-airplay"></i>Dashboard</a></li>
-							<li><a href="{% url 'Client Landing' %}">Client Master</a></li>
+							<li><a href="{% url 'Client Landing' %}">Masters</a></li>
 							<li><a href="{% url 'Contacts Landing' %}">Contact Master</a></li>
+							<li><a href="{% url 'Insertions Landing' %}">Insertions</a></li>
 						</ul>
 						<!-- End navigation menu -->
 						<div class="clearfix"></div>

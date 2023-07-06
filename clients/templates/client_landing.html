@@ -12,50 +12,86 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
                     <div class="col-md-12">
-                        <h4 class="header-title mb-3">Client</h4>
+                        <h4 class="text-center header-title mb-3">Client</h4>
                     </div>
                     <div class="row">
-                        <div class="col-md-4" id="main-menu">
-                            <div class="card widget-box-three">
-                                <a role="button" style="text-align:left" class="btn btn-link" href="{% url 'Create New Client' %}">
+                        <div class="col-md-12" id="main-menu">
+                            <div class="card ">
+                                <a role="button" class="btn btn-link" href="{% url 'Create New Client' %}">
                                     <div class="card-body">Create</div>
                                 </a>
                             </div><br>
-                            <div class="card widget-box-three">
-                                <a role="button" style="text-align:left" class="btn btn-link" href="{% url 'Client Master List' %}">
+                            <div class="card ">
+                                <a role="button" class="btn btn-link" href="{% url 'Client Master List' %}">
                                     <div class="card-body">View</div>
                                 </a>
-                            </div>
+                            </div><br>
+                            <div class="card ">
+                                <a role="button" class="btn">
+                                    <div class="card-body">Edit/Close</div>
+                                </a>
+                            </div><br>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<br>
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
                     <div class="col-md-12">
-                        <h4 class="header-title mb-3">Party</h4>
+                        <h4 class="text-center header-title mb-3">Party</h4>
                     </div>
                     <div class="row">
-                        <div class="col-md-4" id="main-party-menu">
-                            <div class="card widget-box-three">
-                                <a role="button" style="text-align:left" class="btn btn-link" href="{% url 'Create New Party' %}">
+                        <div class="col-md-12" id="main-party-menu">
+                            <div class="card ">
+                                <a role="button" class="btn btn-link" href="{% url 'Create New Party' %}">
                                     <div class="card-body">Create</div>
                                 </a>
                             </div><br>
-                            <div class="card widget-box-three">
-                                <a role="button" style="text-align:left" class="btn btn-link" href="{% url 'Party Master List' %}">
+
+                            <div class="card ">
+                                <a role="button" class="btn btn-link" href="{% url 'Party Master List' %}">
                                     <div class="card-body">View</div>
+                                </a>
+                            </div><br>
+
+                            <div class="card ">
+                                <a role="button" class="btn btn-link" href="{% url 'Transfer Party List' %}">
+                                    <div class="card-body">Transfer</div>
+                                </a>
+                            </div><br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="col-md-12">
+                        <h4 class="text-center header-title mb-3">Group</h4>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12" id="main-group-menu">
+                            <div class="card ">
+                                <a role="button" class="btn btn-link" href="{% url 'Create New Group' %}">
+                                    <div class="card-body">Create</div>
+                                </a>
+                            </div><br>
+                            <div class="card ">
+                                <a role="button" class="btn btn-link" href="{% url 'Group Master List' %}">
+                                    <div class="card-body">View</div>
+                                </a>
+                            </div><br>
+                            <div class="card ">
+                                <!--<a role="button" class="btn btn-link" href="{% url 'Close Group List' %}">-->
+                                    <a role="button" class="btn" >
+                                    <div class="card-body">Close</div>
                                 </a>
                             </div><br>
                         </div>

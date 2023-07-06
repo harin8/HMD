@@ -23,7 +23,7 @@
                 {% endif %}
                 {% csrf_token %}
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Client Name:</label>
                                 <input required style="text-transform:uppercase" type="text" value="{{ Data_Dict.Name|safe }}" id="c_name" class="form-control" name="name" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>

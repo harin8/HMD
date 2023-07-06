@@ -13,6 +13,14 @@ def landing(request):
     for data in other_forms_list:
         data['Client_code'] = database.get_client_code_from_name(data['Name'])
         data['Group_name'] = database.get_group_name_from_client_name(data['Name'])
+        try:
+            data['Acceptance_date'] = database.ymd_str_to_IST_format(data['Acceptance_date'])
+        except Exception:
+            pass
+        try:
+            data['Date_of_document'] = database.ymd_str_to_IST_format(data['Date_of_document'])
+        except Exception:
+            pass
     otherForms_description_list = database.initialise_description_id_mapping()
     return render(request, 'landing_otherForms.html', {'Client_list': all_client_list, 'Other_forms_list': other_forms_list,
                                                        'Other_forms_desc': otherForms_description_list})

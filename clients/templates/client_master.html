@@ -6,6 +6,8 @@
 
 {% block body_block %}
 
+{% load client_tags %}
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-6 py-3 mt-2">
@@ -20,43 +22,10 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
-                    <div id="checkbox-group">
-                        <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="esd-dhd" value="ESD-DHD">
-                            <label class="form-check-label" for="esd-dhd">ESD-DHD</label>
-                        </div>
-                        <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="esd-nrj" value="ESD-NRJ">
-                            <label class="form-check-label" for="esd-nrj">ESD-NRJ</label>
-                        </div>
-                        <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="os-esd" value="OS-ESD">
-                            <label class="form-check-label" for="os-esd">OS-ESD</label>
-                        </div><br>
-                        <div class="form-check form-check-inline col-md-1">
-                              <input class="form-check-input" type="checkbox" id="vhd" value="VHD">
-                              <label class="form-check-label" for="vhd">VHD</label>
-                        </div>
-                        <div class="form-check form-check-inline col-md-1">
-                              <input class="form-check-input" type="checkbox" id="prb" value="PRB">
-                              <label class="form-check-label" for="prb">PRB</label>
-                        </div>
-                        <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="ris" value="RIS">
-                            <label class="form-check-label" for="ris">RIS</label>
-                        </div><br>
-                        <div class="form-check form-check-inline col-md-1">
-                              <input class="form-check-input" type="checkbox" id="os-vhd" value="OS-VHD">
-                              <label class="form-check-label" for="os-vhd">OS-VHD</label>
-                        </div>
-                        <div class="form-check form-check-inline col-md-1">
-                              <input class="form-check-input" type="checkbox" id="os-prb" value="OS-PRB">
-                              <label class="form-check-label" for="os-prb">OS-PRB</label>
-                        </div>
-                        <div class="form-check form-check-inline col-md-1">
-                            <input class="form-check-input" type="checkbox" id="os-ris" value="OS-RIS">
-                            <label class="form-check-label" for="os-ris">OS-RIS</label>
-                        </div>
+                    <div class="col-md-3" id="group_filter">
+                        <label for="groupSelect">Filter by Group Name:</label>
+                        <select id="groupSelect" multiple class="form-control dropdown" data-live-search="true"  data-dropup-auto="false" data-actions-box="true">
+                        </select>
                     </div><br>
                     <div class="table-responsive">
                         <table cellpadding="1" cellspacing="2" border="0" class="table table-striped table-bordered dataTable" id="client_info" width="100%">
@@ -74,6 +43,9 @@
                                 <th align="left">IT Note</th>
                                 <th align="left">Audit Note</th>
                                 <th width="10px" align="left">Contact Details</th>
+                                {% if can_edit %}
+                                    <th align="left">Action</th>
+                                {% endif %}
                             </tr>
                             </thead>
                             <tbody>
@@ -97,6 +69,9 @@
                                     <td align="left">{{ each_return.It_note }}</td>
                                     <td align="left">{{ each_return.Audit_note }}</td>
                                     <td align="center"><a><i style="color:#007bff;cursor:pointer" class="bi bi-person-plus-fill fa-lg"></i></a></td>
+                                    {% if can_edit %}
+                                      <td><a href="{% url 'Edit One Client' id=each_return|private:'_id' %}" title="Edit" ><i class="fe-edit text-info"></i></a></td>
+                                    {% endif %}
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -114,6 +89,9 @@
                                     <th align="left">IT Note</th>
                                     <th align="left">Audit Note</th>
                                     <th align="left">Contact Details</th>
+                                    {% if can_edit %}
+                                        <th align="left">Action</th>
+                                    {% endif %}
                                 </tr>
                             </tfoot>
                         </table>
@@ -139,7 +117,16 @@
                 extend: 'pageLength'
             }]
 		});
-
+        // Filter the DataTable based on the selected group name
+        $('#groupSelect').on('changed.bs.select', function (e) {
+            var selectedGroups = $(this).val();
+            if (selectedGroups && selectedGroups.length > 0) {
+                var searchRegex = '^(' + selectedGroups.join('|') + ')$';
+                client_table.column(0).search(searchRegex, true, false).draw();
+            } else {
+                client_table.column(0).search('').draw();
+            }
+        });
 		function format ( d ) {
             // `d` is the original data object for the row
             var html_content = '';
@@ -172,35 +159,12 @@
                 tr.addClass('shown');
             }
             for(i=0;i<Client_list.length;i++) {
-                if(Client_list[i].Name == data[5]) {
+                if(Client_list[i].Name.trim() == data[5].trim()) {
 
                 }
             }
         } );
 
-		$('#checkbox-group input[type=checkbox]').change(function() { // while you're at it listen for change rather than click, this is in case something else modifies the checkbox
-            var selected = [];
-            var search_regex = '';
-            $('div#checkbox-group input[type=checkbox]').each(function() {
-                if ($(this).is(":checked")) {
-                    selected.push($(this).val());
-                }
-            });
-            if(selected.length > 0) {
-                for(var i=0;i<selected.length;i++) {
-                    if(i==selected.length-1) {
-                        search_regex = search_regex + '^' +  selected[i] + '$';
-                    }
-                    else {
-                        search_regex = search_regex + '^' + selected[i] + '$|';
-                    }
-                }
-                client_table.column(0).search(search_regex, true).draw();
-            }
-            else {
-                client_table.column(0).search('').draw();
-            }
-        });
     });
 </script>
 {% endblock %}

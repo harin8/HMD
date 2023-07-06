@@ -30,82 +30,92 @@
             <div class="card">
                 <div class="card-body">
                     {% if Hide %}
-                        <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit Edit Contact' %}" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="r_id" value="{{ Contact_Details|private:'_id' }}">
+                    <form role="form" id="contact_form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit Edit Contact' %}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="r_id" value="{{ Contact_Details|private:'_id' }}">
                     {% else %}
-                        <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Contact' %}" method="post" enctype="multipart/form-data">
+                    <form role="form"  name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Contact' %}" method="post" enctype="multipart/form-data">
                     {% endif %}
                     {% csrf_token %}
-                        <div class="row">
-                            <div class="col-md-12">Contact Details</div>
-                        </div>
-                        {% if not Hide %}
-                            <br>
-                            <button id="add_contact" class="btn btn-success">Add</button>
-                            <button id="remove_contact" class="btn btn-danger">Remove</button>
-                            <br>
-                        {% endif %}
-                        <br>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Name:</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Contact No:</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Email ID:</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Remarks/Reference:</label>
-                                </div>
+                    <div class="row">
+                        <div class="col-md-12">Contact Details</div>
+                    </div>
+                    {% if not Hide %}
+                    <br>
+                    <button id="add_contact" class="btn btn-success">Add</button>
+                    <button id="remove_contact" class="btn btn-danger">Remove</button>
+                    <br>
+                    {% endif %}
+                    <br>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Name:</label>
                             </div>
                         </div>
-                        <span id="contact_span">
-                            <div class="row contacts">
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <input required style="text-transform:uppercase" type="text" value="{{Contact_Details.Name}}" class="form-control" name="contactName">
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <input required pattern="[0-9]*" maxlength="10" minlength="10" title="10 digits" type="tel" value="{{Contact_Details.Contact_no}}" class="form-control" name="contactNo">
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <input pattern="[aA-zZ0-9._%+-]+@[aA-zZ0-9.-]+\.[aA-zZ]{2,}$" value="{{Contact_Details.Email}}" type="text" class="form-control" title="Enter Valid email" name="contactEmail">
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <input type="text" class="form-control" value="{{Contact_Details.Remarks}}" name="remarks">
-                                    </div>
-                                </div>
-                            </div>
-                        </span>
-                        <div class="row" id="submit-button">
-                            <div class="form-group col-md-3">
-                                <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
-                                <button type="reset" class="btn btn-secondary back" name="Reset" >Reset</button>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Contact No:</label>
                             </div>
                         </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Email ID:</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Remarks/Reference:</label>
+                            </div>
+                        </div>
+                    </div>
+                    <span id="contact_span">
+                        <div class="row contacts">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <input required style="text-transform:uppercase" type="text" value="{{Contact_Details.Name}}" class="form-control" name="contactName">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <input required pattern="[0-9]*" maxlength="10" minlength="10" title="10 digits" type="tel" value="{{Contact_Details.Contact_no}}" class="form-control" name="contactNo">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <input pattern="[aA-zZ0-9._%+-]+@[aA-zZ0-9.-]+\.[aA-zZ]{2,}$" value="{{Contact_Details.Email}}" type="text" class="form-control" title="Enter Valid email" name="contactEmail">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" value="{{Contact_Details.Remarks}}" name="remarks">
+                                </div>
+                            </div>
+                        </div>
+                    </span>
+                    {% if Hide %}
+                    <div class="row">
+                        <div class="col-md-3" id="show_hide_password">
+                            <label class="form-label">Password:</label>
+                            <input required id="pwd" type="password" class="form-control" name="password" placeholder="Password">
+                        </div>
+                    </div><br>
+                    {% endif %}
+                    <div class="row" id="submit-button">
+                        <div class="form-group col-md-3">
+                            <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
+                            <button type="reset" class="btn btn-secondary back" name="Reset" >Reset</button>
+                        </div>
+                    </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% if not Hide %}
+
+
 <script>
+    {% if not Hide %}
     $(document).ready( function () {
         var counter = 1;
         $('#add_contact').on('click', function(e) {
@@ -122,21 +132,43 @@
             }
         });
     });
-</script>
-{% endif %}
+    {% else %}
+    $(document).ready( function () {
+        $('#contact_form').submit(function(e) {
+            // this code prevents form from actually being submitted
+            e.preventDefault();
+            const pwd = $('#pwd').val();
+            $.ajax({
+                url: "{% url 'Password Validate' %}",
+                type: 'POST',
+                data: { password: pwd,
+                        operation: "Contact Edit",
+                        csrfmiddlewaretoken: '{{ csrf_token }}'},
+                success: function (data) {
+                    if(data.Alert == "Correct") {
+                        document.getElementById("contact_form").submit();
+                    }
+                    else {
+                        alert("Password is Incorrect");
+                    }
+                }
+            });
+        });
+    });
+    {% endif %}
 
-{% if Error %}
-<script>
+    {% if Error %}
     $(document).ready( function () {
         {% if Message %}
-            $('.alert').css('display','block');
-            $('.alert').alert();
+        $('.alert').css('display','block');
+        $('.alert').alert();
         {% else %}
-            alert('Could not update the database! Please Try Again.');
+        alert('Could not update the database! Please Try Again.');
         {% endif %}
     });
+    {% endif %}
+
 </script>
-{% endif %}
 
 
 {% endblock %}

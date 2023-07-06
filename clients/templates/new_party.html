@@ -9,19 +9,29 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-6 py-3 mt-2">
+            {% if Hide %}
+            <h4>Close Party</h4>
+            {% else %}
             <h4>New Party</h4>
+            {% endif %}
         </div>
         <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
             {% if Hide %}
-                <a style="color:white" id="backButton" href="{% url 'Edit Party List' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
+                <a style="color:white" id="backButton" href="{% url 'Close Party List' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
             {% else %}
                 <a style="color:white" id="backButton" href="{% url 'Client Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
             {% endif %}
         </div>
     </div>
     {% if Hide %}
-        <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit Edit Party' %}" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="r_id" value="{{ Party_Details|private:'_id' }}">
+        {% if Transfer %}
+            <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit Transfer Party' %}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="r_id" value="{{ Party_Details|private:'_id' }}">
+        {% else %}
+            <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit Close Party' %}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="r_id" value="{{ Party_Details|private:'_id' }}">
+        {% endif %}
+
     {% else %}
         <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Party' %}" method="post" enctype="multipart/form-data">
     {% endif %}
@@ -29,23 +39,21 @@
     <div class="row">
         <div class="col-md-2">
             <label class="form-label">Select Group Name:</label>
-            <select name="GroupNameForm" class="form-control selectpicker dropdown" data-live-search="true"  data-dropup-auto="false" id="Group_Name_Form">
-                <option value="0">ESD-DHD</option>
-                <option value="1">ESD-NRJ</option>
-                <option value="3">VHD</option>
-                <option value="4">PRB</option>
-                <option value="5">RIS</option>
-                <option value="2">OS-ESD</option>
-                <option value="6">OS-VHD</option>
-                <option value="7">OS-PRB</option>
-                <option value="8">OS-RIS</option>
-            </select>
+                <select name="GroupNameForm" class="form-control dropdown" data-live-search="true"  data-dropup-auto="false" id="Group_Name_Form"></select>
         </div>
         <div class="col-md-4">
             <div class="form-group">
                 <label>Party Name:</label>
-                <input required style="text-transform:uppercase" type="text" id="party_name" class="form-control" value="{{Party_Details.Party_name}}" name="partyName">
+                {% if Hide %}
+                    <input readonly style="text-transform:uppercase" type="text" id="party_name" class="form-control" value="{{Party_Details.Party_name}}" name="partyName">
+                {% else %}
+                    <input required style="text-transform:uppercase"  type="text" id="party_name" class="form-control" value="" name="partyName">
+                {% endif %}
             </div>
+        </div>
+        <div class="col-md-3" id="show_hide_password">
+            <label class="form-label">Password:</label>
+            <input required type="password" class="form-control" name="password" placeholder="Password">
         </div>
     </div><br>
     <div class="row" id="submit-button">
@@ -54,18 +62,33 @@
             <button type="reset" class="btn btn-secondary back" name="Reset" >Reset</button>
         </div>
     </div>
+    {% if Alert %}
+    <p style="color:Red">{{Alert}}<p>
+    {% endif %}
     </form>
 </div>
 
 <script>
     $(document).ready( function () {
-        $('select').selectpicker();
-        $('select').prepend('<option value="-1" selected disabled>--Select--</option>');
         {% if G_Code %}
-        var x = {{ G_Code }};
-        $('#Group_Name_Form').val(x);
+            $('select').selectpicker();
+            $('select').prepend('<option value="-1" disabled>--Select--</option>');
+            $('#Group_Name_Form').append('<option value={{ G_Code }} >{{ Party_Details.Group_name }}</option>');
+            $('#Group_Name_Form').prop("readonly", true);
+            $('select').selectpicker('refresh');
+            $('#Group_Name_Form').selectpicker('val', {{ G_Code }});
+
+        {% else %}
+            $('select').selectpicker();
+            $('select').prepend('<option value="-1" selected disabled>--Select--</option>');
+            //Dynamically add group code and name to #group_name select list
+            let Group_code_name = {{Group_c_n|safe}};
+            for(let k in Group_code_name) {
+                $('#Group_Name_Form').append('<option value="'+k+'">'+Group_code_name[k]+'</option>');
+            }
+            $('select').selectpicker('refresh');
         {% endif %}
-        $('select').selectpicker('refresh');
+
     });
 </script>
 {% endblock %}

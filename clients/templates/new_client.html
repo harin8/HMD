@@ -19,15 +19,6 @@
             <div class="col-md-2">
                 <label class="form-label">Select Group Name:</label>
                 <select required name="GroupNameForm" class="form-control selectpicker dropdown" data-live-search="true"  data-dropup-auto="false" id="Group_Name_Form">
-                    <option value="0" selected>ESD-DHD</option>
-                    <option value="1">ESD-NRJ</option>
-                    <option value="3">VHD</option>
-                    <option value="4">PRB</option>
-                    <option value="5">RIS</option>
-                    <option value="2">OS-ESD</option>
-                    <option value="6">OS-VHD</option>
-                    <option value="7">OS-PRB</option>
-                    <option value="8">OS-RIS</option>
                 </select>
             </div>
             <div class="col-md-2">
@@ -64,19 +55,6 @@
                                     <div class="form-group">
                                         <label>Client Type:</label>
                                         <input required style="text-transform:uppercase" type="text" value="" id="client_type" class="form-control" name="clientType" readonly>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label class="form-check-label" for="tds">TDS/TCS:</label>
-                                        <div class="form-check form-check">
-                                            <input class="form-check-input" type="radio" name="TDS" id="yes" value="yes">
-                                            <label class="form-check-label" for="yes">Yes</label>
-                                        </div>
-                                        <div class="form-check form-check">
-                                          <input checked class="form-check-input" type="radio" name="TDS" id="no" value="no">
-                                          <label class="form-check-label" for="no">No</label>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -162,7 +140,23 @@
                                         <input type="text" id="audit_note" class="form-control" name="auditNote">
                                     </div>
                                 </div>
-                            </div><br>
+
+                                </div><br>
+<div class="row">
+    <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-check-label-inline">TDS/TCS:</label>
+                                        &nbsp;<div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="TDS" id="yes" value="yes">
+                                            <label class="form-check-label" for="yes">Yes</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                          <input checked class="form-check-input" type="radio" name="TDS" id="no" value="no">
+                                          <label class="form-check-label" for="no">No</label>
+                                        </div>
+                                    </div>
+                                </div></div>
+        
                             <div class="row">
                                 <div class="col-md-12">Contact Details</div>
                             </div><br>
@@ -249,6 +243,13 @@
 
         $('select').selectpicker();
         $('select').prepend('<option value="-1" selected disabled>--Select--</option>');
+
+        //Dynamically add group code and name to #group_name select list
+        let Group_code_name = {{Group_c_n|safe}};
+        for(let k in Group_code_name) {
+            $('#Group_Name_Form').append('<option value="'+k+'">'+Group_code_name[k]+'</option>');
+        }
+
         $('select').selectpicker('refresh');
 
         {% if Show_Further %}
@@ -287,12 +288,10 @@
                     }
                 }
             });
-            {% if Show_Further %}
-                document.getElementById('Group_Name_Form').value = {{Group_Selected}};
-                document.getElementById('group_name').value = $('#Group_Name_Form option:selected').text();
-                document.getElementById('Client_Type_Form').value = {{Type_Selected}};
-                document.getElementById('client_type').value = $('#Client_Type_Form option:selected').text();
-            {% endif %}
+            document.getElementById('Group_Name_Form').value = {{Group_No}};
+            document.getElementById('group_name').value = $('#Group_Name_Form option:selected').text();
+            document.getElementById('Client_Type_Form').value = {{Type_Selected}};
+            document.getElementById('client_type').value = $('#Client_Type_Form option:selected').text();
             $('select').selectpicker('refresh');
         {% endif %}
     });

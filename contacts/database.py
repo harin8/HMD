@@ -61,6 +61,7 @@ def update_contact_details_in_clientMaster(r_id, data):
                     contact_db['Email'] = data['Email']
                     contact_db['Contact_no'] = data['Contact_no']
                     contact_db['Remarks'] = data['Remarks']
+                    contact_db['Name'] = data['Name']
                     # update with new contact data
                     update_data = db.clientMaster.update_one({'Client_code': data_db['Client_code'],
                                                               'Contact_details.r_id': ObjectId(r_id)},

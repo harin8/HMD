@@ -48,7 +48,7 @@
                             <div class="col-md-2">
                                 <div class="form-group">
                                     <label>Accepted By:</label>
-                                    <input required readonly style="text-transform:uppercase" type="text" name="Accepted_By" id="acceptedBy" class="form-control eventTodayDateTime" placeholder="Enter Name" value="{{ Data_Dict.Accepted_by }}">
+                                    <input required readonly style="text-transform:uppercase" type="text" name="Accepted_By" id="acceptedBy" class="form-control" placeholder="Enter Name" value="{{ Data_Dict.Accepted_by }}">
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -84,7 +84,6 @@
                                   <input required style="text-transform:uppercase" type="text" name="Signed_By" id="signedBy" class="form-control eventTodayDateTime" placeholder="Enter Name" value="{{ Data_Dict.Signed_by }}">
                                 </div>
                             </div>
-
                         </div>
                         <div class="row">
                             <div class="col-md-3">
@@ -124,7 +123,6 @@
 
 <script>
     $(document).ready( function () {
-
         {% if Data_Dict.Status == 'Completed' %}
             $('select').attr('disabled', true);
             $('input').attr('readonly', true);
@@ -144,6 +142,7 @@
             }
             return cookieValue;
         }
+
         const csrftoken = getCookie('csrftoken');
 
         $("#save_button").click(function(e){

@@ -10,6 +10,15 @@ def landing(request):
     for data in cert_list:
         data['Client_code'] = database.get_client_code_from_name(data['Name'])
         data['Group_name'] = database.get_group_name_from_client_name(data['Name'])
+        try:
+            data['Acceptance_date'] = database.ymd_str_to_IST_format(data['Acceptance_date'])
+        except Exception:
+            pass
+        try:
+            data['Date_of_certificate'] = database.ymd_str_to_IST_format(data['Date_of_certificate'])
+        except Exception:
+            pass
+
     certificate_description_list = database.initialise_description_id_mapping()
     return render(request, 'landing_c.html', {'Client_list': all_client_list, 'Cert_list': cert_list,
                                               'Cert_Desc': certificate_description_list})
@@ -20,6 +29,7 @@ def submit_certificate(request):
     accepted_by = request.POST.get('Accepted_By')
     client_code = request.POST.get('Client_Code')
     acceptance_date = request.POST.get('Acceptance_Date')
+    #acceptance_date_type = database.string_to_date(acceptance_date)
     description = request.POST.get('Description')
     # check if client name is valid
     valid_client, db_client_name = database.check_client_from_client_code(client_code)
@@ -68,6 +78,7 @@ def further_cert_submit(request):
     handled_by = request.POST.get('Handled_By')
     checked_by = request.POST.get('Checked_By')
     date_of_certificate = request.POST.get('Date_of_Certificate')
+    #date_of_certificate_type = database.string_to_date(date_of_certificate)
     signed_by = request.POST.get('Signed_By')
     remarks = request.POST.get('Remarks')
     r_id = request.POST.get('Record_Id')

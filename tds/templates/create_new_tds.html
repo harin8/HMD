@@ -30,26 +30,26 @@
                         {% csrf_token %}
                     {% endif %}
                     <div class="row">
-                        <div class="col-md-5">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Client Name:</label>
                                 <input required style="text-transform:uppercase" type="text" value="{{ Data_Dict.Name|safe }}" id="c_name" class="form-control" name="tdsName" readonly>
                             </div>
                         </div>
-                        <div class="col-md-3">
+			<div class="col-md-3">
                             <div class="form-group">
                                 <label>A.Y.:</label>
                                 <input required style="text-transform:uppercase" type="text" value="{{ Data_Dict.AY|safe }}" id="ay" class="form-control" name="tdsAY" readonly>
                             </div>
-                        </div>
+                        </div>                    
+			</div>
+                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Quarter:</label>
                                 <input required style="text-transform:uppercase" type="text" value="{{ Data_Dict.Quarter|safe }}" id="tds_quarter" class="form-control" name="tdsQuarter" readonly>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Form:</label>
@@ -64,7 +64,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-5">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Accepted By:</label>
                                 <input required style="text-transform:uppercase" type="text" placeholder="Name" id="accepted_by" class="form-control" name="acceptedBy" value="{{ Data_Dict.Accepted_by|safe }}" {% if Data_Dict.Submitted_ini %} readonly {% endif %}>

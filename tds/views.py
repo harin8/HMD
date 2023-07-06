@@ -24,6 +24,11 @@ def tds_landing(request):
             data['Type_id'] = database.get_tds_type_id_from_name(type_name)
             data['Quarter_id'] = database.get_tds_quarter_id_from_name(quarter_name)
             data['Group_name'] = database.get_group_name_from_client_code(data['Client_code'])
+            try:
+                data['Acceptance_date'] = database.ymd_str_to_IST_format(data['Acceptance_date'])
+            except Exception:
+                pass
+
         return render(request, 'tds_landing.html', {'AY_List': ay_list, 'TDS_Form': tds_form_list,
                                                     'TDS_Type': tds_type_list, 'All_TDS_List': all_tds_list,
                                                     'TDS_Quarter': tds_quarter_list})

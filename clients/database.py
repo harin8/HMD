@@ -1,26 +1,43 @@
 import pymongo
 from bson import ObjectId
+import datetime
+from datetime import datetime
 
 __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
 
 client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
 db = client.HMD
 
+if __name__ == "__main__":
+    def insert_group_code_to_db():
+        data = {
+            "0": "ESD-DHD",
+            "1": "ESD-NRJ",
+            "2": "OS-ESD",
+            "3": "VHD",
+            "4": "PRB",
+            "5": "RIS",
+            "6": "OS-VHD",
+            "7": "OS-PRB",
+            "8": "OS-RIS",
+        }
+        db.groupCode.insert_one(data)
 
-def insert_group_code_to_db():
-    data = {
-        "0": "ESD-DHD",
-        "1": "ESD-NRJ",
-        "2": "OS-ESD",
-        "3": "VHD",
-        "4": "PRB",
-        "5": "RIS",
-        "6": "OS-VHD",
-        "7": "OS-PRB",
-        "8": "OS-RIS",
-    }
-    db.groupCode.insert_one(data)
+def insert_group_code_to_db_new(g_c, g_n):
+    db.groupCode.update({}, {"$set": {g_c: g_n}}, True)
 
+def insert_new_group_to_db(g_n, g_r, h_n):
+    today_date = datetime.now()
+    if "OS-" in g_n:
+        db.clientCodeRule.insert_one({"Group": g_n, "Start": 9000, "End": 9200, "Heads": h_n,
+                                    "Date_of_creation": today_date})
+    else:
+        db.clientCodeRule.insert_one({"Group": g_n, "Start": int(g_r), "End": int(g_r) + 200, "Heads": h_n,
+                                      "Date_of_creation": today_date})
+
+def get_all_group_code_name():
+    result = list(db.groupCode.find({}, {"_id": 0}))
+    return result[0]
 
 def get_group_name_from_id(g_id):
     group_code = list(db.groupCode.find({}, {'_id': 0}))
@@ -42,7 +59,6 @@ def get_group_code_from_group_name(g_name):
     group_list = list(db.groupCode.find({}, {'_id': 0}))
     for data in group_list:
         for x, y in data.items():
-            print(y)
             if y == g_name:
                 return x
     return 0
@@ -142,9 +158,8 @@ def add_client_details(data_dict):
 
 def add_party_details(data_dict):
     # check if exists
-    result = list(db.partyMaster.find(data_dict, {'_id': 1}))
+    result = list(db.partyMaster.find({"Party_name": data_dict['Party_name']}, {'_id': 1}))
     if result:
-        print('Not Inserted')
         return []
     else:
         return db.partyMaster.insert(data_dict)
@@ -192,7 +207,7 @@ def get_client_detail_from_id(id):
     return None
 
 
-def get_party_master_list(id_field=False):
+def get_party_master_list(id_field):
     if id_field:
         result = list(db.partyMaster.find({}))
     else:
@@ -206,6 +221,111 @@ def get_party_detail_from_id(id):
         return result[0]
     return None
 
-
-def update_party_details(r_id, temp):
+def transfer_party(r_id, temp):
+    # Code to add party in closed party list in db
     result = db.partyMaster.update({'_id': ObjectId(r_id)}, temp)
+
+
+def close_party(r_id, temp):
+    # Code to add party in closed party list in db
+    db.closedPartyMaster.insert_one(temp)
+    db.partyMaster.remove({'_id': ObjectId(r_id)})
+
+
+def get_total_client_from_party_name(party_name):
+    result = db.clientMaster.count_documents({'Party_name': party_name})
+    return result
+
+
+def get_all_available_group_no():
+    result = list(db.clientCodeRule.distinct("Start",{'Group': {'$exists':True}}))
+    all_possible_list = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000]
+    available_list = sorted(list(set(all_possible_list) - set(result)))
+    available_list.append(9000)
+    return available_list
+
+def get_all_available_group_code():
+    result = list(db.groupCode.find({}, {'_id': 0}))
+    return result
+
+def get_all_group_list():
+    result = list(db.clientCodeRule.find({"Group": {"$exists": True}}, {"_id": 0}))
+    return result
+
+def get_empty_group_list():
+    party_result = list(db.partyMaster.distinct("Group_name"))
+    group_result = list(db.clientCodeRule.distinct("Group", {"Group": {"$exists": True}}))
+
+    can_close_group_list = list(set(group_result) - set(party_result))
+    return can_close_group_list
+
+def close_group_database(group_name, close_reason):
+    existing_group_code = get_all_group_code_name()
+    new_group_code_dict = {}
+    group_list = []
+    for k,v in existing_group_code.items():
+        group_list.append(v)
+    if group_name in group_list:
+        group_list.remove(group_name)
+        for x in range(len(group_list)):
+            new_group_code_dict[str(x)] = group_list[x]
+        db.groupCode.remove({})
+        db.groupCode.insert_one(new_group_code_dict)
+
+        db.clientCodeRule.delete_many({"Group": group_name})
+        today_date = datetime.now()
+        close_group_db = db["closedGroupMaster"]
+        result = db.closedGroupMaster.insert({"Group": group_name, "Reason": close_reason,
+                                        "Date_of_closure": today_date})
+        return result
+
+    else:
+        return None
+
+def get_closed_group_list():
+    result = list(db.closedGroupMaster.find({}))
+    return result
+
+def get_all_distinct_group_names():
+    result = list(db.clientCodeRule.distinct("Group"))
+    return result
+
+
+def get_all_distinct_clients_from_party_name(party):
+    result = list(db.clientMaster.aggregate([
+    {
+        '$match': {
+            'Party_name': party
+        }
+    }, {
+        '$project': {
+            '_id': 1,
+            'Name': 1,
+            'It_no': 1,
+            'It_size': 1,
+            'Audit_no': 1,
+            'Audit_size': 1,
+            'Client_type': 1,
+            'Group_name': 1
+        }
+    }
+]))
+    return result
+
+def update_party_name_in_party_master(group_name, new_party_name):
+    # Assuming you have a connection to the database and a reference to the partyMaster collection
+    collection = db.partyMaster
+
+    # Update the party name for the specified group name in the partyMaster collection
+    collection.update_many(
+        {'Party_name': new_party_name},
+        {'$set': {'Group_name': group_name}}
+    )
+
+def update_client_details(updated_data_list):
+
+    for each_client in updated_data_list:
+        db.tdsMaster.update_many({"Client_code": each_client['OldITNo']},
+                                    {"$set": {"Client_code": each_client['It_no']}})
+        db.returnMaster.update_many({"It_no": each_client['OldITNo']}, {"$set": {"It_no": each_client['It_no']}})
+        db.clientMaster.update_one({"_id": ObjectId(each_client['Client_id'])}, {"$set": each_client})

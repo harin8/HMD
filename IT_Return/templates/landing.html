@@ -3,50 +3,95 @@
     <title>HMD|Dashboard</title>
 {% endblock %}
 {% block body_block %}
+{% load it_tags %}
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-12">
+    <div class="row bg-white">
+        <div class="col-md-4 m-4" id="main-menu">
+            <h4 class="text-center header-title mb-3">MENU</h4>
             <div class="card">
                 <div class="card-body">
-                    <div class="col-md-12">
-                        <h4 class="header-title mb-3">Menu</h4>
+                    <div class="card">
+                        <button type="button" class="btn btn-link" id="it-return">
+                            <div class="card-body">IT Returns</div>
+                        </button>
+                    </div><br>
+                    <div class="card">
+                        <button type="button" class="btn btn-link" id="tds">
+                            <div class="card-body">TDS/TCS</div>
+                        </button>
+                    </div><br>
+                    <div class="card">
+                        <a role="button" href="{% url 'Certificates Landing' %}" class="btn btn-link" id="certificates">
+                            <div class="card-body">Certificates</div>
+                        </a>
+                    </div><br>
+                    <div class="card">
+                        <a role="button" href="{% url 'Other Forms Landing' %}" class="btn btn-link" id="otherForms">
+                            <div class="card-body">Other Forms/Activities</div>
+                        </a>
+                    </div><br>
+                    <div class="card">
+                        <button type="button" class="btn btn-link" id="proceedings">
+                            <div class="card-body">Proceedings</div>
+                        </button>
+                    </div><br>
+                    <div class="card">
+                        <a role="button" href="{% url 'Reports Landing' %}" class="btn btn-link" id="reports">
+                            <div class="card-body">Reports</div>
+                        </a>
+                    </div><br><div class="card" style="background-color: DodgerBlue;">
+                        <a role="button" href="{% url 'Judgments Landing' %}" class="btn btn-link" id="judgments">
+                            <div class="card-body" style="font-size: 1.35em;"> <font color="#FFFFFF"> Judgments / Articles </font></div>
+                        </a>
                     </div>
-                    <div class="row">
-                        <div class="col-md-4" id="main-menu">
-                            <div class="card widget-box-three">
-                                <button style="text-align:left;" type="button" class="btn btn-link" id="it-return">
-                                    <div style="text-align: center" class="card-body">IT Returns</div>
-                                </button>
-                            </div><br>
-                            <div class="card widget-box-three">
-                                <a role="button" style="text-align:left" href="{% url 'Certificates Landing' %}" class="btn btn-link" id="certificates">
-                                    <div style="text-align: center" class="card-body">Certificates</div>
-                                </a>
-                            </div><br>
-                            <div class="card widget-box-three">
-                                <a role="button" style="text-align:left" href="{% url 'Other Forms Landing' %}" class="btn btn-link" id="otherForms">
-                                    <div style="text-align: center" class="card-body">Other Forms/Activities</div>
-                                </a>
-                            </div><br>
-                            <div class="card widget-box-three">
-                                <button style="text-align:left;" type="button" class="btn btn-link" id="tds">
-                                    <div style="text-align: center" class="card-body">TDS/TCS</div>
-                                </button>
-                            </div><br>
-                            <div class="card widget-box-three">
-                                <a role="button" style="text-align:left" href="{% url 'Reports Landing' %}" class="btn btn-link" id="reports">
-                                    <div style="text-align: center" class="card-body">Reports</div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-md-4 m-4" id="sub-menu" style="display: none;">
-                        </div>
-                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 m-4 align-self-center" id="sub-menu" style="display: none;"></div>
+
+        <div class="col-md-4 mt-4 mb-4" id="live_board" style="margin-left:200px">
+            <h4 class="text-center header-title mb-3" style="width: 150%">LIVE BOARD</h4>
+            <div class="card scroll" style="width: 150%">
+                <div class="card-body">
+                    {% for each_proc in Live_Board %}
+                    <a href="{% url 'Further Proc Info' id=each_proc|private:'_id' %}"><ul class="list-group list-group-horizontal" style="margin-bottom:5px" >
+
+                        {% if each_proc.In_past == "Yes" %}
+                        <li class="list-group-item text-center text-white bg-danger" style="width:80%;font-size:22px">
+                        {% else %}
+                        <li class="list-group-item text-center text-white bg-success" style="width:80%;font-size:22px">
+                        {% endif %}
+                        <b>{{ each_proc.Closure_date|date:'d-m-Y' }}</b><br>
+                        <b>{{ each_proc.Closure_date|date:'l'}}</b></li>
+
+                        {% if each_proc.In_past == "Yes" %}
+                        <li class="list-group-item text-black" style="width:200%; background-color:#FFEBEE">
+                        {% else %}
+                        <li class="list-group-item text-black" style="width:200%; background-color:#E8F5E9">
+                        {% endif %}
+                            <b>Name: </b>{{ each_proc.Name }}</br>
+                            <b>A.Y.: </b>{{ each_proc.AY }}</br>
+                            <b>Proceedings: </b>{{ each_proc.Description }}</br>
+                            <b>Section: </b>{{ each_proc.Section }}</br>
+                            <b>Remarks: </b>{{ each_proc.Closure_remarks }}</br>
+                        </li>
+                    </ul></a>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    a {
+    color:black;
+    }
+    .scroll {
+    max-height: 800px;
+    overflow-y: scroll;
+}
+</style>
 
 <script type="text/javascript">
     $(document).ready( function () {
@@ -54,14 +99,16 @@
         $('#it-return').on('click', function(event) {
             event.preventDefault(); // To prevent following the link (optional)
             if (!modal_toggle) {
-                var div = '<div style="text-align: center" class="card widget-box-three"><a style="text-align:left" role="button" href="{% url 'New IT Return' %}" class="btn btn-link" id="return-new"><div style="text-align: center" class="card-body">New</div></a></div><br><div class="card widget-box-three"><a style="text-align:left" href="{% url 'Existing Return List' %}" role="button" class="btn btn-link" id="return-existing"><div style="text-align: center" class="card-body">Existing</div></a></div><br><div class="card widget-box-three"><a style="text-align:left" role="button" href="{% url 'CPC List' %}" class="btn btn-link" id="return-cpc"><div style="text-align: center" class="card-body">Verify Later</div></a></div><br>'
+                var div = '<div class="card"><div class="card-body"><div class="card"><a role="button" href="{% url 'New IT Return' %}" class="btn btn-link" id="return-new"><div class="card-body">New</div></a></div><br><div class="card"><a href="{% url 'Existing Return List' %}" role="button" class="btn btn-link" id="return-existing"><div class="card-body">Existing</div></a></div><br><div class="card"><a role="button" href="{% url 'CPC List' %}" class="btn btn-link" id="return-cpc"><div class="card-body">Verify Later</div></a></div></div></div>'
                 $('#sub-menu').append(div);
                 $('#sub-menu').css('display', 'block');
+                $('#live_board').css('display', 'none');
                 modal_toggle = true;
             }
             else {
                 document.getElementById('sub-menu').innerHTML = "";
                 $('#sub-menu').css('display', 'none');
+                $('#live_board').css('display', 'block');
                 modal_toggle = false;
             }
         });
@@ -69,18 +116,37 @@
         $('#tds').on('click', function(event) {
             event.preventDefault(); // To prevent following the link (optional)
             if (!modal_toggle) {
-                var div = '<div style="text-align: center" class="card widget-box-three"><a style="text-align:left" role="button" href="{% url 'TDS Landing' %}" class="btn btn-link" id="tds-new"><div style="text-align: center" class="card-body">New</div></a></div><br><div class="card widget-box-three"><a style="text-align:left" href="{% url 'Existing TDS List' %}" role="button" class="btn btn-link" id="tds-existing"><div style="text-align: center" class="card-body">Existing</div></a></div><br>'
+                var div = '<div class="card"><div class="card-body"><div class="card"><a role="button" href="{% url 'TDS Landing' %}" class="btn btn-link" id="tds-new"><div class="card-body">New</div></a></div><br><div class="card"><a href="{% url 'Existing TDS List' %}" role="button" class="btn btn-link" id="tds-existing"><div class="card-body">Existing</div></a></div></div></div>'
                 $('#sub-menu').append(div);
                 $('#sub-menu').css('display', 'block');
+                $('#live_board').css('display', 'none');
                 modal_toggle = true;
             }
             else {
                 document.getElementById('sub-menu').innerHTML = "";
                 $('#sub-menu').css('display', 'none');
+                $('#live_board').css('display', 'block');
+                modal_toggle = false;
+            }
+        });
+
+        $('#proceedings').on('click', function(event) {
+            event.preventDefault(); // To prevent following the link (optional)
+            if (!modal_toggle) {
+                var div = '<div class="card"><div class="card-body"><div class="card"><a role="button" href="{% url 'Regular Proceedings Landing' %}" class="btn btn-link" id="regular-proceedings"><div class="card-body">Regular Proceedings</div></a></div><br><div class="card"><a href="{% url 'Judicial Proceedings Landing' %}" role="button" class="btn btn-link" id="judicial-proceedings"><div class="card-body"> Appellate/Judicial Proceedings</div></a></div><br><div class="card"><a role="button" href="{% url 'Other Proceedings Landing' %}" class="btn btn-link" id="other-proceedings"><div class="card-body">Other Proceedings</div></a></div></div></div>'
+                $('#sub-menu').append(div);
+                $('#sub-menu').css('display', 'block');
+                $('#live_board').css('display', 'none');
+                modal_toggle = true;
+            }
+            else {
+                document.getElementById('sub-menu').innerHTML = "";
+                $('#sub-menu').css('display', 'none');
+                $('#live_board').css('display', 'block');
+
                 modal_toggle = false;
             }
         });
     });
-
 </script>
 {% endblock %}

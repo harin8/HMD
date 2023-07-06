@@ -1,10 +1,30 @@
 import pymongo
 from bson.objectid import ObjectId
-
+from datetime import datetime
 __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
 
 client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
 db = client.HMD
+
+
+def date_to_IST_format(date):
+    try:
+        return date.strftime("%d-%m-%Y")
+    except AttributeError:
+        # convert to date object
+        try:
+            date_type = datetime.strptime(date, '%Y-%m-%d')
+        except:
+            return '-'
+        return date_type.strftime("%d-%m-%Y")
+
+
+def ymd_str_to_IST_format(date_str):
+    try:
+        date_type = datetime.strptime(date_str, '%Y-%m-%d')
+        return date_type.strftime("%d-%m-%Y")
+    except Exception:
+        return ''
 
 
 def check_client_from_client_code(client_code):
@@ -36,7 +56,7 @@ def get_id_from_certificate_description_name(description):
 
 
 def get_all_clients_details():
-    return list(db.clientMaster.find({}, {'_id': 0, 'Client_no': 0}))
+    return list(db.clientMaster.find({}, {'_id': 0, 'Client_no': 0, 'Contact_details.r_id': 0}))
 
 
 def get_all_certificate_list():

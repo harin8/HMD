@@ -8,6 +8,26 @@ client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
 db = client.HMD
 
 
+def date_to_IST_format(date):
+    try:
+        return date.strftime("%d-%m-%Y")
+    except AttributeError:
+        # convert to date object
+        try:
+            date_type = datetime.strptime(date, '%Y-%m-%d')
+        except:
+            return '-'
+        return date_type.strftime("%d-%m-%Y")
+
+
+def ymd_str_to_IST_format(date_str):
+    try:
+        date_type = datetime.strptime(date_str, '%Y-%m-%d')
+        return date_type.strftime("%d-%m-%Y")
+    except Exception:
+        return ''
+
+
 def get_ay_list():
     today_date = datetime.now()
     current_year = today_date.year
@@ -117,7 +137,7 @@ def get_all_tds_list(tds_ay, tds_type, tds_form, tds_quarter):
                                                           'Quarter': tds_quarter})
     diff_client = list(set(master_client) - set(return_client))
     for cl in diff_client:
-        result_client = list(db.clientMaster.find({'Client_code': cl}, {'_id': 0}))
+        result_client = list(db.clientMaster.find({'Client_code': cl}, {'_id': 0, 'Contact_details.r_id': 0}))
         for x in result_client:
             x['Type'] = tds_type
             x['AY'] = tds_ay

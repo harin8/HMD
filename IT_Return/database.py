@@ -8,6 +8,30 @@ client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
 db = client.HMD
 
 
+def date_to_IST_format(date):
+    try:
+        return date.strftime("%d-%m-%Y")
+    except AttributeError:
+        # convert to date object
+        try:
+            date_type = datetime.strptime(date, '%Y-%m-%d')
+        except:
+            return '-'
+        return date_type.strftime("%d-%m-%Y")
+
+
+def ymd_str_to_IST_format(date_str):
+    try:
+        date_type = datetime.strptime(date_str, '%Y-%m-%d')
+        return date_type.strftime("%d-%m-%Y")
+    except Exception:
+        return ''
+
+
+def string_to_date(date_str):
+    return datetime.strptime(date_str, '%Y-%m-%d')
+
+
 def get_return_type_name_from_id(r_id):
     if r_id == '1':
         return 'Original'
@@ -73,6 +97,11 @@ def get_return_proof_name_from_id(r_id):
 
 def get_all_return_list(r_ay, r_type):
     result = list(db.returnMaster.find({'AY': r_ay, 'Type': r_type}, {'_id': 0}))
+    for data in result:
+        try:
+            data['Acceptance_date'] = ymd_str_to_IST_format(data['Acceptance_date'])
+        except Exception:
+            pass
     master_client = db.clientMaster.distinct('It_no')
     return_client = db.returnMaster.distinct('It_no', {'AY': r_ay, 'Type': r_type})
     diff_client = list(set(master_client) - set(return_client))
@@ -90,7 +119,7 @@ def get_all_return_list(r_ay, r_type):
 def get_ay_list():
     today_date = datetime.now()
     current_year = today_date.year
-    start_year = 2010
+    start_year = 2008
     ay_list = []
     while start_year != current_year + 2:
         temp = str(start_year) + '-' + str(start_year + 1)
@@ -180,8 +209,8 @@ def get_existing_completed_return_list():
 
 def get_cpc_all_return_list():
     result = list(db.returnMaster.find({'$and': [{'Submitted_fur': True},
-                                                 {'$or': [{'Verification': 'Verify Later'}, {'Verification': 'Aadhar'},
-                                                          {'Verification': 'EVC'}, {'Verification': 'CPC'}]}]}, {'_id': 0}))
+                                                 {'$or': [{'Verification': 'Verify Later'}, {'Submitted_cpc': True}]}]},
+                                       {'_id': 0}))
     for x in result:
         clientMaster_result = list(db.clientMaster.find({'Name': x['Name']}, {'It_no': 1}))
         if clientMaster_result:
@@ -195,7 +224,7 @@ def calculate_due_date_cpc(filing_date):
     due_date = ""
     if filing_date:
         due_date = datetime.strftime(datetime.strptime(filing_date, '%Y-%m-%d') +
-                                                            timedelta(days=100), "%Y-%m-%d")
+                                     timedelta(days=20), "%d-%m-%Y")
 
     return due_date
 
@@ -230,3 +259,8 @@ def add_cpc_return_record(data_dict):
         x = None
         print('not updated')
     return x
+
+
+def get_all_available_group_code():
+    result = list(db.groupCode.find({}, {'_id': 0}))
+    return result

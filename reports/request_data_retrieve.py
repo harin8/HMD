@@ -1,5 +1,6 @@
 from . import database
 
+
 def get_selected_tasks(form_data_dict):
     task_list = []
     selected_task_list = form_data_dict.getlist('task')
@@ -9,6 +10,10 @@ def get_selected_tasks(form_data_dict):
         task_list.append('Certificates')
     if 'Other' in selected_task_list:
         task_list.append('Other')
+    if 'TDS' in selected_task_list:
+        task_list.append('TDS')
+    if 'Proceedings' in selected_task_list:
+        task_list.append('Proceedings')
 
     return task_list
 
@@ -24,6 +29,12 @@ def get_period(form_data_dict, task_list):
     if "Other" in task_list:
         cert_start_date = form_data_dict['otherFormsStartDate']
         period_list['Other'] = {'Start_date': cert_start_date}
+    if "TDS" in task_list:
+        tds_ay = form_data_dict.getlist('tds')
+        period_list['TDS'] = tds_ay
+    if "Proceedings" in task_list:
+        proceedings_ay = form_data_dict.getlist('proceedings')
+        period_list['Proceedings'] = proceedings_ay
 
     return period_list
 

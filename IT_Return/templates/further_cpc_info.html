@@ -94,6 +94,7 @@
                                     <select required name="verification" class="form-control selectpicker" id="verification">
                                         <option value="2" {% if Data_Dict.Verification == "Aadhar" %} selected {% endif %}> Aadhar </option>
                                         <option value="3" {% if Data_Dict.Verification == "CPC" %} selected {% endif %}> CPC </option>
+					<option value="1" {% if Data_Dict.Verification == "DSC" %} selected {% endif %}> DSC </option>
                                         <option value="5" {% if Data_Dict.Verification == "EVC" %} selected {% endif %}> EVC </option>
                                     </select>
                                 </div>

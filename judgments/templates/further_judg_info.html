@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block head_block %}
+<title>HMD|Judgements / Articles Further</title>
+{% endblock %}
+{% block body_block %}
+{% load certificate_tags %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 py-3 mt-2">
+            <h4> Judgment / Article</h4>
+        </div>
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <a style="color: white" id="backButton"  href="{% url 'Judgments Landing' %}" ><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form role="form" name="frmFurAdd1" action="{% url 'Further Judg Citation Submit' %}" class="form-horizontal" method="post" enctype="multipart/form-data" >
+                        <input type="hidden" id="recordId" value="{{ Data_Dict|private:'_id' }}" name="Record_Id">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Type:</label>
+                                    <input required readonly style="text-transform:uppercase" type="text" name="Type" id="Type" class="form-control eventTodayDateTime" placeholder="Enter AY" value="{{ Data_Dict.Type }}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Subject:</label>
+                                    <input required readonly style="text-transform:uppercase" type="text" name="Subject" id="Subject" class="form-control eventTodayDateTime" placeholder="Enter AY" value="{{ Data_Dict.Subject }}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Section:</label>
+                                    <input readonly style="text-transform:uppercase" required type="text" name="Section" id="section" class="form-control eventTodayDateTime" placeholder="" value="{{ Data_Dict.Section }}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>AY:</label>
+                                    <input required readonly style="text-transform:uppercase" type="text" name="AY" id="AY" class="form-control eventTodayDateTime" placeholder="Enter AY" value="{{ Data_Dict.AY }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label>Case Title / Article Title:</label>
+                                    <input required readonly style="text-transform:uppercase" type="text" name="Case_Title" id="Case_Title" class="form-control eventTodayDateTime" value="{{ Data_Dict.Case_Title }}">
+                                </div>
+                          </div>
+                          </div>
+                          <div class="row">
+                          <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Citation:</label>
+                                <input required readonly style="text-transform:uppercase" type="text" name="Citation" id="Citation" class="form-control eventTodayDateTime" value="{{ Data_Dict.Citation }}">
+                            </div>
+                      </div>
+                      <div class="col-md-2" id="forumAuthor_div">
+                        <div class="form-group">
+                            <label>Forum / Author:</label>
+                            <input required readonly style="text-transform:uppercase" type="text" name="forumAuthor" id="forumAuthor" class="form-control eventTodayDateTime" value="{{ Data_Dict.forumAuthor }}">
+                        </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Date:</label>
+                                <input required readonly type="date" name="judgDate" id="judgDate" class="form-control eventTodayDateTime" value="{{ Data_Dict.Judgment_Article_Date }}">
+                            </div>
+                        </div>  
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label style="color:white;">Remarks</label>
+                                <input type="hidden" name="savedetails">
+                                <button class="btn btn-primary" style="width:200px;" onclick="return confirmSubmit()" name="save_button_1" id="save_button_1" value="">&nbsp;Save Details </button>&nbsp;
+                            </div>
+                        </div>
+                        <div class="col-md-1" style=" padding-left: 80px;">
+                            <div class="form-group">
+                                <label style="color:white;">Remarks</label>
+                                <input class="btn btn-secondary" style=" width: 200px;"  type="button" name="reset_button_1" id="reset_button_1" value="Edit Details">&nbsp;&nbsp;
+                            </div>
+                        </div>
+                        <script>
+                            function confirmSubmit()
+                                {
+                                var agree=confirm("Are you sure you wish to continue?");
+                                if (agree){
+                                    return true ;
+                                    document.getElementById('savedetails').value = 0;
+                                }
+                                else{
+                                    document.getElementById('savedetails').value = 1;
+                                }
+
+                                }
+                        </script>
+                    </form>
+                
+                </div>   
+                <br>
+                    <h4>List Of Summaries</h4>
+                    <br>
+                    <div class="row" >
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Catch Phrase:</label>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label>Held / Discussion:</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Our Remarks:</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Remarks By:</label>
+                            </div>
+                        </div>
+                    </div>
+                    {% if Data_Dict.Summary == 1%}
+                    {% for each_summary in Summary_result %}
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <input readonly type="text" maxlength="200" class="form-control" value="{{ each_summary.Catch_Phrase }}">
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <input readonly type="text" class="form-control " value="{{ each_summary.Held_Discussion }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <input readonly type="text" class="form-control" value="{{ each_summary.Our_Remarks }}">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <input readonly type="text" class="form-control" value="{{ each_summary.Remarks_By }}">
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    
+                    <span id="contact_span" {% if Data_Dict.Summary == 1 %}  style="display:none" {% endif %} >
+                        <form role="form" name="frmFurAdd" action="{% url 'Further Judg Summary Submit' %}" class="form-horizontal" method="post" enctype="multipart/form-data">
+                            <input type="hidden" value="{{ Data_Dict|private:'_id' }}" name="Record_Id">
+                            {% csrf_token %}
+                            <div id="event_div" class="row contacts">
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <input required maxlength="200" style="text-transform:uppercase" type="text" name="Catch_Phrase" id="Catch_Phrase" class="form-control" placeholder="" value="{{ Data_Dict.Catch_Phrase }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group">
+                                        <input required style="text-transform:uppercase" type="text" name="Held_Discussion" id="Held_Discussion" class="form-control " placeholder="" value="{{ Data_Dict.Held_Discussion }}">
+                                    </div>
+                                </div>
+                               
+                                <div class="col-md-3">
+                                    <div class="form-group ">
+                                      <input required style="text-transform:uppercase" type="text" name="Our_Remarks" id="Our_Remarks" class="form-control " placeholder="" value="{{ Data_Dict.Our_Remarks }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <input style="text-transform:uppercase" type="text" name="Remarks_By" id="Remarks_By" class="form-control " placeholder="" value="{{ Data_Dict.Remarks_By }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-1">
+                                    <button type="submit" {% if Data_Dict.Summary == 1 %} style="display:none;" {% endif %} class="btn btn-success" id="sub_summary">Submit</button>&nbsp;&nbsp;
+                                </div>
+                            </div>
+                        </form>    
+                    </span>
+                
+                {% if Data_Dict.Summary ==  1 %}
+                <div class="row" id="contacts" style="padding-top:30px;">
+                    <div class="form-group col-md-3">
+                        <button id="add_contact" class="btn btn-success">Add</button>
+                        <button id="remove_contact" class="btn btn-danger" style="display:none;">Remove</button>
+                    </div>
+                </div>
+                {% endif %}
+                <br>
+                      
+                         <h4>File</h4>
+                    <br>
+                    {% if Data_Dict.File == 0 %}
+                    <form role="form" name="frmFurAdd2" action="{% url 'Further Judg File Submit' %}" class="form-horizontal" method="post" enctype="multipart/form-data" >
+                        <input type="hidden" id="recordId" value="{{ Data_Dict|private:'_id' }}" name="Record_Id">
+                        {% csrf_token %}
+                             <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group ">
+                                        <label>Choose File To Upload:</label>
+                                         <input type="file"  class="form-control" name="myfile" accept = "application/pdf">
+                                      </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label style="color:white;">Remarks</label>
+                                        <button type="submit" class="btn btn-success" >Submit</button>&nbsp;&nbsp;
+                                    </div>
+                                </div>
+                           
+                    </form>
+                    {% endif %}
+                    {% if Data_Dict.File == 1 %}
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group ">
+                                <label>File Uploaded</label>
+                                <input required  readonly style="text-transform:uppercase" type="text" class="form-control eventTodayDateTime" placeholder=""  value="{{ Data_Dict.File_name }}" >
+                            </div>
+                        </div>
+                    </div>
+                     {% endif %}
+                </div>
+               
+               
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready( function () {
+        $('#save_button_1').on('click', function() {
+        $("#Citation").prop('readonly', true);
+    });
+
+    $('#reset_button_1').on('click', function() {
+        $("#Citation").prop('readonly', false);
+    });
+
+        var counter = 1;
+        $('#add_contact').on('click', function(e) {
+            if(counter == 1){
+                $("#contact_span").show();
+                $("#sub_summary").show();
+                 counter += 1;
+               $("#add_contact").hide();
+               $("#remove_contact").show();
+            }
+        });
+
+        $('#remove_contact').on('click', function(e) {
+            e.preventDefault();
+            if(counter > 2) {
+                $('.row.contacts').last().remove();
+                counter -= 1;
+            }
+            else{
+                counter = 1;
+                 $("#contact_span").hide();
+                 $("#sub_summary").hide();
+                 $("#add_contact").show();
+                $("#remove_contact").hide();
+            }
+        });
+
+
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        $("#save_button").click(function(e){
+            e.preventDefault();
+            Citation = $('#Citation').val();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'Further Cert Submit' %}",
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                },
+                data: {
+                    Citation: Citation
+                },
+                success: function(result){
+                    alert("Details Saved");
+                    document.getElementById('backButton').click();
+                }
+            });
+        });
+    });
+
+</script>
+
+{% endblock %}

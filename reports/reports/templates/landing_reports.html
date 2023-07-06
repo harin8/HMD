@@ -1,0 +1,284 @@
+{% extends "layout.html" %}
+{% block head_block %}
+    {% load static %}
+    <title>HMD|Reports</title>
+{% endblock %}
+{% block body_block %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 py-3 mt-2">
+            <h4>Reports</h4>
+        </div>
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <a style="color:white" id="backButton" href="{% url 'Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
+        </div>
+    </div>
+    <form action="{% url 'Submit Reports' %}" method="post">
+        {% csrf_token %}
+        <div class="row" >
+            <div class="col-md-3" id="Status_div">
+                <label class="form-label">Status:</label>
+                <select required multiple name="Status" class="selectpicker" id="status" data-actions-box="true">
+                    <option value="1">Read</option>
+                    <option value="2">Unread</option>
+                </select>
+            </div>
+            <div class="col-md-3" id="GroupName_div">
+                <label class="form-label">Group Name:</label>
+                <select required multiple name="groupName" class="form-control selectpicker" id="Group_Name" data-live-search="true" data-actions-box="true">
+                    <option value="ESD-DHD">ESD-DHD</option>
+                    <option value="ESD-NRJ">ESD-NRJ</option>
+                    <option value="VHD">VHD</option>
+                    <option value="PRB">PRB</option>
+                    <option value="RIS">RIS</option>
+                    <option value="OS-ESD">OS-ESD</option>
+                    <option value="OS-VHD">OS-VHD</option>
+                    <option value="OS-PRB">OS-PRB</option>
+                    <option value="OS-RIS">OS-RIS</option>
+                </select>
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-md-3" id="Task_div" >
+                <label class="form-label">Task:</label>
+                <select required multiple name="task" class="selectpicker" id="Task" data-live-search="true" data-actions-box="true">
+                    <option value="ROI">IT-Returns</option>
+                    <option value="Certificates">Certificates</option>
+                    <option value="Other">Other Forms/Activities</option>
+                    <option value="TDS">TDS</option>
+                    <option value="Proceedings">Proceedings</option>
+                </select>
+            </div>
+            <div class="col-md-3" id="PartyName_div">
+                <label class="form-label">Party Name:</label>
+                <select required multiple name="partyName" class="selectpicker" id="Party_Name" data-live-search="true" data-actions-box="true">
+                </select>
+            </div>
+            <div class="col-md-3" id="ClientName_div">
+                <label class="form-label">Client Name:</label>
+                <select required multiple autocomplete="off" data-dropup-auto="false" name="Client_Name" class="form-control dropdown" id="clientName" data-live-search="true" data-actions-box="true">
+                </select>
+            </div>
+        </div><br>
+        <div class="row" id="period" style="display:none">
+            <div class="col-md-3" id="ay_period" style="display:none">
+                <label class="form-label">IT Returns Period: </label>
+                <select multiple name="A.Y" data-dropup-auto="false" class="form-control selectpicker dropdown" id="A.Y" data-live-search="true" data-actions-box="true">
+                    {% for ay in AY_list %}
+                        {% if ay == AY_Selected %}
+                            <option value="{{ay}}" selected>{{ay|title}}</option>
+                        {% else %}
+                            <option value="{{ay}}">{{ay|title}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <p>*Select AY for IT Returns</p>
+            </div>
+            <div class="col-md-4" id="cert_period" style="display:none">
+                <label class="form-label">Certificates Period: </label>
+                <input id="cert_date" type="date" name="certificateStartDate" class="form-control eventTodayDateTime" placeholder="Select Date">
+                <p>*For entire list, choose any date prior to 01-04-2021</p>
+            </div>
+            <div class="col-md-4" id="form_period" style="display:none">
+                <label class="form-label">Other Forms/Activities Period: </label>
+                <input id="form_date" type="date" name="otherFormsStartDate" class="form-control eventTodayDateTime" placeholder="Select Date">
+                <p>*For entire list, choose any date prior to 01-04-2021</p>
+            </div>
+            <div class="col-md-3" id="tds_period" style="display:none">
+                <label class="form-label">TDS/TCS Period: </label>
+                <select multiple name="tds" data-dropup-auto="false" class="form-control selectpicker dropdown" id="TDS" data-live-search="true" data-actions-box="true">
+                    {% for ay in TDS_list %}
+                        {% if ay == TDS_Selected %}
+                            <option value="{{ay}}" selected>{{ay|title}}</option>
+                        {% else %}
+                            <option value="{{ay}}">{{ay|title}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <p>*Select AY for TDS/TDS</p>
+            </div>
+            <div class="col-md-4" id="proceedings_period" style="display:none">
+                <label class="form-label">Proceedings Period: </label>
+                <select multiple name="proceedings" data-dropup-auto="false" class="form-control selectpicker dropdown" id="Proceedings" data-live-search="true" data-actions-box="true">
+                    {% for ay in Proceedings_list %}
+                        {% if ay == Proceedings_Selected %}
+                            <option value="{{ay}}" selected>{{ay|title}}</option>
+                        {% else %}
+                            <option value="{{ay}}">{{ay|title}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <p>*Select AY for Proceedings</p>
+            </div>
+        </div>
+        <br><br>
+        <div class="row">
+            <div class="form-group col-md-3">
+                <button type="submit" class="btn btn-success" >Submit</button>&nbsp;&nbsp;
+                <button type="reset" class="btn btn-secondary back" name="Reset">Reset</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+{% if Result_list|length > 0 %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12 py-3 mt-2">
+            <h4>Result</h4>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table cellpadding="1" cellspacing="2" border="0" class="table table-striped table-bordered dataTable" id="existing-certificateList" width="100%">
+                            <thead>
+                                <tr>
+                                    <th align="left">Group Name</th>
+                                    <th align="left">Client Code</th>
+                                    <th align="left">Client Name</th>
+                                    <th align="left">Task Name</th>
+                                    <th align="left">Start Date</th>
+                                    <th align="left">End Date</th>
+                                    <th align="left">Read/Unread</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for each_cert in Result_list %}
+                                <tr>
+                                    <td align="left">{{ each_cert.Group_name }}</td>
+                                    <td align="left">{{ each_cert.Client_code }}</td>
+                                    <td align="left">{{ each_cert.Name }}</td>
+                                    <td align="left">{{ each_cert.Type }}</td>
+                                    <td align="left">{{ each_cert.Start_date }}</td>
+                                    <td align="left">{{ each_cert.End_date }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th align="left">Group Name</th>
+                                        <th align="left">Client Code</th>
+                                        <th align="left">Client Name</th>
+                                        <th align="left">Task Name</th>
+                                        <th align="left">Start Date</th>
+                                        <th align="left">End Date</th>
+                                        <th align="left">Read/Unread</th>
+                                    </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<script>
+    $(document).ready( function () {
+        $('select').selectpicker();
+        $('#Group_Name').on('change', function() {
+            var selected_group_names = $('#Group_Name').val();
+            var party_list = {{ Party_list|safe }};
+            var final_party_list = new Array();
+            for (i=0; i<selected_group_names.length; i++) {
+                for (j=0; j<party_list.length; j++) {
+                    if (selected_group_names[i] == party_list[j]['group']) {
+                        final_party_list = final_party_list.concat(party_list[j]['party']);
+                    }
+                }
+            }
+            var option_html = '';
+            for (i=0; i<final_party_list.length; i++) {
+                var temp = '<option value="' + final_party_list[i] + '">' + final_party_list[i] + '</option>';
+                option_html = option_html + temp;
+            }
+            $('#Party_Name').empty().html(option_html);
+            $('#Party_Name').selectpicker('refresh');
+            $('.dropdown-menu show').css('overflow','auto');
+        });
+
+        $('#Task').on('change', function() {
+            var selected_tasks = $('#Task').val();
+
+            if (selected_tasks.length == 0) {
+                $("#ay_period").css('display','none');
+                $('#A.Y').removeAttr('required');
+                $("#cert_period").css('display','none');
+                $('#cert_date').removeAttr('required');
+                $("#form_period").css('display','none');
+                $('#form_date').removeAttr('required');
+                $('#tds_period').css('display','none');
+                $('#TDS').removeAttr('required');
+                $('#proceedings_period').css('display','none');
+                $('#Proceedings').removeAttr('required');
+
+            }
+            else {
+
+                $("#period").css('display','block');
+                $("#ay_period").css('display','none');
+                $('#A.Y').removeAttr('required');
+                $("#cert_period").css('display','none');
+                $('#cert_date').removeAttr('required');
+                $("#form_period").css('display','none');
+                $('#form_date').removeAttr('required');
+                $('#tds_period').css('display','none');
+                $('#TDS').removeAttr('required');
+                $('#proceedings_period').css('display','none');
+                $('#Proceedings').removeAttr('required');
+
+                for(i=0;i<selected_tasks.length;i++) {
+                    if(selected_tasks[i]=='ROI') {
+                        $("#ay_period").css('display','inline-block');
+                        $('#A.Y').attr('required', true);
+                    }
+                    if(selected_tasks[i]=='Certificates') {
+                        $("#cert_period").css('display','inline-block');
+                        $('#cert_date').attr('required',true);
+                    }
+                    if(selected_tasks[i]=='Other') {
+                        $("#form_period").css('display','inline-block');
+                        $('#form_date').attr('required', true);
+                    }
+                     if(selected_tasks[i]=='TDS') {
+                        $("#tds_period").css('display','inline-block');
+                        $('#TDS').attr('required', true);
+                    }
+                    if(selected_tasks[i]=='Proceedings') {
+                        $("#proceedings_period").css('display','inline-block');
+                        $('#Proceedings').attr('required', true);
+                    }
+                }
+            }
+        });
+
+        $('#Party_Name').on('change', function() {
+            var selected_party_names = $('#Party_Name').val();
+            var client_list = {{ Client_list|safe }};
+            var final_client_list = new Array();
+            for (i=0; i<selected_party_names.length; i++) {
+                for (j=0; j<client_list.length; j++) {
+                    if (selected_party_names[i] == client_list[j]['Party_name']) {
+                        final_client_list = final_client_list.concat(client_list[j]['Name']);
+                    }
+                }
+            }
+            var option_html = '';
+            for (i=0; i<final_client_list.length; i++) {
+                var temp = '<option value="' + final_client_list[i] + '">' + final_client_list[i] + '</option>';
+                option_html = option_html + temp;
+            }
+            $('#clientName').empty().html(option_html);
+            $('select').selectpicker('refresh');
+        });
+
+    });
+
+</script>
+{% endblock %}

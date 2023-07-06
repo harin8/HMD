@@ -1,0 +1,144 @@
+[{
+  "_id": {
+    "$oid": "60a76aa8437e90a577e2b161"
+  },
+  "Name": "COMPANY",
+  "Type": "IT",
+  "Start": 201,
+  "End": 250
+},{
+  "_id": {
+    "$oid": "60a76aa8437e90a577e2b162"
+  },
+  "Name": "TRUST/AOP",
+  "Type": "IT",
+  "Start": 251,
+  "End": 275
+},{
+  "_id": {
+    "$oid": "60a76aa8437e90a577e2b163"
+  },
+  "Name": "LLP",
+  "Type": "IT",
+  "Start": 276,
+  "End": 300
+},{
+  "_id": {
+    "$oid": "60a76aa8437e90a577e2b164"
+  },
+  "Name": "FIRM",
+  "Type": "IT",
+  "Start": 301,
+  "End": 400
+},{
+  "_id": {
+    "$oid": "60a76aa8437e90a577e2b165"
+  },
+  "Name": "IND/HUF/OTHERS",
+  "Type": "IT",
+  "Start": 401,
+  "End": 600
+},{
+  "_id": {
+    "$oid": "60a76aa8437e90a577e2b166"
+  },
+  "Name": "COMPANY",
+  "Type": "AUDIT",
+  "Start": 1,
+  "End": 50
+},{
+  "_id": {
+    "$oid": "60a76aa8437e90a577e2b167"
+  },
+  "Name": "TRUST/AOP",
+  "Type": "AUDIT",
+  "Start": 51,
+  "End": 75
+},{
+  "_id": {
+    "$oid": "60a76aa8437e90a577e2b168"
+  },
+  "Name": "LLP",
+  "Type": "AUDIT",
+  "Start": 76,
+  "End": 100
+},{
+  "_id": {
+    "$oid": "60a76aa8437e90a577e2b169"
+  },
+  "Name": "FIRM",
+  "Type": "AUDIT",
+  "Start": 101,
+  "End": 200
+},{
+  "_id": {
+    "$oid": "60a76aa8437e90a577e2b16a"
+  },
+  "Name": "IND/HUF/OTHERS",
+  "Type": "AUDIT",
+  "Start": 101,
+  "End": 200
+},{
+  "_id": {
+    "$oid": "60a76ab59124d58b3f8465ab"
+  },
+  "Group": "ESD-DHD",
+  "Start": 1000,
+  "End": 1999
+},{
+  "_id": {
+    "$oid": "60a76ab59124d58b3f8465ac"
+  },
+  "Group": "RIS",
+  "Start": 5000,
+  "End": 5999
+},{
+  "_id": {
+    "$oid": "60a76ab59124d58b3f8465ad"
+  },
+  "Group": "VHD",
+  "Start": 3000,
+  "End": 3999
+},{
+  "_id": {
+    "$oid": "60a76ab59124d58b3f8465ae"
+  },
+  "Group": "PRB",
+  "Start": 4000,
+  "End": 4999
+},{
+  "_id": {
+    "$oid": "60a76ab59124d58b3f8465af"
+  },
+  "Group": "OS-ESD",
+  "Start": 9000,
+  "End": 9200
+},{
+  "_id": {
+    "$oid": "60a76ab59124d58b3f8465b0"
+  },
+  "Group": "OS-RIS",
+  "Start": 9000,
+  "End": 9200
+},{
+  "_id": {
+    "$oid": "60a76ab59124d58b3f8465b1"
+  },
+  "Group": "OS-VHD",
+  "Start": 9000,
+  "End": 9200
+},{
+  "_id": {
+    "$oid": "60a76ab59124d58b3f8465b2"
+  },
+  "Group": "OS-PRB",
+  "Start": 9000,
+  "End": 9200
+},{
+  "_id": {
+    "$oid": "60f2d93536e77200e9484f95"
+  },
+  "Group": "ESD-NRJ",
+  "Start": 2000,
+  "End": 2999
+}]

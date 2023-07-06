@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block head_block %}
+    {% load static %}
+    <title>HMD|New Client</title>
+{% endblock %}
+{% block body_block %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 py-3 mt-2">
+            <h4>New Forum / Author</h4>
+        </div>
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            {% if Hide %}
+                <a style="color:white" id="backButton" href="{% url 'Edit Contacts' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
+            {% else %}
+                <a style="color:white" id="backButton" href="{% url 'Insertions Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div style="display:none" class="alert alert-danger alert-dismissible" role="alert">
+                {{Message|safe}}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    {% if Hide %}
+                        <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit Edit Contact' %}" method="post" enctype="multipart/form-data">
+                       
+                    {% else %}
+                        <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Forum Author' %}" method="post" enctype="multipart/form-data">
+                    {% endif %}
+                    {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-12">Forum / Author Details</div>
+                        </div>
+                        {% if not Hide %}
+                            <br>
+                            <button id="add_contact" class="btn btn-success">Add</button>
+                            <button id="remove_contact" class="btn btn-danger">Remove</button>
+                            <br>
+                        {% endif %}
+                        <br>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Type:</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Name:</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Password:</label>
+                                </div>
+                            </div>
+                        </div>
+                        <span id="contact_span">
+                            <div class="row contacts">
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <select  name="Type" class="form-control dropdown" id="Type" >
+                                            <option value="-1" selected disabled>--Select--</option>
+                                            <option value="Forum">Forum</option>
+                                            <option value="Author">Author</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <input   type="text" class="form-control" name="Name">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <input required type="password" class="form-control" name="password" placeholder="Password">
+                                    </div>
+                                </div>
+                            </div>
+                        </span>
+                        <div class="row" id="submit-button">
+                            <div class="form-group col-md-3">
+                                <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
+                                <button type="reset" class="btn btn-secondary back" name="Reset" >Reset</button>
+                            </div>
+                        </div>
+                        {% if Alert %}
+                          <p style="color:Red">{{Alert}}<p>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not Hide %}
+<script>
+
+
+    $(document).ready( function () {
+        var counter = 1;
+        $('#add_contact').on('click', function(e) {
+            e.preventDefault();
+            $('.row.contacts').last().clone().appendTo('#contact_span').find('input').val("");
+            counter += 1;
+        });
+
+        $('#remove_contact').on('click', function(e) {
+            e.preventDefault();
+            if(counter > 1) {
+                $('.row.contacts').last().remove();
+                counter -= 1;
+            }
+        });
+    });
+</script>
+{% endif %}
+
+{% endblock %}

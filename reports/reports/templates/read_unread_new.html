@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block head_block %}
+    <title>HMD|Report Read/Unread</title>
+{% endblock %}
+{% block body_block %}
+{% load reports_tags %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 py-3 mt-2">
+            <h4>Read/Unread</h4>
+        </div>
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <a disabled style="color: white" id="backButton" href="#">
+                <button disabled style="width: 200px;text-decoration:underline" class="btn btn-secondary back">Back</button>
+                <p style="color:black">Use browser's back button</p>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Party Name: </label>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label>Client Code: </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Client Name: </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label>Type: </label>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label>AY: </label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Original Remark:</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Remark:</label>
+                            </div>
+                        </div>
+                    </div>
+                    <form role="form" name="frmCPCAdd" class="form-horizontal" action="{% url 'Read Submit' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% for each_record in All_Records %}
+                        <div class="row">
+                            <input type="hidden" name="r_id" value="{{ each_record|private:'_id' }}">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label style="color:black">{{ each_record.Party_name }}</label>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-group">
+                                    <label style="color:black">{{ each_record.Client_code }}</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label style="color:black">{{ each_record.Name }}</label>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-group">
+                                        <label style="color:black">{{ each_record.Type_name }}</label>
+                                        <input type="hidden" name="task" value="{{each_record.Type_name_hidden}}">
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-group">
+                                    {% if each_record.Acceptance_date %}
+                                        <label style="color:black">{{ each_record.Acceptance_date }}</label>
+                                    {% else %}
+                                        <label style="color:black">{{ each_record.AY }}</label>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label style="color:black">{{ each_record.Remarks }}</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <input style="text-transform:uppercase" type="text" name="remark" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="row">
+                        <div class="form-group col-md-2">
+                            <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
+                            <button type="reset" class="btn btn-secondary back" name="Reset">Reset</button>
+                        </div>
+                        <div class="col-md-3 input-group" id="show_hide_password">
+                            <input required type="password" class="form-control" name="password" placeholder="Password">
+                        </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready( function () {
+        $('select').selectpicker();
+        {% if Record_Data.Read == 'Yes' %}
+            $('#Read').value(Record_Data.Read);
+            $('#Reader').value(Record_Data.Reader);
+        {% endif %}
+        {% if Error %}
+            alert("Error Occurred. Could not update the information.");
+        {% endif %}
+    });
+</script>
+{% endblock %}

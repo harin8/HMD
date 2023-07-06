@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block head_block %}
+    <title>HMD|Insertions</title>
+{% endblock %}
+{% block body_block %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 py-3 mt-2">
+        </div>
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <a style="color:white" id="backButton" href="{% url 'Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="col-md-12">
+                        <h4 class="header-title mb-3">Forum / Auhtor</h4>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4" id="main-menu">
+                            <div class="card widget-box-three">
+                                <a id="client_create" role="button" style="text-align:left" class="btn btn-link" href="{% url 'Create New Forum Author' %}">
+                                    <div class="card-body">Create</div>
+                                </a>
+                            </div><br>
+                            <div class="card widget-box-three">
+                                <a id="client_view" role="button" style="text-align:left" class="btn btn-link" href="{% url 'Forum Author Master List' %}">
+                                    <div class="card-body">View</div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

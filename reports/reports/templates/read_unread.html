@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block head_block %}
+    <title>HMD|Report Read/Unread</title>
+{% endblock %}
+{% block body_block %}
+{% load reports_tags %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 py-3 mt-2">
+            <h4>Read/Unread</h4>
+        </div>
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <a disabled style="color: white" id="backButton" href="#">
+                <button disabled style="width: 200px;text-decoration:underline" class="btn btn-secondary back">Back</button>
+                <p style="color:black">Use browser's back button</p>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if not Record_Data.Read or Record_Data.Read == 'No' %}
+                        <form role="form" name="frmCPCAdd" class="form-horizontal" action="{% url 'Read Submit' %}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" id="Record_Id" value="{{ Record_Data|private:'_id' }}" name="recordID">
+                        <input type="hidden" id="Record_Type" value="{{ r_type|safe }}" name="recordType">
+                        {% csrf_token %}
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Read/Unread:</label>
+                                <input readonly style="text-transform:uppercase" required type="text" name="read" id="Read" class="form-control eventTodayDateTime" value="Read">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Reader:</label>
+                                <select required id="Reader" name="reader" class="form-control">
+                                    <option value="DHDIWAN">DHDIWAN</option>
+                                    <option value="VHDIWAN">VHDIWAN</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Remark:</label>
+                                <input style="text-transform:uppercase" type="text" name="remark" id="Remark" class="form-control" value="{{ Record_Data.Report_remarks }}">
+                            </div>
+                        </div>
+                    </div>
+                    {% if not Record_Data.Read or Record_Data.Read == 'No' %}
+                        <div class="row">
+                            <div class="form-group col-md-3">
+                                <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
+                                <button type="reset" class="btn btn-secondary back" name="Reset">Reset</button>
+                            </div>
+                        </div>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready( function () {
+        $('select').selectpicker();
+
+        {% if Record_Data.Read == 'Yes' %}
+            $('#Read').value(Record_Data.Read);
+            $('#Reader').value(Record_Data.Reader);
+        {% endif %}
+        {% if Error %}
+            alert("Error Occurred. Could not update the information.");
+        {% endif %}
+    });
+</script>
+{% endblock %}

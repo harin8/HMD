@@ -1,0 +1,71 @@
+{% extends "landing.html" %}
+{% block head_block %}
+    {% load static %}
+    <title>HMD|Forums / Authors List</title>
+{% endblock %}
+
+{% block body_block %}
+{% load contacts_tags %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 py-3 mt-2">
+            <h4>Forums / Authors List</h4>
+        </div>
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <a style="color:white" id="backButton" href="{% url 'Contacts Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table cellpadding="1" cellspacing="2" border="0" class="table table-striped table-bordered dataTable" id="contact_info" width="100%">
+                            <thead>
+                                <tr>
+                                    <th align="left">Type</th>
+                                    <th align="left">Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for each_return in forum_author_list %}
+                                <tr>
+                                    <td align="left">{{ each_return.Type }}</td>
+                                    <td align="left">{{ each_return.Name }}</td>
+                                    {% if can_edit %}
+                                      <td><a href="{% url 'Edit One Contact' id=each_return|private:'_id' %}" title="Edit" ><i class="fe-edit text-info"></i></a></td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th align="left">Type</th>
+                                        <th align="left">Name</th>
+                                    </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready( function () {
+        $('#contact_info').DataTable({
+            dom: 'Bfrtip',
+            lengthMenu: [[10,25,50,100,-1],[10,25,50,100,"All"]],
+			buttons: [{
+                extend: 'excel',
+                title: 'Forum_Author_Master'
+            },
+            {
+                extend: 'pageLength'
+            }]
+		});
+    });
+   
+</script>
+{% endblock %}

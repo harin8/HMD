@@ -161,9 +161,7 @@
         });
 
 		$('#report_submit').submit(function() {
-		    console.log('hi');
 		    var data_new = report_table.rows('.selected').data();
-		    console.log(data_new);
 		    var all_ids = [];
 		    var all_types = [];
 		    var i=0;
@@ -187,29 +185,7 @@
 		    }
 		});
 
-		$('#checkbox-group input[type=checkbox]').change(function() { // while you're at it listen for change rather than click, this is in case something else modifies the checkbox
-            var selected = [];
-            var search_regex = '';
-            $('div#checkbox-group input[type=checkbox]').each(function() {
-                if ($(this).is(":checked")) {
-                    selected.push($(this).val());
-                }
-            });
-            if(selected.length > 0) {
-                for(var i=0;i<selected.length;i++) {
-                    if(i==selected.length-1) {
-                        search_regex = search_regex + '^' +  selected[i] + '$';
-                    }
-                    else {
-                        search_regex = search_regex + '^' + selected[i] + '$|';
-                    }
-                }
-                report_table.column(0).search(search_regex, true).draw();
-            }
-            else {
-                report_table.column(0).search('').draw();
-            }
-        });
+
 	});
 </script>
 

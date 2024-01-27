@@ -1,3 +1,4 @@
+import bcrypt
 import pymongo
 from bson import ObjectId
 import datetime
@@ -23,21 +24,25 @@ if __name__ == "__main__":
         }
         db.groupCode.insert_one(data)
 
+
 def insert_group_code_to_db_new(g_c, g_n):
     db.groupCode.update({}, {"$set": {g_c: g_n}}, True)
+
 
 def insert_new_group_to_db(g_n, g_r, h_n):
     today_date = datetime.now()
     if "OS-" in g_n:
         db.clientCodeRule.insert_one({"Group": g_n, "Start": 9000, "End": 9200, "Heads": h_n,
-                                    "Date_of_creation": today_date})
+                                      "Date_of_creation": today_date})
     else:
         db.clientCodeRule.insert_one({"Group": g_n, "Start": int(g_r), "End": int(g_r) + 200, "Heads": h_n,
                                       "Date_of_creation": today_date})
 
+
 def get_all_group_code_name():
     result = list(db.groupCode.find({}, {"_id": 0}))
     return result[0]
+
 
 def get_group_name_from_id(g_id):
     group_code = list(db.groupCode.find({}, {'_id': 0}))
@@ -54,6 +59,15 @@ def check_it_code_present(it_no):
     if result:
         return True
     return False
+
+
+def check_client_name_present(client_name):
+    result = list(db.clientMaster.find({'Name': client_name}))
+    if result:
+        return True
+    else:
+        return False
+
 
 def get_group_code_from_group_name(g_name):
     group_list = list(db.groupCode.find({}, {'_id': 0}))
@@ -87,16 +101,24 @@ def get_client_type_name_from_id(c_id):
     elif c_id == '4':
         return 'FIRM'
     elif c_id == '5':
-        return 'IND/HUF/OTHERS'
+        return 'IND./HUF/OTHERS'
     else:
         return 'COMPANY'
 
 
 def get_client_master_list(id_field=False):
     if id_field:
-        result = list(db.clientMaster.find({}, {'_id': 1, 'Contact_details.r_id':0}))
+        result = list(db.clientMaster.find({}, {'_id': 1, 'Contact_details.r_id': 0}))
     else:
-        result = list(db.clientMaster.find({}, {'_id': 0, 'Contact_details.r_id':0}))
+        result = list(db.clientMaster.find({}, {'_id': 0, 'Contact_details.r_id': 0}))
+    return result
+
+
+def get_closed_client_master_list(id_field=False):
+    if id_field:
+        result = list(db.closedClientMaster.find({}, {'_id': 1, 'Contact_details.r_id': 0}))
+    else:
+        result = list(db.closedClientMaster.find({}, {'_id': 0, 'Contact_details.r_id': 0}))
     return result
 
 
@@ -154,6 +176,10 @@ def get_all_distinct_value(field_name):
 
 def add_client_details(data_dict):
     return db.clientMaster.insert(data_dict)
+
+
+def update_client_details_edit(client_id, data_dict):
+    return db.clientMaster.update_one({'_id': ObjectId(client_id)}, {'$set': data_dict})
 
 
 def add_party_details(data_dict):
@@ -221,6 +247,7 @@ def get_party_detail_from_id(id):
         return result[0]
     return None
 
+
 def transfer_party(r_id, temp):
     # Code to add party in closed party list in db
     result = db.partyMaster.update({'_id': ObjectId(r_id)}, temp)
@@ -238,19 +265,22 @@ def get_total_client_from_party_name(party_name):
 
 
 def get_all_available_group_no():
-    result = list(db.clientCodeRule.distinct("Start",{'Group': {'$exists':True}}))
+    result = list(db.clientCodeRule.distinct("Start", {'Group': {'$exists': True}}))
     all_possible_list = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000]
     available_list = sorted(list(set(all_possible_list) - set(result)))
     available_list.append(9000)
     return available_list
 
+
 def get_all_available_group_code():
     result = list(db.groupCode.find({}, {'_id': 0}))
     return result
 
+
 def get_all_group_list():
     result = list(db.clientCodeRule.find({"Group": {"$exists": True}}, {"_id": 0}))
     return result
+
 
 def get_empty_group_list():
     party_result = list(db.partyMaster.distinct("Group_name"))
@@ -259,11 +289,12 @@ def get_empty_group_list():
     can_close_group_list = list(set(group_result) - set(party_result))
     return can_close_group_list
 
+
 def close_group_database(group_name, close_reason):
     existing_group_code = get_all_group_code_name()
     new_group_code_dict = {}
     group_list = []
-    for k,v in existing_group_code.items():
+    for k, v in existing_group_code.items():
         group_list.append(v)
     if group_name in group_list:
         group_list.remove(group_name)
@@ -276,15 +307,17 @@ def close_group_database(group_name, close_reason):
         today_date = datetime.now()
         close_group_db = db["closedGroupMaster"]
         result = db.closedGroupMaster.insert({"Group": group_name, "Reason": close_reason,
-                                        "Date_of_closure": today_date})
+                                              "Date_of_closure": today_date})
         return result
 
     else:
         return None
 
+
 def get_closed_group_list():
     result = list(db.closedGroupMaster.find({}))
     return result
+
 
 def get_all_distinct_group_names():
     result = list(db.clientCodeRule.distinct("Group"))
@@ -293,24 +326,25 @@ def get_all_distinct_group_names():
 
 def get_all_distinct_clients_from_party_name(party):
     result = list(db.clientMaster.aggregate([
-    {
-        '$match': {
-            'Party_name': party
+        {
+            '$match': {
+                'Party_name': party
+            }
+        }, {
+            '$project': {
+                '_id': 1,
+                'Name': 1,
+                'It_no': 1,
+                'It_size': 1,
+                'Audit_no': 1,
+                'Audit_size': 1,
+                'Client_type': 1,
+                'Group_name': 1
+            }
         }
-    }, {
-        '$project': {
-            '_id': 1,
-            'Name': 1,
-            'It_no': 1,
-            'It_size': 1,
-            'Audit_no': 1,
-            'Audit_size': 1,
-            'Client_type': 1,
-            'Group_name': 1
-        }
-    }
-]))
+    ]))
     return result
+
 
 def update_party_name_in_party_master(group_name, new_party_name):
     # Assuming you have a connection to the database and a reference to the partyMaster collection
@@ -322,10 +356,80 @@ def update_party_name_in_party_master(group_name, new_party_name):
         {'$set': {'Group_name': group_name}}
     )
 
-def update_client_details(updated_data_list):
 
+def update_client_details(updated_data_list):
     for each_client in updated_data_list:
         db.tdsMaster.update_many({"Client_code": each_client['OldITNo']},
-                                    {"$set": {"Client_code": each_client['It_no']}})
+                                 {"$set": {"Client_code": each_client['It_no']}})
         db.returnMaster.update_many({"It_no": each_client['OldITNo']}, {"$set": {"It_no": each_client['It_no']}})
         db.clientMaster.update_one({"_id": ObjectId(each_client['Client_id'])}, {"$set": each_client})
+
+
+def close_client(client_detail):
+    # return master IT_code, Name
+    # tds master - Client_code, Name
+    # proceeding master - Name
+    # certificate master - Name
+    # other form master - Name
+
+    # check if any returns are pending
+
+    unread_returns = list(
+        db.returnMaster.aggregate([{"$match": {"Name": client_detail['clientName'], "Read": {"$exists": False}}}]))
+    unread_tds = list(
+        db.tdsMaster.aggregate([{"$match": {"Name": client_detail['clientName'], "Read": {"$exists": False}}}]))
+    unread_proceedings = list(
+        db.proceedingsMaster.aggregate([{"$match": {"Name": client_detail['clientName'], "Read": {"$exists": False}}}]))
+    unread_certificates = list(
+        db.certificateMaster.aggregate([{"$match": {"Name": client_detail['clientName'], "Read": {"$exists": False}}}]))
+    unread_other_forms = list(
+        db.otherFormsMaster.aggregate([{"$match": {"Name": client_detail['clientName'], "Read": {"$exists": False}}}]))
+    if unread_returns or unread_tds or unread_proceedings or unread_certificates or unread_other_forms:
+        return 0, "Selected client may have incompleted task(s)."
+    else:
+        # update client_code, audit_code, it_code, party_name
+        closed_it_code = "C-" + client_detail['itCode']
+        closed_audit_code = "C-" + client_detail['auditCode']
+        closed_party_name = "C-" + client_detail['partyName']
+        today_date = datetime.now()
+        selected_client_details = list(db.clientMaster.find({'Name': client_detail['clientName']}))
+        if not selected_client_details:
+            return 0, "No such client exists with this name"
+        selected_client_details[0]['Client_code'] = closed_it_code
+        selected_client_details[0]['It_no'] = closed_it_code
+        selected_client_details[0]['Audit_no'] = closed_audit_code
+        selected_client_details[0]['Party_name'] = closed_party_name
+        selected_client_details[0]['Closure_date'] = today_date
+        selected_client_details[0]['Closure_remarks'] = client_detail['closureRemark'].upper()
+        try:
+            db.closedClientMaster.insert_one(selected_client_details[0])
+            db.clientMaster.delete_one({'Name': client_detail['clientName']})
+            db.returnMaster.update_many({'Name': client_detail['clientName']}, {'$set': {'It_no': closed_it_code,
+                                                                                         'Client_closed': True}})
+            db.tdsMaster.update_many({'Name': client_detail['clientName']}, {'$set': {'Client_code': closed_it_code,
+                                                                                      'Client_closed': True}})
+            db.proceedingsMaster.update_many({'Name': client_detail['clientName']}, {'$set': {'Client_closed': True}})
+            db.certificateMaster.update_many({'Name': client_detail['clientName']}, {'$set': {'Client_closed': True}})
+            db.otherFormsMaster.update_many({'Name': client_detail['clientName']}, {'$set': {'Client_closed': True}})
+            return 1, "Client Closed"
+        except Exception as ex:
+            return 0, "Some error happened when updating database"
+
+
+def verify_password(operation_name, entered_password):
+    stored_salt_result = db.credentials.find_one({'Operation': "Salt"}, {"Salt": 1})
+    if stored_salt_result:
+        stored_salt = stored_salt_result['Salt']
+        stored_hashed_password_result = db.credentials.find_one({'Operation': operation_name}, {"Password": 1})
+        if stored_hashed_password_result:
+            stored_password_hashed = stored_hashed_password_result['Password']
+            entered_password_hashed = bcrypt.hashpw(entered_password.encode('utf-8'), stored_salt)
+            if entered_password_hashed == stored_password_hashed:
+                return True
+            else:
+                return False
+        else:
+            return False
+    else:
+        return False
+

@@ -18,6 +18,16 @@
         </div>
     </div>
 
+    {% if error_message %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-danger" role="alert">
+                    {{ error_message }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     <div class="row">
         <div class="col-md-12">
             <div class="card">
@@ -42,9 +52,10 @@
                                 <th align="left">TDS/TCS</th>
                                 <th align="left">IT Note</th>
                                 <th align="left">Audit Note</th>
-                                <th width="10px" align="left">Contact Details</th>
                                 {% if can_edit %}
-                                    <th align="left">Action</th>
+                                <th align="left">Action</th>
+                                {% else %}
+                                <th width="10px" align="left">Contact Details</th>
                                 {% endif %}
                             </tr>
                             </thead>
@@ -68,10 +79,13 @@
                                     </th>
                                     <td align="left">{{ each_return.It_note }}</td>
                                     <td align="left">{{ each_return.Audit_note }}</td>
-                                    <td align="center"><a><i style="color:#007bff;cursor:pointer" class="bi bi-person-plus-fill fa-lg"></i></a></td>
+
                                     {% if can_edit %}
-                                      <td><a href="{% url 'Edit One Client' id=each_return|private:'_id' %}" title="Edit" ><i class="fe-edit text-info"></i></a></td>
+                                    <td><a href="{% url 'Edit One Client' id=each_return|private:'_id' %}" title="Edit" ><i class="fe-edit text-info"></i></a></td>
+                                    {% else %}
+                                    <td align="center"><a><i style="color:#007bff;cursor:pointer" class="bi bi-person-plus-fill fa-lg"></i></a></td>
                                     {% endif %}
+
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -88,9 +102,10 @@
                                     <th align="left">TDS/TCS</th>
                                     <th align="left">IT Note</th>
                                     <th align="left">Audit Note</th>
-                                    <th align="left">Contact Details</th>
                                     {% if can_edit %}
-                                        <th align="left">Action</th>
+                                    <th align="left">Action</th>
+                                    {% else %}
+                                    <th align="left">Contact Details</th>
                                     {% endif %}
                                 </tr>
                             </tfoot>
@@ -136,6 +151,7 @@
             return html_content;
         }
 
+        {% if not can_edit %}
 		$('#client_info tbody').on( 'click', 'i', function () {
             var data = client_table.row( $(this).parents('tr') ).data();
             var new_data = new Array();
@@ -164,7 +180,7 @@
                 }
             }
         } );
-
+        {% endif %}
     });
 </script>
 {% endblock %}

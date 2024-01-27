@@ -375,8 +375,7 @@ def pdf_view(request, id):
     fs = FileSystemStorage()
     exist_result = database.get_proc_details(id)
     filename = exist_result['File_name']
-    print(filename)
-    print(exist_result['File_name'])
+
     if fs.exists(filename):
         with fs.open(filename) as pdf:
             response = HttpResponse(pdf, content_type='application/pdf')

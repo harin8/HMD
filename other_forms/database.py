@@ -40,7 +40,7 @@ def get_all_clients_details():
 
 
 def get_all_other_forms_list():
-    return list(db.otherFormsMaster.find({}))
+    return list(db.otherFormsMaster.find({'Client_closed': {'$exists': False}}))
 
 
 def add_other_forms_data_in_db(data_dict):

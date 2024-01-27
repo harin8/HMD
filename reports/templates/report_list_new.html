@@ -172,10 +172,10 @@
 		        else {
                     all_ids[i] = data_new[i][1];
                     all_types[i] = data_new[i][6];
-          }
+                }
 		    }
 		    document.getElementsByName('ids')[0].value = all_ids;
-		    document.getElementsByName('types')[0].value = all_types;
+		    document.getElementsByName('types')[0].value = all_types.join("^,^");
 		    if(all_ids.length > 0) {
 		        return true;
 		    }

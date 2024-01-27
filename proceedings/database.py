@@ -73,7 +73,7 @@ def get_all_clients_details():
 
 
 def get_all_proceedings_list():
-    result = list(db.proceedingsMaster.find({'Type': 3}))
+    result = list(db.proceedingsMaster.find({'$and': [{'Type': 3}, {'Client_closed': {'$exists': False}}]}))
     for data in result:
         try:
             data['Base_date'] = date_to_IST_format(data['Base_date'])
@@ -96,7 +96,7 @@ def get_all_proceedings_list():
 
 
 def get_all_judicial_proceedings_list():
-    result = list(db.proceedingsMaster.find({'Type': 2}))
+    result = list(db.proceedingsMaster.find({'$and': [{'Type': 2}, {'Client_closed': {'$exists': False}}]}))
     for data in result:
         try:
             data['Base_date'] = date_to_IST_format(data['Base_date'])
@@ -119,7 +119,7 @@ def get_all_judicial_proceedings_list():
 
 
 def get_all_regular_proceedings_list():
-    result = list(db.proceedingsMaster.find({'Type': 1}))
+    result = list(db.proceedingsMaster.find({'$and': [{'Type': 1}, {'Client_closed': {'$exists': False}}]}))
     for data in result:
         try:
             data['Base_date'] = date_to_IST_format(data['Base_date'])
@@ -209,7 +209,7 @@ def get_ay_list():
     start_year = 2008
     ay_list = []
     ay_list.append('VARIOUS / OTHERS')
-    while start_year != current_year + 2:
+    while start_year != current_year + 1:
         temp = str(start_year) + '-' + str(start_year + 1)
         start_year += 1
         ay_list.append(temp)

@@ -42,24 +42,10 @@ def get_period(form_data_dict, task_list):
 def get_group_name(form_data_dict):
     group_name_list = []
     selected_group_list = form_data_dict.getlist('groupName')
-    if "ESD-DHD" in selected_group_list:
-        group_name_list.append("ESD-DHD")
-    if "ESD-NRJ" in selected_group_list:
-        group_name_list.append("ESD-NRJ")
-    if "RIS" in selected_group_list:
-        group_name_list.append("RIS")
-    if "VHD" in selected_group_list:
-        group_name_list.append("VHD")
-    if "PRB" in selected_group_list:
-        group_name_list.append("PRB")
-    if "OS-ESD" in selected_group_list:
-        group_name_list.append("OS-ESD")
-    if "OS-RIS" in selected_group_list:
-        group_name_list.append("OS-RIS")
-    if "OS-VHD" in selected_group_list:
-        group_name_list.append("OS-VHD")
-    if "OS-PRB" in selected_group_list:
-        group_name_list.append("OS-PRB")
+    database_group_list = database.get_all_group_names()
+    for x in database_group_list:
+        if x in selected_group_list:
+            group_name_list.append(x)
     return group_name_list
 
 

@@ -1,3 +1,4 @@
+import bcrypt
 import pymongo
 from bson import ObjectId
 
@@ -69,3 +70,19 @@ def update_contact_details_in_clientMaster(r_id, data):
                     break
 
 
+def verify_password(operation_name, entered_password):
+    stored_salt_result = db.credentials.find_one({'Operation': "Salt"}, {"Salt": 1})
+    if stored_salt_result:
+        stored_salt = stored_salt_result['Salt']
+        stored_hashed_password_result = db.credentials.find_one({'Operation': operation_name}, {"Password": 1})
+        if stored_hashed_password_result:
+            stored_password_hashed = stored_hashed_password_result['Password']
+            entered_password_hashed = bcrypt.hashpw(entered_password.encode('utf-8'), stored_salt)
+            if entered_password_hashed == stored_password_hashed:
+                return True
+            else:
+                return False
+        else:
+            return False
+    else:
+        return False

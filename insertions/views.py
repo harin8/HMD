@@ -25,7 +25,7 @@ def submit_new_forum_author(request):
         if if_name_exists:
             message = temp['Name'] + ' name already exists in DB'
             return render(request, 'create_new_forum_author.html', {'Error': True, 'Alert':  message})
-    if password == 'HMDDIWAN':
+    if database.verify_password("Forum Author Creation", password):
         for x in range(len(type)):
             if type[x] == 'NA':
                 return render(request, 'create_new_forum_author.html', {'Error': True})

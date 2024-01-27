@@ -51,6 +51,8 @@ def get_return_type_name_from_id(r_id):
         return '92CD'
     elif r_id == '9':
         return '119(2)(b)'
+    elif r_id == '10':
+        return 'Updated u/s 139(8A)'
     else:
         return 'Original'
 
@@ -74,6 +76,8 @@ def get_return_type_id_from_name(name):
         return '8'
     elif name == '119(2)(b)':
         return '9'
+    elif name == 'Updated u/s 139(8A)':
+        return '10'
     else:
         return '1'
 
@@ -103,7 +107,7 @@ def get_all_return_list(r_ay, r_type):
         except Exception:
             pass
     master_client = db.clientMaster.distinct('It_no')
-    return_client = db.returnMaster.distinct('It_no', {'AY': r_ay, 'Type': r_type})
+    return_client = db.returnMaster.distinct('It_no', {'AY': r_ay, 'Type': r_type, 'Client_closed': {'$exists': False}})
     diff_client = list(set(master_client) - set(return_client))
     for cl in diff_client:
         result_client = list(db.clientMaster.find({'It_no': cl}, {'_id': 0, 'Name': 1, 'It_no': 1, 'Audit_no': 1}))
@@ -121,7 +125,7 @@ def get_ay_list():
     current_year = today_date.year
     start_year = 2008
     ay_list = []
-    while start_year != current_year + 2:
+    while start_year != current_year + 1:
         temp = str(start_year) + '-' + str(start_year + 1)
         start_year += 1
         ay_list.append(temp)
@@ -203,12 +207,14 @@ def add_further_return_record(data_dict):
 
 
 def get_existing_completed_return_list():
-    result = list(db.returnMaster.find({'$or': [{'Status': 'Completed'}, {'Status': 'Initiated'}]}, {'_id': 0}))
+    result = list(db.returnMaster.find({'$and': [{'Client_closed': {'$exists': False}}],
+                                        '$or': [{'Status': 'Completed'}, {'Status': 'Initiated'}]},
+                                       {'_id': 0}))
     return result
 
 
 def get_cpc_all_return_list():
-    result = list(db.returnMaster.find({'$and': [{'Submitted_fur': True},
+    result = list(db.returnMaster.find({'$and': [{'Submitted_fur': True}, {'Client_closed': {'$exists': False}},
                                                  {'$or': [{'Verification': 'Verify Later'}, {'Submitted_cpc': True}]}]},
                                        {'_id': 0}))
     for x in result:

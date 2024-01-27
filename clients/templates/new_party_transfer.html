@@ -167,7 +167,6 @@
                 const option = currentITCodeSelect.find('option[value="' + selectedITCode + '"]');
 
                 if (option.length) {
-                    currentITCodeSelect.find('option').removeAttr('disabled');
                     option.attr('disabled', 'disabled');
                 }
                 currentITCodeSelect.selectpicker('refresh');

@@ -116,7 +116,7 @@ def read_submit(request):
     remark = request.POST.getlist('remark')
     all_type = request.POST.getlist('task')
     password = request.POST.get('password')
-    if password != "harin":
+    if database.verify_password("Report Read Submit", password):
         all_records = []
         for x in range(len(r_id)):
             type_name = database.get_r_type(all_type[x])
@@ -149,7 +149,7 @@ def client_reports_submit(request):
     for x in all_id:
         r_id = x.split(',')
     for x in all_types:
-        r_type = x.split(',')
+        r_type = x.split('^,^')
     for x, y in zip(r_id, r_type):
         type_name = database.get_r_type_2(y)
         if type_name:

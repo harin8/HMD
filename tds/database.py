@@ -130,7 +130,8 @@ def get_client_name_from_client_code(client_no):
 
 
 def get_all_tds_list(tds_ay, tds_type, tds_form, tds_quarter):
-    result = list(db.tdsMaster.find({'AY': tds_ay, 'Type': tds_type, 'Form': tds_form, 'Quarter': tds_quarter},
+    result = list(db.tdsMaster.find({'AY': tds_ay, 'Type': tds_type, 'Form': tds_form, 'Quarter': tds_quarter,
+                                     'Client_closed': {'$exists': False}},
                                     {'_id': 0}))
     master_client = db.clientMaster.distinct('Client_code', {'TDS': "True"})
     return_client = db.tdsMaster.distinct('Client_code', {'AY': tds_ay, 'Type': tds_type, 'Form': tds_form,
@@ -194,7 +195,8 @@ def get_group_name_from_client_code(c_code):
 
 
 def get_existing_completed_tds_list():
-    result = list(db.tdsMaster.find({'$or': [{'Status': 'Completed'}, {'Status': 'Initiated'}]}, {'_id': 0}))
+    result = list(db.tdsMaster.find({'$or': [{'Status': 'Completed'}, {'Status': 'Initiated'}],
+                                     'Client_closed': {'$exists': False}}, {'_id': 0}))
     return result
 
 

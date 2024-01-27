@@ -60,7 +60,7 @@ def get_all_clients_details():
 
 
 def get_all_certificate_list():
-    return list(db.certificateMaster.find({}))
+    return list(db.certificateMaster.find({'Client_closed': {'$exists': False}}))
 
 
 def add_certificate_data_in_db(data_dict):

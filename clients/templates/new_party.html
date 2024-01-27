@@ -39,7 +39,7 @@
     <div class="row">
         <div class="col-md-2">
             <label class="form-label">Select Group Name:</label>
-                <select name="GroupNameForm" class="form-control dropdown" data-live-search="true"  data-dropup-auto="false" id="Group_Name_Form"></select>
+                <select required name="GroupNameForm" class="form-control dropdown" data-live-search="true"  data-dropup-auto="false" id="Group_Name_Form"></select>
         </div>
         <div class="col-md-4">
             <div class="form-group">
@@ -81,7 +81,7 @@
         {% else %}
             $('select').selectpicker();
             $('select').prepend('<option value="-1" selected disabled>--Select--</option>');
-            //Dynamically add group code and name to #group_name select list
+            //Dynamically add group code and name to #group_name
             let Group_code_name = {{Group_c_n|safe}};
             for(let k in Group_code_name) {
                 $('#Group_Name_Form').append('<option value="'+k+'">'+Group_code_name[k]+'</option>');

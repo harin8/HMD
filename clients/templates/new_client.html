@@ -14,7 +14,7 @@
             <a style="color:white" id="backButton" href="{% url 'Client Landing' %}"><button style="width: 200px;background-color:#0277bd" class="btn btn-secondary back">Back</button></a>
         </div>
     </div>
-    <form action="{% url 'Create New Client' %}">
+    <form name="clientForm" action="{% url 'Create New Client' %}">
         <div class="row">
             <div class="col-md-2">
                 <label class="form-label">Select Group Name:</label>
@@ -62,7 +62,14 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Client Name:</label>
-                                        <input required style="text-transform:uppercase" type="text" value="" id="c_name" class="form-control" name="name">
+                                        <input required style="text-transform:uppercase" type="text" value="" id="c_name" class="form-control" name="name" onblur="checkClientName()">
+                                    </div>
+                                    <div class="row" id="error_message" style="display:none">
+                                        <div class="col-md-12">
+                                            <div class="alert alert-danger" role="alert">
+                                                Client name already exists in database. Please enter different name.
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -226,7 +233,7 @@
                             </span>
                             <div class="row" id="submit-button">
                                 <div class="form-group col-md-3">
-                                    <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
+                                    <button name="submitForm" type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
                                     <button type="reset" class="btn btn-secondary back" name="Reset" >Reset</button>
                                 </div>
                             </div>
@@ -239,6 +246,25 @@
 </div>
 
 <script>
+    function checkClientName() {
+        var clientName = document.getElementById('c_name').value.toUpperCase();
+        // Make an AJAX request to your Django view for client name validation
+        $.ajax({
+            type: 'GET',
+            url: '{% url "Check Client Name" %}',  // Replace with the actual URL
+            data: { 'client_name': clientName },
+            success: function(response) {
+                if (response.exists) {
+                    $('#error_message').css('display', 'block');
+                    $('button[name="submitForm"]').prop('disabled', true);
+                }
+                else {
+                    $('#error_message').css('display', 'none');
+                    $('button[name="submitForm"]').prop('disabled', false);
+                }
+            }
+        });
+    }
     $(document).ready( function () {
 
         $('select').selectpicker();
@@ -294,6 +320,9 @@
             document.getElementById('client_type').value = $('#Client_Type_Form option:selected').text();
             $('select').selectpicker('refresh');
         {% endif %}
+
+
+
     });
 </script>
 {% endblock %}

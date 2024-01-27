@@ -1,4 +1,6 @@
 import ssl
+
+import bcrypt
 import pymongo
 import datetime
 from bson.objectid import ObjectId
@@ -34,6 +36,15 @@ def get_group_name_from_id(g_id):
         return 'ESD-DHD'
 
 
+def get_all_group_names():
+    group_list = list(db.groupCode.find({}, {'_id': 0}))
+    group_names = []
+    for x, y in group_list[0].items():
+        group_names.append(y)
+
+    return group_names
+
+
 def get_ay_list():
     today_date = datetime.datetime.now()
     current_year = today_date.year
@@ -49,7 +60,17 @@ def get_ay_list():
 
 
 def get_all_clients_details():
-    return list(db.clientMaster.find({}, {'_id': 0, 'Client_no': 0, 'Contact_details.r_id': 0}))
+    return get_all_closed_clients_details() + list(
+        db.clientMaster.find({}, {'_id': 0, 'Client_no': 0, 'Contact_details.r_id': 0}))
+
+
+def get_all_closed_clients_details():
+    closed_client_list = list(
+        db.closedClientMaster.find({}, {'_id': 0, 'Client_no': 0, 'Contact_details.r_id': 0, 'Closure_date': 0}))
+    for x in closed_client_list:
+        x['Party_name'] = x['Party_name'][2:]
+
+    return closed_client_list
 
 
 def get_party_list():
@@ -185,8 +206,9 @@ def get_proceedings_result(client_name, group_name_list, ay, read, party):
         data['Client_code'] = get_client_code_from_name(data['Name'])
         data['Party_name'] = get_party_name_from_name(data['Name'])
         try:
-            data['Task'] = 'Proceedings - ' + data['Description'] + " - " + str(data['Case_reference_no']) + " - " + data[
-                'Closure_particulars']
+            data['Task'] = 'Proceedings - ' + data['Description'] + " - " + str(data['Case_reference_no']) + " - " + \
+                           data[
+                               'Closure_particulars']
         except Exception as ex:
             data['Task'] = 'Proceedings - ' + data['Description'] + " - " + str(data['Case_reference_no'])
         data['Start_date'] = date_to_IST_format(data['Base_date'])
@@ -205,7 +227,10 @@ def get_client_code_from_name(name):
     if clientMaster_result:
         return clientMaster_result[0]['Client_code']
     else:
-        return ''
+        closedClientMaster_result = list(db.closedClientMaster.find({'Name': name}, {'Client_code': 1}))
+        if closedClientMaster_result:
+            return closedClientMaster_result[0]['Client_code']
+    return ''
 
 
 def get_group_name_from_client_name(c_name):
@@ -220,6 +245,9 @@ def get_party_name_from_name(name):
     if clientMaster_result:
         return clientMaster_result[0]['Party_name']
     else:
+        closedClientMaster_result = list(db.closedClientMaster.find({'Name': name}, {'Party_name': 1}))
+        if closedClientMaster_result:
+            return closedClientMaster_result[0]['Party_name']
         return ''
 
 
@@ -339,5 +367,19 @@ def get_return_type_id_from_name(name):
         return '1'
 
 
-if __name__ == '__main__':
-    print(get_record_from_db('6142d88d9e0cd4d2ba91520b', 'Other'))
+def verify_password(operation_name, entered_password):
+    stored_salt_result = db.credentials.find_one({'Operation': "Salt"}, {"Salt": 1})
+    if stored_salt_result:
+        stored_salt = stored_salt_result['Salt']
+        stored_hashed_password_result = db.credentials.find_one({'Operation': operation_name}, {"Password": 1})
+        if stored_hashed_password_result:
+            stored_password_hashed = stored_hashed_password_result['Password']
+            entered_password_hashed = bcrypt.hashpw(entered_password.encode('utf-8'), stored_salt)
+            if entered_password_hashed == stored_password_hashed:
+                return True
+            else:
+                return False
+        else:
+            return False
+    else:
+        return False

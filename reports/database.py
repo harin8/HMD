@@ -1,5 +1,3 @@
-import ssl
-
 import bcrypt
 import pymongo
 import datetime
@@ -7,10 +5,7 @@ from bson.objectid import ObjectId
 
 __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
 
-# __MONGO_CONNECTION_URI__ = 'mongodb+srv://Dhruvang:Diwan@cluster0.xp0yp.mongodb.net/test?retryWrites=true&w=majority&ssl=true'
-
 client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
-# client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, ssl_cert_reqs=ssl.CERT_NONE)
 db = client.HMD
 
 
@@ -214,7 +209,10 @@ def get_proceedings_result(client_name, group_name_list, ay, read, party):
         data['Start_date'] = date_to_IST_format(data['Base_date'])
         data['Year'] = "AY - " + data['AY']
         try:
-            data['End_date'] = date_to_IST_format(data['Closure_date'])
+            if data["Status"] == "Completed":
+                data['End_date'] = date_to_IST_format(data['Closure_date'])
+            else:
+                data['End_date'] = '-'
         except:
             data['End_date'] = '-'
         data['Type'] = 'Proceedings'

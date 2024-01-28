@@ -287,20 +287,22 @@ def further_proc_submit(request):
                 'Status': 'Completed'
             }
             result = database.add_further_proc_record(data_dict, r_id)
-            if request.FILES['myfile']:
-                myfile = request.FILES['myfile']
-                now = datetime.now()
-                date_time = now.strftime("%m%d%Y%H%M%S")
-                only_file_name = myfile.name.rsplit('.',1)[0]+date_time
-                file = only_file_name+"."+myfile.name.rsplit('.', 1)[1]
-                print(file)
-                file_data = {
-                    'File_name': file
-                }
-                file_update = database.add_further_proc_file_record(file_data, r_id)
-                fs = FileSystemStorage()
-                filename = fs.save(file, myfile)
-                uploaded_file_url = fs.url(file)
+            try:
+                if request.FILES['myfile']:
+                    myfile = request.FILES['myfile']
+                    now = datetime.now()
+                    date_time = now.strftime("%m%d%Y%H%M%S")
+                    only_file_name = myfile.name.rsplit('.',1)[0]+date_time
+                    file = only_file_name+"."+myfile.name.rsplit('.', 1)[1]
+                    file_data = {
+                        'File_name': file
+                    }
+                    file_update = database.add_further_proc_file_record(file_data, r_id)
+                    fs = FileSystemStorage()
+                    filename = fs.save(file, myfile)
+                    uploaded_file_url = fs.url(file)
+            except Exception as ex:
+                pass
             if close_proceedings == "Yes":
                 return judicial_proceedings_landing(request)
             if close_proceedings == 'No':

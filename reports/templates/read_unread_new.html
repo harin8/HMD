@@ -59,7 +59,7 @@
                             </div>
                         </div>
                     </div>
-                    <form role="form" name="frmCPCAdd" class="form-horizontal" action="{% url 'Read Submit' %}" method="post" enctype="multipart/form-data">
+                    <form role="form" id= "report_read_form" name="frmCPCAdd" class="form-horizontal" action="{% url 'Read Submit' %}" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         {% for each_record in All_Records %}
                         <div class="row">
@@ -112,7 +112,7 @@
                             <button type="reset" class="btn btn-secondary back" name="Reset">Reset</button>
                         </div>
                         <div class="col-md-3 input-group" id="show_hide_password">
-                            <input required type="password" class="form-control" name="password" placeholder="Password">
+                            <input required id="pwd" type="password" class="form-control" name="password" placeholder="Password">
                         </div>
                     </div>
                     </form>
@@ -132,6 +132,27 @@
         {% if Error %}
             alert("Error Occurred. Could not update the information.");
         {% endif %}
+
+        $('form').submit(function(e) {
+            // this code prevents form from actually being submitted
+            e.preventDefault();
+            const pwd = $('#pwd').val();
+            $.ajax({
+                url: "{% url 'Password Validate' %}",
+                type: 'POST',
+                data: { password: pwd,
+                        operation: "Report Read Submit",
+                    csrfmiddlewaretoken: '{{ csrf_token }}'},
+                success: function (data) {
+                    if(data.Alert == "Correct") {
+                        document.getElementById("report_read_form").submit();
+                    }
+                    else {
+                        alert("Password is Incorrect");
+                    }
+                }
+            });
+        });
     });
 </script>
 {% endblock %}

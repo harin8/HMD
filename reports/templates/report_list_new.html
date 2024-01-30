@@ -48,6 +48,7 @@
                                         <th align="left">Client Code</th>
                                         <th align="left">Client Name</th>
                                         <th align="left">Task Name</th>
+                                        <th align="left">Task Particular</th>
                                         <th align="left">Year</th>
                                         <th align="left">Start Date</th>
                                         <th align="left">End Date</th>
@@ -65,6 +66,7 @@
                                         <td align="left">{{ each_cert.Party_name }}</td>
                                         <td align="left">{{ each_cert.Client_code }}</td>
                                         <td align="left">{{ each_cert.Name }}</td>
+                                        <td align="left">{{ each_cert.Type }}</td>
                                         <td align="left">{{ each_cert.Task }}</td>
                                         <td align="left">{{ each_cert.Year }}</td>
                                         <td align="left">{{ each_cert.Start_date }}</td>
@@ -88,6 +90,7 @@
                                             <th align="left">Client Code</th>
                                             <th align="left">Client Name</th>
                                             <th align="left">Task Name</th>
+                                            <th align="left">Task Particular</th>
                                             <th align="left">Year</th>
                                             <th align="left">Start Date</th>
                                             <th align="left">End Date</th>
@@ -133,7 +136,7 @@
                 }
             },
             {
-                targets: [1,2],
+                targets: [1],
                 visible: false
             }],
             select: {

@@ -84,7 +84,7 @@ def get_roi_result(client_name, group_name_list, ay, read, party):
         data['Group_name'] = get_group_name_from_client_name(data['Name'])
         data['Client_code'] = get_client_code_from_name(data['Name'])
         data['Party_name'] = get_party_name_from_name(data['Name'])
-        data['Task'] = "IT Return - " + data['Type']
+        data['Task'] = data['Type']
         data['Start_date'] = date_to_IST_format(data['Acceptance_date'])
         data['Year'] = "AY - " + data['AY']
         try:
@@ -123,7 +123,7 @@ def get_cert_result(client_name, group_name_list, period, read, party):
         data['Group_name'] = get_group_name_from_client_name(data['Name'])
         data['Client_code'] = get_client_code_from_name(data['Name'])
         data['Party_name'] = get_party_name_from_name(data['Name'])
-        data['Task'] = "Certificate - " + data['Description']
+        data['Task'] = data['Description']
         data['Year'] = ''
         data['Start_date'] = data['Acceptance_date_str']
         data['End_date'] = data['Date_of_certificate_str']
@@ -157,7 +157,7 @@ def get_other_result(client_name, group_name_list, period, read, party):
         data['Group_name'] = get_group_name_from_client_name(data['Name'])
         data['Client_code'] = get_client_code_from_name(data['Name'])
         data['Party_name'] = get_party_name_from_name(data['Name'])
-        data['Task'] = "Other - " + data['Description']
+        data['Task'] = data['Description']
         data['Year'] = ''
         data['Start_date'] = data['Acceptance_date_str']
         data['End_date'] = data['Date_of_certificate_str']
@@ -176,7 +176,7 @@ def get_tds_result(client_name, group_name_list, ay, read, party):
         data['Group_name'] = get_group_name_from_client_name(data['Name'])
         data['Client_code'] = get_client_code_from_name(data['Name'])
         data['Party_name'] = get_party_name_from_name(data['Name'])
-        data['Task'] = "TDS/TCS - [" + data['Form'] + "] " + data['Type']
+        data['Task'] = "[" + data['Form'] + "] " + data['Type']
         data['Start_date'] = date_to_IST_format(data['Acceptance_date'])
         data['Year'] = "AY - [" + data['AY'] + "] Q - [" + data['Quarter'] + "]"
         try:
@@ -201,11 +201,10 @@ def get_proceedings_result(client_name, group_name_list, ay, read, party):
         data['Client_code'] = get_client_code_from_name(data['Name'])
         data['Party_name'] = get_party_name_from_name(data['Name'])
         try:
-            data['Task'] = 'Proceedings - ' + data['Description'] + " - " + str(data['Case_reference_no']) + " - " + \
-                           data[
-                               'Closure_particulars']
+            data['Task'] = data['Description'] + " - " + str(data['Section']) + "-" +\
+                           str(data['Case_reference_no']) + " - " + data['Closure_particulars']
         except Exception as ex:
-            data['Task'] = 'Proceedings - ' + data['Description'] + " - " + str(data['Case_reference_no'])
+            data['Task'] = data['Description'] + " - " + str(data['Case_reference_no'])
         data['Start_date'] = date_to_IST_format(data['Base_date'])
         data['Year'] = "AY - " + data['AY']
         try:
@@ -265,7 +264,7 @@ def get_r_type(r_type):
 
 
 def get_r_type_2(r_type):
-    if r_type.startswith("IT"):
+    if r_type.startswith("ROI"):
         return 'ROI'
     elif r_type.startswith("Certi"):
         return 'Certificate'

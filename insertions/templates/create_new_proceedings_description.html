@@ -2,13 +2,13 @@
 {% extends "layout.html" %}
 {% block head_block %}
     {% load static %}
-    <title>HMD|New Forum</title>
+    <title>HMD|New Proceedings Description</title>
 {% endblock %}
 {% block body_block %}
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-6 py-3 mt-2">
-            <h4>New Forum / Author</h4>
+            <h4>New Proceedings Description</h4>
         </div>
         <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
             <a style="color:white" id="backButton" href="{% url 'Insertions Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
@@ -24,15 +24,15 @@
             </div>
             <div class="card">
                 <div class="card-body">
-                    <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Forum Author' %}" method="post" enctype="multipart/form-data">
+                    <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Proceedings Description' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                         <div class="row">
-                            <div class="col-md-12">Forum / Author Details</div>
+                            <div class="col-md-12">Proceedings Description Details</div>
                         </div>
                         {% if not Hide %}
                             <br>
-                            <button id="add_forum" class="btn btn-success">Add</button>
-                            <button id="remove_forum" class="btn btn-danger">Remove</button>
+                            <button id="add_proceedings" class="btn btn-success">Add</button>
+                            <button id="remove_proceedings" class="btn btn-danger">Remove</button>
                             <br>
                         {% endif %}
                         <br>
@@ -48,20 +48,20 @@
                                 </div>
                             </div>
                         </div>
-                        <span id="forum_span">
-                            <div class="row forums">
+                        <span id="proceedings_span">
+                            <div class="row proceedings">
                                 <div class="col-md-2">
                                     <div class="form-group">
                                         <select required name="Type" class="form-control dropdown" id="Type" >
                                             <option value="-1" selected disabled>--Select--</option>
-                                            <option value="Forum">Forum</option>
-                                            <option value="Author">Author</option>
+                                            <option value="1">Regular Proceedings</option>
+                                            <option value="2">Judicial Proceedings</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
-                                        <input   type="text" class="form-control" name="Name">
+                                        <input required type="text" class="form-control" name="Name">
                                     </div>
                                 </div>
                             </div>
@@ -91,16 +91,16 @@
 
     $(document).ready( function () {
         var counter = 1;
-        $('#add_forum').on('click', function(e) {
+        $('#add_proceedings').on('click', function(e) {
             e.preventDefault();
-            $('.row.forums').last().clone().appendTo('#forum_span').find('input').val("");
+            $('.row.proceedings').last().clone().appendTo('#proceedings_span').find('input').val("");
             counter += 1;
         });
 
-        $('#remove_forum').on('click', function(e) {
+        $('#remove_proceedings').on('click', function(e) {
             e.preventDefault();
             if(counter > 1) {
-                $('.row.forums').last().remove();
+                $('.row.proceedings').last().remove();
                 counter -= 1;
             }
         });

@@ -116,7 +116,7 @@ def read_submit(request):
     remark = request.POST.getlist('remark')
     all_type = request.POST.getlist('task')
     password = request.POST.get('password')
-    if database.verify_password("Report Read Submit", password):
+    if not database.verify_password("Report Read Submit", password):
         all_records = []
         for x in range(len(r_id)):
             type_name = database.get_r_type(all_type[x])

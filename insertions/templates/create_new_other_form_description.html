@@ -2,13 +2,13 @@
 {% extends "layout.html" %}
 {% block head_block %}
     {% load static %}
-    <title>HMD|New Forum</title>
+    <title>HMD|New Other Form Description</title>
 {% endblock %}
 {% block body_block %}
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-6 py-3 mt-2">
-            <h4>New Forum / Author</h4>
+            <h4>New Other Form Description</h4>
         </div>
         <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
             <a style="color:white" id="backButton" href="{% url 'Insertions Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
@@ -24,41 +24,27 @@
             </div>
             <div class="card">
                 <div class="card-body">
-                    <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Forum Author' %}" method="post" enctype="multipart/form-data">
+                    <form role="form" name="frmNewAdd" class="form-horizontal" action="{% url 'Submit New Other Form Description' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                         <div class="row">
-                            <div class="col-md-12">Forum / Author Details</div>
+                            <div class="col-md-12">Other Form Description Details</div>
                         </div>
                         {% if not Hide %}
                             <br>
-                            <button id="add_forum" class="btn btn-success">Add</button>
-                            <button id="remove_forum" class="btn btn-danger">Remove</button>
+                            <button id="add_other_form" class="btn btn-success">Add</button>
+                            <button id="remove_other_form" class="btn btn-danger">Remove</button>
                             <br>
                         {% endif %}
                         <br>
                         <div class="row">
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label>Type:</label>
-                                </div>
-                            </div>
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Name:</label>
                                 </div>
                             </div>
                         </div>
-                        <span id="forum_span">
-                            <div class="row forums">
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <select required name="Type" class="form-control dropdown" id="Type" >
-                                            <option value="-1" selected disabled>--Select--</option>
-                                            <option value="Forum">Forum</option>
-                                            <option value="Author">Author</option>
-                                        </select>
-                                    </div>
-                                </div>
+                        <span id="other_form_span">
+                            <div class="row others">
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <input   type="text" class="form-control" name="Name">
@@ -91,16 +77,16 @@
 
     $(document).ready( function () {
         var counter = 1;
-        $('#add_forum').on('click', function(e) {
+        $('#add_other_form').on('click', function(e) {
             e.preventDefault();
-            $('.row.forums').last().clone().appendTo('#forum_span').find('input').val("");
+            $('.row.others').last().clone().appendTo('#other_form_span').find('input').val("");
             counter += 1;
         });
 
-        $('#remove_forum').on('click', function(e) {
+        $('#remove_other_form').on('click', function(e) {
             e.preventDefault();
             if(counter > 1) {
-                $('.row.forums').last().remove();
+                $('.row.others').last().remove();
                 counter -= 1;
             }
         });

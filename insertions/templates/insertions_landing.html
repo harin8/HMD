@@ -12,22 +12,94 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
                     <div class="col-md-12">
-                        <h4 class="header-title mb-3">Forum / Auhtor</h4>
+                        <h4 class="text-center header-title mb-3">Forum / Author</h4>
                     </div>
                     <div class="row">
-                        <div class="col-md-4" id="main-menu">
-                            <div class="card widget-box-three">
-                                <a id="client_create" role="button" style="text-align:left" class="btn btn-link" href="{% url 'Create New Forum Author' %}">
+                        <div class="col-md-12" id="main-menu">
+                            <div class="card">
+                                <a id="client_create" role="button" class="btn btn-link" href="{% url 'Create New Forum Author' %}">
                                     <div class="card-body">Create</div>
                                 </a>
                             </div><br>
-                            <div class="card widget-box-three">
-                                <a id="client_view" role="button" style="text-align:left" class="btn btn-link" href="{% url 'Forum Author Master List' %}">
+                            <div class="card">
+                                <a id="client_view" role="button" class="btn btn-link" href="{% url 'Forum Author Master List' %}">
                                     <div class="card-body">View</div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="col-md-12">
+                        <h4 class="text-center header-title mb-3">Certificate Description</h4>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12" id="second-menu">
+                            <div class="card">
+                                <a id="certificate_description_create" role="button" class="btn btn-link" href="{% url 'Create New Certificate Description' %}">
+                                    <div class="card-body">Create</div>
+                                </a>
+                            </div><br>
+                            <div class="card">
+                                <a id="certificate_description_view" role="button" class="btn btn-link" href="{% url 'Certificate Description Master List' %}">
+                                    <div class="card-body">View/Delete</div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="col-md-12">
+                        <h4 class="text-center header-title mb-3">Other Form Description</h4>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12" id="third-menu">
+                            <div class="card">
+                                <a id="other_form_description_create" role="button" class="btn btn-link" href="{% url 'Create New Other Form Description' %}">
+                                    <div class="card-body">Create</div>
+                                </a>
+                            </div><br>
+                            <div class="card">
+                                <a id="other_form_description_view" role="button" class="btn btn-link" href="{% url 'Other Form Description Master List' %}">
+                                    <div class="card-body">View/Delete</div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="col-md-12">
+                        <h4 class="text-center header-title mb-3">Proceedings Description</h4>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12" id="fourth-menu">
+                            <div class="card">
+                                <a id="proceedings_description_create" role="button" class="btn btn-link" href="{% url 'Create New Proceedings Description' %}">
+                                    <div class="card-body">Create</div>
+                                </a>
+                            </div><br>
+                            <div class="card">
+                                <a id="proceedings_description_view" role="button" class="btn btn-link" href="{% url 'Proceedings Description Master List' %}">
+                                    <div class="card-body">View/Delete</div>
                                 </a>
                             </div>
                         </div>

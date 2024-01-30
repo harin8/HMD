@@ -282,14 +282,28 @@ def get_record_from_db(r_id, type_name):
     result = []
     if type_name == 'ROI':
         result = list(db.returnMaster.find({'_id': ObjectId(r_id)}))
+        for data in result:
+            data['Task'] = data['Type']
     elif type_name == 'Certificate':
         result = list(db.certificateMaster.find({'_id': ObjectId(r_id)}))
+        for data in result:
+            data['Task'] = data['Description']
     elif type_name == 'Other':
         result = list(db.otherFormsMaster.find({'_id': ObjectId(r_id)}))
+        for data in result:
+            data['Task'] = data['Description']
     elif type_name == 'TDS':
         result = list(db.tdsMaster.find({'_id': ObjectId(r_id)}))
+        for data in result:
+            data['Task'] = "[" + data['Form'] + "] " + data['Type']
     elif type_name == 'Proceedings':
         result = list(db.proceedingsMaster.find({'_id': ObjectId(r_id)}))
+        for data in result:
+            try:
+                data['Task'] = data['Description'] + " - " + str(data['Section']) + "-" + \
+                               str(data['Case_reference_no']) + " - " + data['Closure_particulars']
+            except Exception as ex:
+                data['Task'] = data['Description'] + " - " + str(data['Case_reference_no'])
 
     if result:
         return result[0]

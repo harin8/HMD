@@ -22,7 +22,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <div class="form-group">
                                 <label>Party Name: </label>
                             </div>
@@ -32,15 +32,19 @@
                                 <label>Client Code: </label>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <div class="form-group">
                                 <label>Client Name: </label>
                             </div>
                         </div>
-
                         <div class="col-md-1">
                             <div class="form-group">
                                 <label>Type: </label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Task Particular: </label>
                             </div>
                         </div>
                         <div class="col-md-1">
@@ -64,7 +68,7 @@
                         {% for each_record in All_Records %}
                         <div class="row">
                             <input type="hidden" name="r_id" value="{{ each_record|private:'_id' }}">
-                            <div class="col-md-2">
+                            <div class="col-md-1">
                                 <div class="form-group">
                                     <label style="color:black">{{ each_record.Party_name }}</label>
                                 </div>
@@ -74,15 +78,20 @@
                                     <label style="color:black">{{ each_record.Client_code }}</label>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <div class="form-group">
                                     <label style="color:black">{{ each_record.Name }}</label>
                                 </div>
                             </div>
                             <div class="col-md-1">
                                 <div class="form-group">
-                                        <label style="color:black">{{ each_record.Type_name }}</label>
-                                        <input type="hidden" name="task" value="{{each_record.Type_name_hidden}}">
+                                    <label style="color:black">{{ each_record.Type_name }}</label>
+                                    <input type="hidden" name="task" value="{{each_record.Type_name_hidden}}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label style="color:black">{{ each_record.Task }}</label>
                                 </div>
                             </div>
                             <div class="col-md-1">
@@ -96,7 +105,11 @@
                             </div>
                             <div class="col-md-2">
                                 <div class="form-group">
-                                    <label style="color:black">{{ each_record.Remarks }}</label>
+                                    {% if each_record.Closure_remarks %}
+                                        <label style="color:black">{{ each_record.Closure_remarks }}</label>
+                                    {% else %}
+                                        <label style="color:black">{{ each_record.Remarks }}</label>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -105,16 +118,16 @@
                                 </div>
                             </div>
                         </div>
-                    {% endfor %}
-                    <div class="row">
-                        <div class="form-group col-md-2">
-                            <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
-                            <button type="reset" class="btn btn-secondary back" name="Reset">Reset</button>
+                        {% endfor %}
+                        <div class="row">
+                            <div class="form-group col-md-2">
+                                <button type="submit" class="btn btn-success">Submit</button>&nbsp;&nbsp;
+                                <button type="reset" class="btn btn-secondary back" name="Reset">Reset</button>
+                            </div>
+                            <div class="col-md-3 input-group" id="show_hide_password">
+                                <input required id="pwd" type="password" class="form-control" name="password" placeholder="Password">
+                            </div>
                         </div>
-                        <div class="col-md-3 input-group" id="show_hide_password">
-                            <input required id="pwd" type="password" class="form-control" name="password" placeholder="Password">
-                        </div>
-                    </div>
                     </form>
                 </div>
             </div>

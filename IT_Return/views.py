@@ -11,10 +11,13 @@ from proceedings import database as proc_database
 
 def landing(request):
     proc_list = proc_database.live_board_proceedings_list()
+    live_board_unique_proceedings = []
     for data in proc_list:
         data['Client_code'] = proc_database.get_client_code_from_name(data['Name'])
         data['Group_name'] = proc_database.get_group_name_from_client_name(data['Name'])
-    return render(request, 'landing.html', {'Live_Board': proc_list})
+        live_board_unique_proceedings.append(data['Description'])
+    return render(request, 'landing.html', {'Live_Board': proc_list,
+                                            'Unique_Proceedings': list(set(live_board_unique_proceedings))})
 
 
 def new_it_return(request):

@@ -49,33 +49,52 @@
         </div>
         <div class="col-md-4 m-4 align-self-center" id="sub-menu" style="display: none;"></div>
 
+
+
         <div class="col-md-4 mt-4 mb-4" id="live_board" style="margin-left:200px">
             <h4 class="text-center header-title mb-3" style="width: 150%">LIVE BOARD</h4>
             <div class="card scroll" style="width: 150%">
-                <div class="card-body">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="proceedingsFilter">Filter by Proceedings:</label>
+                        <select class="form-control" id="proceedingsFilter" placeholder="Enter Proceedings">
+                            <option value="all">All</option>
+                            {% for each_proc in Unique_Proceedings %}
+                                <option value="{{ each_proc }}">{{ each_proc }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group col-md-12">
+                    <button class="btn btn-success col-md-12" onclick="filterProceedings()">Apply Filter</button>
+                </div>
+                <div class="card-body" id="proceeding_list">
                     {% for each_proc in Live_Board %}
-                    <a href="{% url 'Further Proc Info' id=each_proc|private:'_id' %}"><ul class="list-group list-group-horizontal" style="margin-bottom:5px" >
+                    <a href="{% url 'Further Proc Info' id=each_proc|private:'_id' %}">
+                        <p style="display:none" class="proceeding-description">{{ each_proc.Description }}</p>
+                        <ul class="list-group list-group-horizontal" style="margin-bottom:5px" >
+                            {% if each_proc.In_past == "Yes" %}
+                            <li class="list-group-item text-center text-white bg-danger" style="width:80%;font-size:22px">
+                            {% else %}
+                            <li class="list-group-item text-center text-white bg-success" style="width:80%;font-size:22px">
+                            {% endif %}
+                            <b>{{ each_proc.Closure_date|date:'d-m-Y' }}</b><br>
+                            <b>{{ each_proc.Closure_date|date:'l'}}</b>
+                            </li>
 
-                        {% if each_proc.In_past == "Yes" %}
-                        <li class="list-group-item text-center text-white bg-danger" style="width:80%;font-size:22px">
-                        {% else %}
-                        <li class="list-group-item text-center text-white bg-success" style="width:80%;font-size:22px">
-                        {% endif %}
-                        <b>{{ each_proc.Closure_date|date:'d-m-Y' }}</b><br>
-                        <b>{{ each_proc.Closure_date|date:'l'}}</b></li>
-
-                        {% if each_proc.In_past == "Yes" %}
-                        <li class="list-group-item text-black" style="width:200%; background-color:#FFEBEE">
-                        {% else %}
-                        <li class="list-group-item text-black" style="width:200%; background-color:#E8F5E9">
-                        {% endif %}
-                            <b>Name: </b>{{ each_proc.Name }}</br>
-                            <b>A.Y.: </b>{{ each_proc.AY }}</br>
-                            <b>Proceedings: </b>{{ each_proc.Description }}</br>
-                            <b>Section: </b>{{ each_proc.Section }}</br>
-                            <b>Remarks: </b>{{ each_proc.Closure_remarks }}</br>
-                        </li>
-                    </ul></a>
+                            {% if each_proc.In_past == "Yes" %}
+                            <li class="list-group-item text-black" style="width:200%; background-color:#FFEBEE">
+                            {% else %}
+                            <li class="list-group-item text-black" style="width:200%; background-color:#E8F5E9">
+                            {% endif %}
+                            <b>Name: </b>{{ each_proc.Name }}<br>
+                            <b>A.Y.: </b>{{ each_proc.AY }}<br>
+                            <b>Proceedings: </b>{{ each_proc.Description }}<br>
+                            <b>Section: </b>{{ each_proc.Section }}<br>
+                            <b>Remarks: </b>{{ each_proc.Closure_remarks }}<br>
+                            </li>
+                        </ul>
+                    </a>
                     {% endfor %}
                 </div>
             </div>
@@ -94,6 +113,21 @@
 </style>
 
 <script type="text/javascript">
+    function filterProceedings() {
+            var filterValue = $('#proceedingsFilter').val().toLowerCase();
+            // Loop through each list item and show/hide based on the filter
+            $('#proceeding_list a').each(function() {
+                var proceedingsText = $(this).find('p').text().toLowerCase();
+                if (filterValue == 'all') {
+                    $(this).css('display','block');
+                }
+                else if (filterValue === '' || proceedingsText == filterValue) {
+                    $(this).css('display','block');
+                } else {
+                    $(this).css('display','none');
+                }
+            });
+        }
     $(document).ready( function () {
         var modal_toggle = false;
         $('#it-return').on('click', function(event) {

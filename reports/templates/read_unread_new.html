@@ -96,7 +96,7 @@
                             </div>
                             <div class="col-md-1">
                                 <div class="form-group">
-                                    {% if each_record.Acceptance_date %}
+                                    {% if each_record.Acceptance_date && each_record.Type_name != 'ROI' %}
                                         <label style="color:black">{{ each_record.Acceptance_date }}</label>
                                     {% else %}
                                         <label style="color:black">{{ each_record.AY }}</label>

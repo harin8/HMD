@@ -53,21 +53,23 @@
 
         <div class="col-md-4 mt-4 mb-4" id="live_board" style="margin-left:200px">
             <h4 class="text-center header-title mb-3" style="width: 150%">LIVE BOARD</h4>
-            <div class="card scroll" style="width: 150%">
+            <div class="card scroll" style="width: 150%"><br>
                 <div class="col-md-12">
-                    <div class="form-group">
-                        <label for="proceedingsFilter">Filter by Proceedings:</label>
-                        <select class="form-control" id="proceedingsFilter" placeholder="Enter Proceedings">
-                            <option value="all">All</option>
-                            {% for each_proc in Unique_Proceedings %}
-                                <option value="{{ each_proc }}">{{ each_proc }}</option>
-                            {% endfor %}
-                        </select>
+                    <div class="form-group row">
+                        <div class="col-md-8">
+                            <select class="selectpicker form-control" id="proceedingsFilter" placeholder="Enter Proceedings">
+                                <option value="all">All</option>
+                                {% for each_proc in Unique_Proceedings %}
+                                    <option value="{{ each_proc }}">{{ each_proc }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md">
+                            <button class="btn btn-block" style="background-color:DodgerBlue; color:white" onclick="filterProceedings()">Filter</button>
+                        </div>
                     </div>
                 </div>
-                <div class="form-group col-md-12">
-                    <button class="btn btn-success col-md-12" onclick="filterProceedings()">Apply Filter</button>
-                </div>
+
                 <div class="card-body" id="proceeding_list">
                     {% for each_proc in Live_Board %}
                     <a href="{% url 'Further Proc Info' id=each_proc|private:'_id' %}">

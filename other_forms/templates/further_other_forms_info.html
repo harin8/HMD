@@ -115,6 +115,39 @@
                             </div>
                         {% endif %}
                     </form>
+                    <br>
+
+                         <h4>File</h4>
+                    <br>
+                    {% if Data_Dict.File == 0 %}
+                    <form role="form" name="frmFurAdd2" action="{% url 'Further Other Forms File Submit' %}" class="form-horizontal" method="post" enctype="multipart/form-data" >
+                        <input type="hidden" id="recordId" value="{{ Data_Dict|private:'_id' }}" name="Record_Id">
+                        {% csrf_token %}
+                             <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group ">
+                                        <label>Choose File To Upload:</label>
+                                         <input type="file"  class="form-control" name="myfile" accept = "application/pdf">
+                                      </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label style="color:white;">Remarks</label>
+                                        <button type="submit" class="btn btn-success" >Submit</button>&nbsp;&nbsp;
+                                    </div>
+                                </div>
+
+                    </form>
+                    {% endif %}
+                    {% if Data_Dict.File == 1 %}
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group ">
+                                <label>File Uploaded</label>
+                                <input required  readonly style="text-transform:uppercase" type="text" class="form-control eventTodayDateTime" placeholder=""  value="{{ Data_Dict.File_name }}" >
+                            </div>
+                        </div>
+                    </div>
+                     {% endif %}
                 </div>
             </div>
         </div>

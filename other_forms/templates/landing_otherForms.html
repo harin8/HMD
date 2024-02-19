@@ -135,9 +135,12 @@
                                     <td align="left">{{ each_cert.Remarks }}</td>
                                     <td>
                                         {% if each_cert.Status == 'Completed' %}
-                                            <a href="{% url 'Further Other Forms Info' id=each_cert|private:'_id' %}" title="View"><i class="fas fa-eye text-success"></i></a>&nbsp;&nbsp;
+                                            <a href="{% url 'Further Other Forms Info' id=each_cert|private:'_id' %}" title="View"><i class="fas fa-eye text-success"></i></a>&nbsp;&nbsp;&nbsp;
                                         {% else %}
-                                            <a href="{% url 'Further Other Forms Info' id=each_cert|private:'_id' %}" title="further info"><i class="fas fa-clipboard text-info"></i></a>
+                                            <a href="{% url 'Further Other Forms Info' id=each_cert|private:'_id' %}" title="further info"><i class="fas fa-clipboard text-info"></i></a>&nbsp;&nbsp;
+                                        {% endif %}
+                                         {% if each_cert.File == 1 %}
+                                            <a href="{% url 'PDF View Other Forms' id=each_cert|private:'_id' %}" target="_blank" title="View PDF" target="_blank"><i class="fas fa-solid fa-file-pdf text-danger"></i></a>&nbsp;&nbsp;
                                         {% endif %}
                                     </td>
                                 </tr>

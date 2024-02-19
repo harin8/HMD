@@ -2,7 +2,11 @@ import ssl
 import pymongo as pymongo
 from django.shortcuts import render
 from . import database
-
+from django.core.files.storage import FileSystemStorage
+import datetime
+from datetime import datetime
+from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpResponseNotFound
 
 # Create your views here.
 
@@ -41,7 +45,8 @@ def submit_certificate(request):
             'Name': db_client_name,
             'Accepted_by': accepted_by.upper(),
             'Acceptance_date': acceptance_date,
-            'Description': description.upper()
+            'Description': description.upper(),
+            'File': 0
         }
         result = database.add_other_forms_data_in_db(data_dict)
     all_client_list = database.get_all_clients_details()
@@ -105,3 +110,38 @@ def further_other_forms_submit(request):
                                                        'Other_forms_desc': otherForms_description_list})
 
 
+def submit_otherform_File(request):
+    r_id = request.POST.get('Record_Id')
+    if request.FILES['myfile']:
+        data_dict = {
+            'File': 1
+        }
+        data_update = database.update_otherform_details(r_id, data_dict)
+        myfile = request.FILES['myfile']
+        now = datetime.now()
+        date_time = now.strftime("%m%d%Y%H%M%S")
+        only_file_name = myfile.name.rsplit('.', 1)[0] + date_time
+        file = only_file_name + "." + myfile.name.rsplit('.', 1)[1]
+        print(file)
+        file_data = {
+            'File_name': file
+        }
+        file_update = database.add_further_otherform_file_record(file_data, r_id)
+        fs = FileSystemStorage()
+        filename = fs.save(file, myfile)
+        uploaded_file_url = fs.url(file)
+    return further_other_forms_info(request, r_id)
+
+def pdf_view(request, id):
+    fs = FileSystemStorage()
+    exist_result = database.get_other_forms_details(id)
+    filename = exist_result['File_name']
+    if fs.exists(filename):
+        with fs.open(filename) as pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            # response['Content-Disposition'] = 'attachment; filename="mypdf.pdf"' #user will be prompted with the browser’s open/save file
+            response[
+                'Content-Disposition'] = 'inline; filename="KARAN03132022015234.pdf"'  # user will be prompted display the PDF in the browser
+            return response
+    else:
+        return HttpResponseNotFound('The requested pdf was not found.')

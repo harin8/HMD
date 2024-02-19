@@ -159,3 +159,11 @@ def get_client_code_from_name(name):
         return clientMaster_result[0]['Client_code']
     else:
         return ''
+
+
+def update_otherform_details(r_id, data_dict):
+    result = db.otherFormsMaster.update({'_id': ObjectId(r_id)}, {"$set": data_dict})
+
+
+def add_further_otherform_file_record(file_data, r_id):
+    result = db.otherFormsMaster.update({'_id': ObjectId(r_id)}, {"$set": file_data})

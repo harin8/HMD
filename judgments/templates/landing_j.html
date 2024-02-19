@@ -215,14 +215,25 @@
     initialize('forumAuthor', type_list);
 
     function initialize(ele_name, list_data) {
-
         html_cont = '';
         for(var i=0; i<list_data.length;i++) {
         //html_cont += '<option value="' + list_data[i] + '">' + list_data[i] + '</option>';
         html_cont += '<option>' + list_data[i] + '</option>';
         }
         $('#' + ele_name).html(html_cont);
-}
+        $('#' + ele_name).selectpicker('refresh');
+    }
+
+    $('#Type').on('change', function() {
+            var selectedValue = $(this).val();
+            var new_type_list = new Array();
+            for(var i=0; i<forum_author_all_list.length; i++) {
+                if ((selectedValue == 'Judgment' && forum_author_all_list[i].Type == 'FORUM') || (selectedValue == 'Article' && forum_author_all_list[i].Type == 'AUTHOR')) {
+                    new_type_list.push(forum_author_all_list[i].Name);
+                }
+            }
+            initialize('forumAuthor', new_type_list);
+        });
 
     
 </script>

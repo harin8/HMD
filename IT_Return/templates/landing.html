@@ -67,9 +67,13 @@
                         <div class="col-md">
                             <button class="btn btn-block" style="background-color:DodgerBlue; color:white" onclick="filterProceedings()">Filter</button>
                         </div>
+                        <div class="col-md">
+                            <button class="btn btn-block" style="background-color:DodgerBlue; color:white" onclick="printCertificate()">Print</button>
+                        </div>
                     </div>
                 </div>
-
+                <div id="print">
+                    <h4 id="filter_selected" style="display:none; text-align:center">ALL</h4>
                 <div class="card-body" id="proceeding_list">
                     {% for each_proc in Live_Board %}
                     <a href="{% url 'Further Proc Info' id=each_proc|private:'_id' %}">
@@ -99,6 +103,7 @@
                     </a>
                     {% endfor %}
                 </div>
+                </div>
             </div>
         </div>
     </div>
@@ -115,21 +120,36 @@
 </style>
 
 <script type="text/javascript">
+
+    function printCertificate() {
+        $('#filter_selected').css('display', 'block');
+        $('#filter_selected').text($('#proceedingsFilter').val());
+
+        const printContents = document.getElementById('print').innerHTML;
+        const originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        $('#filter_selected').css('display', 'none');
+        location.reload();
+    }
+
     function filterProceedings() {
-            var filterValue = $('#proceedingsFilter').val().toLowerCase();
-            // Loop through each list item and show/hide based on the filter
-            $('#proceeding_list a').each(function() {
-                var proceedingsText = $(this).find('p').text().toLowerCase();
-                if (filterValue == 'all') {
-                    $(this).css('display','block');
-                }
-                else if (filterValue === '' || proceedingsText == filterValue) {
-                    $(this).css('display','block');
-                } else {
-                    $(this).css('display','none');
-                }
-            });
-        }
+        var filterValue = $('#proceedingsFilter').val().toLowerCase();
+        // Loop through each list item and show/hide based on the filter
+        $('#proceeding_list a').each(function() {
+            var proceedingsText = $(this).find('p').text().toLowerCase();
+            if (filterValue == 'all') {
+                $(this).css('display','block');
+            }
+            else if (filterValue === '' || proceedingsText == filterValue) {
+                $(this).css('display','block');
+            } else {
+                $(this).css('display','none');
+            }
+        });
+        $('#filter_selected').text($('#proceedingsFilter').val());
+    }
     $(document).ready( function () {
         var modal_toggle = false;
         $('#it-return').on('click', function(event) {

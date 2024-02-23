@@ -159,7 +159,7 @@
                                         {% if each_proc.Status  == "Completed" %}
                                             <a href="{% url 'Further Proc Info' id=each_proc|private:'_id' %}" title="View" target="_blank"><i class="fas fa-eye text-success"></i></a>&nbsp;&nbsp;
                                             <a href="{% url 'Event Landing' id=each_proc|private:'_id' %}" title="View Events" target="_blank"><i class="fas fa-list-alt"></i></a>&nbsp;&nbsp;
-                                            <a href="{% url 'PDF View' id=each_proc|private:'_id' %}" target="_blank" title="View PDF" target="_blank"><i class="fas fa-solid fa-file-pdf text-danger"></i></a>
+                                            <a href="{% url 'PDF View' id=each_proc|private:'_id' %}" title="View PDF" target="_blank"><i class="fas fa-solid fa-file-pdf text-danger"></i></a>
                                         {% else %}
                                             <a href="{% url 'Further Proc Info' id=each_proc|private:'_id' %}" title="further info" target="_blank"><i class="fas fa-clipboard text-info"></i></a>
                                             <a href="{% url 'Event Landing' id=each_proc|private:'_id' %}" title="View" target="_blank"><i class="fas fa-list-alt"></i></a>

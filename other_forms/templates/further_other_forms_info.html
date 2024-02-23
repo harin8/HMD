@@ -119,7 +119,7 @@
 
                          <h4>File</h4>
                     <br>
-                    {% if Data_Dict.File == 0 %}
+                    {% if Data_Dict.File == 0 or Data_Dict.File is None %}
                     <form role="form" name="frmFurAdd2" action="{% url 'Further Other Forms File Submit' %}" class="form-horizontal" method="post" enctype="multipart/form-data" >
                         <input type="hidden" id="recordId" value="{{ Data_Dict|private:'_id' }}" name="Record_Id">
                         {% csrf_token %}

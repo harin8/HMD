@@ -52,6 +52,9 @@
                                 <th align="left">TDS/TCS</th>
                                 <th align="left">IT Note</th>
                                 <th align="left">Audit Note</th>
+                                <th align="left">GST</th>
+                                <th align="left">GST Size</th>
+                                <th align="left">GST Note</th>
                                 {% if can_edit %}
                                 <th align="left">Action</th>
                                 {% else %}
@@ -77,9 +80,20 @@
                                         Yes
                                         {% endif %}
                                     </th>
+
                                     <td align="left">{{ each_return.It_note }}</td>
                                     <td align="left">{{ each_return.Audit_note }}</td>
-
+                                    <th align="left">
+                                        {% if each_return.GST == 'True' %}
+                                            {% with number_int=each_return.GST_no|add:"0" %}
+                                                G - {{ number_int|stringformat:"04d" }}
+                                            {% endwith %}
+                                        {% else %}
+                                        No
+                                        {% endif %}
+                                    </th>
+                                    <td align="left">{{ each_return.GST_size }}</td>
+                                    <td align="left">{{ each_return.GST_note }}</td>
                                     {% if can_edit %}
                                     <td><a href="{% url 'Edit One Client' id=each_return|private:'_id' %}" title="Edit" ><i class="fe-edit text-info"></i></a></td>
                                     {% else %}
@@ -102,6 +116,9 @@
                                     <th align="left">TDS/TCS</th>
                                     <th align="left">IT Note</th>
                                     <th align="left">Audit Note</th>
+                                    <th align="left">GST</th>
+                                    <th align="left">GST Size</th>
+                                    <th align="left">GST Note</th>
                                     {% if can_edit %}
                                     <th align="left">Action</th>
                                     {% else %}
@@ -183,4 +200,5 @@
         {% endif %}
     });
 </script>
+
 {% endblock %}

@@ -1,6 +1,7 @@
 import pymongo
 from bson.objectid import ObjectId
 from datetime import datetime
+
 __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
 
 client = pymongo.MongoClient(__MONGO_CONNECTION_URI__, 27017)
@@ -35,7 +36,6 @@ def check_client_from_client_code(client_code):
 
 
 def initialise_description_id_mapping():
-
     result = list(db.certificateDescription.find({}, {'_id': 0}))
 
     if result:
@@ -106,8 +106,17 @@ def get_client_code_from_name(name):
 
 
 def update_cert_details(r_id, data_dict):
-    result = db.certificateMaster.update({'_id': ObjectId(r_id)}, {"$set": data_dict})
+    result = db.certificateMaster.update_one({'_id': ObjectId(r_id)}, {"$set": data_dict})
 
 
 def add_further_cert_file_record(file_data, r_id):
-    result = db.certificateMaster.update({'_id': ObjectId(r_id)}, {"$set": file_data})
+    result = db.certificateMaster.update_one({'_id': ObjectId(r_id)}, {"$set": file_data})
+
+
+def delete_certificate(r_id):
+    result = db.certificateMaster.delete_one({'_id': ObjectId(r_id)})
+    if result.deleted_count > 0:
+        return True
+    else:
+        return False
+ 

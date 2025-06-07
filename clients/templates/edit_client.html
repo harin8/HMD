@@ -49,7 +49,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Client Name:</label>
-                                    <input style="text-transform:uppercase" type="text" value="{{Client_Details.Name}}" id="c_name" class="form-control" name="name" readonly>
+                                    <input style="text-transform:uppercase" type="text" value="{{Client_Details.Name}}" id="c_name" class="form-control" name="name">
                                 </div>
                             </div>
 
@@ -106,7 +106,7 @@
                                         <label>Audit Size:</label>
                                         <!--<input required type="text" onkeyup="It_no(this.value)" pattern="[0-9]*" title="Only numbers allowed" id="it_no" class="form-control" name="itNo">-->
                                         <select required id="audit_size" name="auditSize" class="form-control selectpicker dropdown" data-live-search="true"  data-dropup-auto="false">
-                                            <option value="0">N.A</option>
+                                            <option value="0">N.A.</option>
                                             {% if Available_Audit_No %}
                                             <option value="1">Big</option>
                                             <option value="2">Medium</option>
@@ -122,9 +122,22 @@
                                     </div>
                                 </div>
 
-                                </div><br>
-                                <div class="row">
-                                    <div class="col-md-4">
+                            </div><br>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-check-label-inline">GST:</label>
+                                        &nbsp;<div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="GST" id="gst_yes" value="yes">
+                                            <label class="form-check-label" for="gst_yes">Yes</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                          <input checked class="form-check-input" type="radio" name="GST" id="gst_no" value="no">
+                                          <label class="form-check-label" for="gst_no">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label class="form-check-label-inline">TDS/TCS:</label>
                                         &nbsp;<div class="form-check form-check-inline">
@@ -136,10 +149,45 @@
                                           <label class="form-check-label" for="no">No</label>
                                         </div>
                                     </div>
-                                </div></div>
-
-                                <div class="row">
-                                <div class="col-md-12">Contact Details</div>
+                                </div>
+                            </div>
+                            <div id="GST_No_Div" style="display:none">
+                                    <div class="row" >
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label>GST No:</label>
+                                                <select id="no_gst" name="gstNo" class="form-control selectpicker dropdown" data-live-search="true"  data-dropup-auto="false">
+                                                     <option value="0">N.A.</option>
+                                                    {% for no in Available_GST_No %}
+                                                        <option value="{{ no|safe }}">G - {{ no | stringformat:"04d" }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label>GST Size:</label>
+                                                <!--<input required type="text" onkeyup="It_no(this.value)" pattern="[0-9]*" title="Only numbers allowed" id="it_no" class="form-control" name="itNo">-->
+                                                <select required id="gst_size" name="gstSize" class="form-control selectpicker dropdown" data-live-search="true"  data-dropup-auto="false">
+                                                    <option value="0">N.A</option>
+                                                    {% if Available_GST_No %}
+                                                    <option value="1">Big</option>
+                                                    <option value="2">Medium</option>
+                                                    <option value="3">Small</option>
+                                                    {% endif %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>GST Note: </label>
+                                                    <input type="text" value="{{ Client_Details.GST_note }}" id="gst_note" class="form-control" name="gstNote">
+                                                </div>
+                                            </div>
+                                    </div>
+                                </div>
+                            <div class="row">
+                            <div class="col-md-12">Contact Details</div>
                             </div><br>
                             <button id="add_client" class="btn btn-success">Add</button>
                             <button id="remove_client" class="btn btn-danger">Remove</button>
@@ -232,20 +280,73 @@
 </div>
 
 <script>
-    $(document).ready( function () {
 
+    // Get references to the radio buttons and the div to display
+    const yesRadio = document.getElementById('gst_yes');
+    const noRadio = document.getElementById('gst_no');
+    const additionalInfoDiv = document.getElementById('GST_No_Div');
+
+    // Add event listener to detect changes in radio button selection
+    document.querySelectorAll('input[name="GST"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Check if "yes" radio button is selected
+            if (yesRadio.checked) {
+                // Display the additional info div
+                additionalInfoDiv.style.display = 'block';
+                $('#no_gst').prop('required',true);
+            } else {
+                // Hide the additional info div if "no" is selected
+                additionalInfoDiv.style.display = 'none';
+                $('#no_gst').prop('required',false);
+            }
+        });
+    });
+
+    function mapSizeToNumber(size) {
+    // Use a switch statement or mapping object to map size to number
+        switch (size) {
+            case "Big":
+                return 1;
+            case "Medium":
+                return 2;
+            case "Small":
+                return 3;
+            default:
+                return 0;  // Handle undefined or other values gracefully
+        }
+    }
+
+    $(document).ready( function () {
         $('select').selectpicker();
         $('select').prepend('<option value="-1" selected disabled>--Select--</option>');
 
+        $('#no_gst option[value="0"]').remove();
+        $('#gst_size option[value="0"]').remove();
+
         $('select').selectpicker('refresh');
         $('#party_name').selectpicker('val', "{{Client_Details.Party_name | safe}}");
-        $('#it_size').selectpicker('val', "1");
+        var it_size_name = mapSizeToNumber("{{Client_Details.It_size}}");
+        $('#it_size').selectpicker('val', it_size_name);
+
         $('#audit_no').selectpicker('val', {{Client_Details.Audit_no}});
-        $('#audit_size').selectpicker('val', "1");
+        var audit_size_name = mapSizeToNumber("{{Client_Details.Audit_size}}");
+        $('#audit_size').selectpicker('val', audit_size_name);
+
+
         {% if Client_Details.TDS == "True" %}
-        $('#yes').attr('Checked', true);
+            $('#yes').attr('Checked', true);
         {% else %}
-        $('#no').attr('Checked', true);
+            $('#no').attr('Checked', true);
+        {% endif %}
+
+        {% if Client_Details.GST == "True" %}
+            $('#gst_yes').attr('Checked', true);
+            $('#GST_No_Div').css('display','block');
+            $('#no_gst').selectpicker('val', "{{Client_Details.GST_no}}");
+            var gst_size_name = mapSizeToNumber("{{Client_Details.GST_size}}");
+            $('#gst_size').selectpicker('val', gst_size_name);
+        {% else %}
+            $('#gst_no').attr('Checked', true);
         {% endif %}
 
         var counter = {{Client_Details.Contact_details | length }};
@@ -284,6 +385,28 @@
             }
         });
 
+        // If 'N.A.' is selected in Audit No, show only 'N.A.' option in Audit Size
+        $('#audit_no').on('change', function() {
+            var auditNoValue = $(this).val();
+            var auditSizeDropdown = $('#audit_size');
+
+            // Clear all existing options in the audit size dropdown
+            auditSizeDropdown.empty();
+            auditSizeDropdown.prepend('<option value="-1" selected disabled>--Select--</option>');
+            if (auditNoValue === '0') {
+                // If 'N.A.' is selected in Audit No, show only 'N.A.' option in Audit Size
+
+                auditSizeDropdown.append('<option value="0" >N.A.</option>');
+            } else {
+                // Otherwise, show the normal options
+                auditSizeDropdown.append('<option value="1">Big</option>');
+                auditSizeDropdown.append('<option value="2">Medium</option>');
+                auditSizeDropdown.append('<option value="3">Small</option>');
+            }
+
+            // Refresh the selectpicker to apply the changes
+            auditSizeDropdown.selectpicker('refresh');
+        });
     });
 </script>
 {% endblock %}

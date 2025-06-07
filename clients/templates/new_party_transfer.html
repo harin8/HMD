@@ -129,6 +129,19 @@
 
 <script>
     $(document).ready( function () {
+
+        // Get CSRF token from the hidden input field Django creates
+        const csrftoken = $('[name=csrfmiddlewaretoken]').val();
+        
+        // Set up CSRF token for all AJAX requests
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (settings.type !== 'GET') {  // Add token for non-GET requests
+                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                }
+            }
+        });
+
         $('form').submit(function(e) {
             // this code prevents form from actually being submitted
             e.preventDefault();
@@ -136,9 +149,10 @@
             $.ajax({
                 url: "{% url 'Password Validate' %}",
                 type: 'POST',
-                data: { password: pwd,
-                        operation: "Party Transfer",
-                    csrfmiddlewaretoken: '{{ csrf_token }}'},
+                data: { 
+                    password: pwd,
+                    operation: "Party Transfer"
+                },
                 success: function (data) {
                     if(data.Alert == "Correct") {
                         document.getElementById("tranfer_party_form").submit();
@@ -201,9 +215,10 @@
                 $.ajax({
                     url: "{% url 'New Client Code' %}",
                     type: 'POST',
-                    data: { groupId: groupId,
-                            partyId: partyId,
-                            csrfmiddlewaretoken: '{{ csrf_token }}'},
+                    data: { 
+                        groupId: groupId,
+                        partyId: partyId
+                    },
                     success: function (data) {
                         // Update the new IT code select list for each client
                         for (let i = 0; i < data.length; i++) {

@@ -1,10 +1,9 @@
 from django.shortcuts import render
 from . import database, request_data_retrieve
-
+from accounts.decorators import permission_required
 
 # Create your views here.
-
-
+@permission_required('reports', 'view')
 def landing(request):
     ay_list = database.get_ay_list()
     all_client_list = database.get_all_clients_details()
@@ -14,6 +13,7 @@ def landing(request):
                                                     'Proceedings_list': ay_list})
 
 
+@permission_required('reports', 'add')
 def submit_reports(request):
     status = request.POST.getlist('Status', None)
     if '1' in status and '2' in status:
@@ -54,16 +54,22 @@ def submit_reports(request):
                                                                          period_list['Proceedings'], read_final,
                                                                          party_name_list)
                     result_list.extend(proceedings_result)
-            return render(request, 'report_list_new.html', {'Result_list': result_list})
+            
+            if request.POST.get('report_type') == 'cost_sheet':
+                return render(request, 'report_list_new_cost_sheet.html',  {'Result_list': result_list})
+            else:
+                return render(request, 'report_list_new.html', {'Result_list': result_list})
 
     ay_list = database.get_ay_list()
     all_client_list = database.get_all_clients_details()
     party_list = database.get_party_list()
+    
     return render(request, 'landing_reports.html', {'Client_list': all_client_list, 'AY_list': ay_list,
                                                     'TDS_list': ay_list, 'Party_list': party_list,
                                                     'Proceedings_list': ay_list})
 
 
+@permission_required('reports', 'view')
 def read_unread(request, r_type, r_id):
     type_name = database.get_r_type(r_type)
     if type_name:
@@ -111,6 +117,7 @@ def read_unread(request, r_type, r_id):
                                                     'Proceedings_list': ay_list})'''
 
 
+@permission_required('reports', 'add')
 def read_submit(request):
     r_id = request.POST.getlist('r_id')
     remark = request.POST.getlist('remark')
@@ -142,6 +149,7 @@ def read_submit(request):
                                                         'Proceedings_list': ay_list})
 
 
+@permission_required('reports', 'add')
 def client_reports_submit(request):
     all_id = request.POST.getlist('ids')
     all_types = request.POST.getlist('types')

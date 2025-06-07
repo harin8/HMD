@@ -105,6 +105,20 @@
         </div>
         <br><br>
         <div class="row">
+            <div class="form-group col-md-6">
+                <label class="form-label">Report Type:</label><br>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="report_type" id="simple_report" value="simple" checked>
+                    <label class="form-check-label" for="simple_report">Report</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="report_type" id="cost_sheet" value="cost_sheet">
+                    <label class="form-check-label" for="cost_sheet">Cost Sheet</label>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="row">
             <div class="form-group col-md-3">
                 <button type="submit" class="btn btn-success" >Submit</button>&nbsp;&nbsp;
                 <button type="reset" class="btn btn-secondary back" name="Reset">Reset</button>
@@ -277,8 +291,6 @@
             $('#clientName').empty().html(option_html);
             $('select').selectpicker('refresh');
         });
-
     });
-
 </script>
 {% endblock %}

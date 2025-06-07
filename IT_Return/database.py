@@ -270,3 +270,11 @@ def add_cpc_return_record(data_dict):
 def get_all_available_group_code():
     result = list(db.groupCode.find({}, {'_id': 0}))
     return result
+
+
+def delete_it_return(it_no, ay, return_type_name):
+    result = db.returnMaster.delete_one({'It_no': it_no, 'AY': ay, 'Type': return_type_name})
+    if result.deleted_count > 0:
+        return True
+    else:
+        return False

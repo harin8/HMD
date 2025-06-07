@@ -1,14 +1,13 @@
-import datetime
-
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 from IT_Return import database
-from datetime import timedelta
+from accounts.decorators import permission_required
 from proceedings import database as proc_database
+import clients.database as client_database
 
 # Create your views here.
-
-
+@login_required
 def landing(request):
     proc_list = proc_database.live_board_proceedings_list()
     live_board_unique_proceedings = []
@@ -19,7 +18,8 @@ def landing(request):
     return render(request, 'landing.html', {'Live_Board': proc_list,
                                             'Unique_Proceedings': list(set(live_board_unique_proceedings))})
 
-
+@login_required
+@permission_required('IT_Return', 'view')
 def new_it_return(request):
     ay = request.GET.get('A.Y')
     return_type = request.GET.get('Type')
@@ -36,6 +36,7 @@ def new_it_return(request):
                                                   'Return_Type_Selected': return_type, 'Return_List': all_return_list})
 
 
+@permission_required('IT_Return', 'add')
 def create_new_return(request, it_no, ay, r_type):
     ay_list = database.get_ay_list()
     return_type_name = database.get_return_type_name_from_id(r_type)
@@ -50,6 +51,7 @@ def create_new_return(request, it_no, ay, r_type):
                                                       'AY_list': ay_list})
 
 
+@permission_required('IT_Return', 'add')
 def submit_new_return(request):
     ay_list = database.get_ay_list()
     ay = request.POST.get('AY')
@@ -76,6 +78,7 @@ def submit_new_return(request):
                                               'Return_List': all_return_list})
 
 
+@permission_required('IT_Return', 'view')
 def further_return_info(request, it_no, ay, r_type):
     ay_list = database.get_ay_list()
     return_type_name = database.get_return_type_name_from_id(r_type)
@@ -89,6 +92,7 @@ def further_return_info(request, it_no, ay, r_type):
                                                       'AY_list': ay_list})
 
 
+@permission_required('IT_Return', 'add')
 def further_return_submit(request):
     ay_list = database.get_ay_list()
     ay = request.POST.get('AY')
@@ -126,6 +130,7 @@ def further_return_submit(request):
     return render(request, 'existing_return.html', {'Return_List': all_return_list})
 
 
+@permission_required('IT_Return', 'view')
 def cpc_list(request):
     all_return_list = database.get_cpc_all_return_list()
 
@@ -145,6 +150,7 @@ def cpc_list(request):
     return render(request, 'cpc_list.html', {'CPC_List': all_return_list})
 
 
+@permission_required('IT_Return', 'view')
 def existing_return_list(request):
     all_return_list = database.get_existing_completed_return_list()
     if all_return_list:
@@ -162,6 +168,7 @@ def existing_return_list(request):
     return render(request, 'existing_return.html', {'Return_List': all_return_list})
 
 
+@permission_required('IT_Return', 'add')
 def further_cpc_info(request, it_no, ay, r_type):
     ay_list = database.get_ay_list()
     # check if exists in db
@@ -177,6 +184,7 @@ def further_cpc_info(request, it_no, ay, r_type):
                                                       'AY_list': ay_list})
 
 
+@permission_required('IT_Return', 'add')
 def further_cpc_submit(request):
     ay = request.POST.get('AY')
     return_type = request.POST.get('type')
@@ -205,5 +213,30 @@ def further_cpc_submit(request):
 
 
 def group_filter_list(request):
-    group_list = database.get_all_available_group_code()
-    return JsonResponse(group_list[0], safe=False)
+    """Get list of groups for filtering"""
+    try:
+        group_list = database.get_all_available_group_code()
+        if group_list:
+            return JsonResponse(group_list[0], safe=False)
+        return JsonResponse({})
+    except Exception as e:
+        print(f"Error fetching group list: {str(e)}")
+        return JsonResponse({'error': 'Failed to fetch groups'}, status=500)
+
+
+@permission_required('IT_Return', 'delete')
+def delete_return(request):
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        it_no = request.POST.get('returnITCode')
+        ay = request.POST.get('returnAY')
+        r_type = request.POST.get('returnType')
+        return_type_name = database.get_return_type_name_from_id(r_type)
+        if client_database.verify_password("Record Delete", password):  # Replace with your actual password check
+            if database.delete_it_return(it_no, ay, return_type_name):
+                return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Record not found.'}, status=404)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Incorrect password.'}, status=403)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)

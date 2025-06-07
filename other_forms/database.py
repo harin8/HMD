@@ -143,7 +143,7 @@ def insert_description_to_db():
             "56": "SETTLEMENT SCHEME",
             "57": "ADVISORY",
             "58": "OTHERS"}
-    db.otherFormsDescription.insert(temp)
+    db.otherFormsDescription.insert_one(temp)
 
 
 def get_group_name_from_client_name(c_name):
@@ -162,8 +162,13 @@ def get_client_code_from_name(name):
 
 
 def update_otherform_details(r_id, data_dict):
-    result = db.otherFormsMaster.update({'_id': ObjectId(r_id)}, {"$set": data_dict})
+    result = db.otherFormsMaster.update_one({'_id': ObjectId(r_id)}, {"$set": data_dict})
 
 
 def add_further_otherform_file_record(file_data, r_id):
-    result = db.otherFormsMaster.update({'_id': ObjectId(r_id)}, {"$set": file_data})
+    result = db.otherFormsMaster.update_one({'_id': ObjectId(r_id)}, {"$set": file_data})
+
+
+def delete_other_forms_record(id):
+    result = db.otherFormsMaster.delete_one({'_id': ObjectId(id)})
+    return result.deleted_count > 0

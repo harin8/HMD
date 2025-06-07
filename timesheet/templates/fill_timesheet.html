@@ -1,0 +1,949 @@
+{% extends "layout.html" %}
+{% load timesheet_filters %} 
+{% block head_block %}
+    <title>HMD|Fill Timesheet</title>
+    <style>
+        .hours-input::-webkit-inner-spin-button {
+            opacity: 1;
+            background: transparent;
+            position: relative;
+            padding: 6px;
+            cursor: pointer;
+            margin-left: 3px;
+        }
+        .white-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .alert {
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        /* Fade animation */
+        .fade {
+            transition: opacity 0.15s linear;
+        }
+
+        .fade:not(.show) {
+            opacity: 0;
+        }
+
+        /* Error Container Styles */
+        #jsErrorContainer {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+            padding: 15px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #jsErrorContainer.show {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #jsErrorMessage {
+            margin: 0;
+            padding: 0;
+        }
+
+        .close-error {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #721c24;
+        }
+    </style>
+{% endblock %}
+
+{% block body_block %}
+<div class="container-fluid">
+    <!-- Error Container -->
+    <div id="jsErrorContainer">
+        <span class="close-error" onclick="closeError()">&times;</span>
+        <p id="jsErrorMessage"></p>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'success' %}success{% else %}danger{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+    {% endif %}
+    <div class="white-container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Date:</label>
+                    <input type="date" name="date" id="selected_date" class="form-control" required
+                            max="{{ today|date:'Y-m-d' }}"
+                            value="{{ today|date:'Y-m-d' }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- First Form -->
+    <form id="timeSettingsForm" class="needs-validation" novalidate>
+    {% csrf_token %}
+        <div class="white-container" id="reason_div" style="display: block;">
+            <div class="row">
+                
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>Time In:</label>
+                        <select name="time_in" id="selected_time_in" class="form-control" required></select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>Time Out:</label>
+                        <select name="time_out" id="selected_time_out" class="form-control" required></select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn btn-primary form-control">Load</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-5">
+            <!-- Hours Section -->
+            <div id="hoursSection" style="display: none;">
+                <div class="white-container">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <h5 id="summary_title">Date: </h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Total Hours:</label>
+                                <input type="number" id="total_hours" class="form-control" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Utilized Hours:</label>
+                                <input type="number" id="utilized_hours" class="form-control" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Pending Hours:</label>
+                                <input type="number" id="pending_hours" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timesheet Entry Form -->
+            <div id="timesheetEntryForm" style="display: none;">
+                <div class="white-container">
+                    <form method="POST" class="needs-validation" novalidate>
+                        {% csrf_token %}         
+                        <!-- Client and Task Section -->
+                        <input type="hidden" name="date" id="form_date">
+                        <input type="hidden" name="time_in" id="form_time_in">
+                        <input type="hidden" name="time_out" id="form_time_out">
+                        <input type="hidden" name="saved_utilized_hours" id="saved_utilized_hours">
+                        <input type="hidden" name="saved_pending_hours" id="saved_pending_hours">
+                        <input type="hidden" name="saved_total_hours" id="saved_total_hours">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Client Name:</label>
+                                    <select name="client_name" class="form-control selectpicker" data-live-search="true" required>
+                                        <option value="">Select Client</option>
+                                        <option value="OFFICE WORK">OFFICE WORK</option>
+                                        <option value="LEAVE">LEAVE</option>
+                                        {% for client in client_names %}
+                                            <option value="{{ client }}">{{ client }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Task:</label>
+                                    <select name="task" class="form-control selectpicker" id="task_select" data-live-search="true" required onchange="toggleAssignmentFields()">
+                                        <option value="">Select Task</option>
+                                        <option value="OFFICE WORK">OFFICE WORK</option>
+                                        <option value="LEAVE">LEAVE</option>
+                                        <option value="ROI">IT-Returns</option>
+                                        <option value="Certificates">Certificates</option>
+                                        <option value="TDS">TDS</option>
+                                        <option value="Other">Other Forms/Activities</option>
+                                        <option value="Proceedings">Proceedings</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <!-- Assignment Section -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Assignment:</label>
+                                </div>
+                            </div>
+                            <!-- Dynamic Assignment Fields -->
+                            <div class="col-md-12">
+                                <div id="assignment_container">
+                                    <!-- Hidden input to store the actual assignment value -->
+                                    <input type="hidden" name="assignment" id="selected_assignment" required>
+                                    <input type="hidden" name="assignment_display" id="selected_assignment_display" required>
+                                    
+                                    <!-- IT Return Assignment Field -->
+                                    <div id="ROI_assignment" class="assignment-field" style="display: none;">
+                                        <div class="form-group">
+                                            <label>IT Return:</label>
+                                            <select class="form-control selectpicker assignment-select" data-live-search="true">
+                                                <!-- Options will be populated dynamically -->
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Certificates Assignment Field -->
+                                    <div id="Certificates_assignment" class="assignment-field" style="display: none;">
+                                        <div class="form-group">
+                                            <label>Certificates:</label>
+                                            <select class="form-control selectpicker assignment-select" data-live-search="true">
+                                                <!-- Options will be populated dynamically -->
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                     <!-- TDS Assignment Field -->
+                                     <div id="TDS_assignment" class="assignment-field" style="display: none;">
+                                        <div class="form-group">
+                                            <label>TDS:</label>
+                                            <select class="form-control selectpicker assignment-select" data-live-search="true">
+                                                <!-- Options will be populated dynamically -->
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Other Forms Assignment Field -->
+                                    <div id="Other_assignment" class="assignment-field" style="display: none;">
+                                        <div class="form-group">
+                                            <label>Other Forms:</label>
+                                            <select class="form-control selectpicker assignment-select" data-live-search="true">
+                                                <!-- Options will be populated dynamically -->
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Proceedings Assignment Field -->
+                                    <div id="Proceedings_assignment" class="assignment-field" style="display: none;">
+                                        <div class="form-group">
+                                            <label>Proceedings:</label>
+                                            <select class="form-control selectpicker assignment-select" data-live-search="true">
+                                                <!-- Options will be populated dynamically -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Hours:</label>
+                                    <input type="number" name="hours" class="form-control hours-input" 
+                                        step="0.25" min="0" onchange="updateHours()" required>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label>Remarks:</label>
+                                    <input type="text" style="text-transform:uppercase" name="remarks" class="form-control" rows="3" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" id="reason_input" style="display: none;">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Reason For Delay:</label>
+                                    <input id="reason_input_field" type="text" style="text-transform:uppercase" name="reason" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="reset" class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-md-7" id="summarySection" style="display: none;">
+            <!-- Summary Section -->
+            <div class="white-container"> 
+                <div class="card scroll mt-4">
+                    <div class="col-md-12">
+                        <div class="card-body" id="date_entries">
+                            {% for entry in todays_entries %}
+                            <p style="display:none" class="proceeding-description">{{ entry.hours }}</p>
+                            <ul class="list-group list-group-horizontal" style="margin-bottom:5px" >
+                                <li class="list-group-item text-center text-white bg-success" style="width:80%;font-size:22px">
+                                <b>{{ entry.hours }} hrs</b><br>
+                                <p>{{ entry.task}}</p>
+                                </li>
+
+                                <li class="list-group-item text-black" style="width:200%; background-color:#E8F5E9">
+                                    <b>Name: </b>{{ entry.client_name }}<br>
+                                    <b>Assignment: </b>{{ entry.assignment }}<br>
+                                    <b>Remarks: </b>{{ entry.remarks }}<br>
+                                </li>
+                            </ul>
+                            {% empty %}
+                            <div class="alert alert-info">
+                                No entries found
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Hours Section -->
+            <div class="white-container"> 
+                <div class="card scroll mt-4">
+                    <div class="col-md-12">
+                        <div class="row justify-content-center">
+                            <h5>Pending Hours (Last 7 Days)</h5>
+                        </div>
+                        <div class="card-body" id="pending_entries">
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Corner Button -->
+    {% if request.user.groups.all|length > 0 and 'Group Head' in request.user.groups.all|join:" " or 'Super Group Head' in request.user.groups.all|join:" " or 'Super Admin' in request.user.groups.all|join:" " %}
+    <div class="row">
+        <div class="col-md-12">
+            <button class="btn btn-primary" onclick="window.open('{% url 'employee_corner' %}', '_blank')">Employee Corner</button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Add this helper function at the top of the script
+function hideAllSections() {
+    document.getElementById('hoursSection').style.display = 'none';
+    document.getElementById('timesheetEntryForm').style.display = 'none';
+    document.getElementById('summarySection').style.display = 'none';
+}
+
+function showAllSections() {
+    document.getElementById('hoursSection').style.display = 'block';
+    document.getElementById('timesheetEntryForm').style.display = 'block';
+    document.getElementById('summarySection').style.display = 'block';
+}
+
+function updateTimeSettings(date) {
+    return fetch(`/timesheet/get-time-settings/?date=${date}`)
+        .then(response => response.json())
+        .then(data => {
+            const timeInSelect = document.getElementById('selected_time_in');
+            const timeOutSelect = document.getElementById('selected_time_out');
+            
+            if (data.time_in) {
+                timeInSelect.value = data.time_in;
+            }
+            if (data.time_out) {
+                timeOutSelect.value = data.time_out;
+            }
+            
+            // Refresh both select pickers after setting values
+            $('#selected_time_in, #selected_time_out').selectpicker('refresh');
+            
+            return data;
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all select pickers
+    $('.selectpicker').selectpicker();
+
+    // Generate time options once on page load
+    generateTimeOptions();
+    
+    // Load initial time settings
+    updateTimeSettings(document.getElementById('selected_date').value);
+
+    // Get all alert messages
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        // Auto dismiss after 5 seconds
+        setTimeout(function() {
+            alert.style.opacity = '0';
+            setTimeout(function() {
+                alert.style.display = 'none';
+            }, 500);
+        }, 5000);
+
+        // Add click handler for manual dismissal
+        const closeButton = alert.querySelector('.close');
+        if (closeButton) {
+            closeButton.addEventListener('click', function() {
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.style.display = 'none';
+                }, 500);
+            });
+        }
+    });
+});
+
+// Event handler on date change
+
+document.getElementById('selected_date').addEventListener('change', function() {
+    hideAllSections();
+    document.getElementById('timeSettingsForm').reset();
+    // Refresh select pickers after form reset
+    $('.selectpicker').selectpicker('refresh');
+    
+    updateTimeSettings(document.getElementById('selected_date').value);
+});
+
+document.getElementById('timeSettingsForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    formData.append('date', document.getElementById('selected_date').value);
+
+    // Calculate hours directly without fetching time settings again
+    fetch('/timesheet/calculate-hours/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && !data.error) {
+            
+            // Calculate if the selected date is 3 days or more before today
+            const selectedDate = new Date(document.getElementById('selected_date').value);
+            const today = new Date();
+            const diffTime = Math.abs(today - selectedDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            // Show/hide reason input based on date difference
+            
+            const reasonInput = document.getElementById('reason_input');
+            if (diffDays > 3) {
+                reasonInput.style.display = 'block';
+                document.getElementById('reason_input_field').required = true;
+            } else {
+                reasonInput.style.display = 'none';
+                document.getElementById('reason_input_field').required = false;
+            }
+            
+            
+            // Update the hours display
+            document.getElementById('total_hours').value = data.total_hours.toFixed(2);
+            document.getElementById('utilized_hours').value = data.utilized_hours.toFixed(2);
+            document.getElementById('pending_hours').value = data.pending_hours.toFixed(2);
+            
+            document.getElementById('saved_utilized_hours').value = data.utilized_hours.toFixed(2);
+            document.getElementById('saved_pending_hours').value = data.pending_hours.toFixed(2);
+            document.getElementById('saved_total_hours').value = data.total_hours.toFixed(2);
+            
+            // Transfer values from first form to second form
+            document.getElementById('form_date').value = document.getElementById('selected_date').value;
+            document.getElementById('form_time_in').value = data.time_in;
+            document.getElementById('form_time_out').value = data.time_out;
+            
+            // Update the summary title
+            const dateStr = document.getElementById('form_date').value;
+            const [year, month, day] = dateStr.split('-');
+            const date = new Date(year, month - 1, day, 12, 0, 0);
+            const formattedDate = date.toLocaleDateString('en-IN', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('summary_title').textContent = `Date: ${formattedDate}`;
+            
+            // Update the entries display
+            updateEntriesDisplay(data.date_entries);
+
+            // Refresh all select pickers after updating form
+            $('.selectpicker').selectpicker('refresh');
+            
+            // Show all sections
+            showAllSections();
+            
+            // Update max hours in the entry form
+            document.querySelector('input[name="hours"]').max = data.pending_hours;
+        } 
+        else {
+            alert('Error calculating hours: ' + data.error_message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while calculating hours');
+    });
+
+    // Get Pending Entries
+    fetch('/timesheet/get_pending_entries/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data) {
+            // Update the pending entries
+            updatePendingDisplay(data);
+        } 
+        else {
+            alert('Error getting pending entries: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while getting pending entries');
+    });
+});
+
+// Add this helper function for updating entries display
+function updateEntriesDisplay(entries) {
+    const entriesContainer = document.getElementById('date_entries');
+    entriesContainer.innerHTML = ''; // Clear existing entries
+    if (entries && entries.length > 0) {
+        entries.forEach(entry => {
+            const entryHtml = 
+                '<ul class="list-group list-group-horizontal" style="margin-bottom:5px">' +
+                    '<li class="list-group-item text-center text-white bg-success" style="width:80%;font-size:22px">' +
+                        '<b>' + entry.hours + ' hrs</b><br>' +
+                        '<p>' + entry.task + '</p>' +
+                    '</li>' +
+                    '<li class="list-group-item text-black" style="width:200%; background-color:#E8F5E9">' +
+                        '<b>Name: </b>' + entry.client_name + '<br>' +
+                        '<b>Assignment: </b>' + entry.assignment + '<br>' +
+                        '<b>Remarks: </b>' + entry.remarks + '<br>' +
+                        '<a onclick="confirmDelete(\'' + entry._id + '\')" title="Delete" style="cursor: pointer; text-decoration: none;">' +
+                            '<i class="fas fa-trash-alt text-danger" style="font-size: 1.2em;"></i>' +
+                        '</a>' +
+                    '</li>' +
+                '</ul>';
+            entriesContainer.innerHTML += entryHtml;
+        });
+    } else {
+        entriesContainer.innerHTML = 
+            '<div class="alert alert-info">' +
+                'No entries found for this date' +
+            '</div>';
+    }
+}
+
+
+// Add this helper function for updating pending entries display
+function updatePendingDisplay(entries) {
+    const pendingEntriesContainer = document.getElementById('pending_entries');
+    pendingEntriesContainer.innerHTML = ''; // Clear existing entries
+    if (entries) {
+        entries.data.forEach(entry => {
+            const entryHtml = 
+                '<p style="display:none" class="proceeding-description">' + entry.pending_hours + '</p>' +
+                '<ul class="list-group list-group-horizontal" style="margin-bottom:5px">' +
+                    '<li class="list-group-item text-center text-white bg-danger" style="width:80%;font-size:22px">' +
+                        '<b>' + entry.date + '</b>' +
+                        '<p>' + entry.day + '</p>'  +
+                    '</li>' +
+                    '<li class="list-group-item text-black" style="width:200%; background-color:#E8F5E9">' +
+                        '<b>Pending Hours: </b>' +
+                        '<span class="text-danger">' + entry.pending_hours + '</span>' +
+                    '</li>' +
+                '</ul>';
+            pendingEntriesContainer.innerHTML += entryHtml;
+        });
+    } 
+    else {
+        pendingEntriesContainer.innerHTML = 
+            '<div class="alert alert-info">' +
+                 'No pending hours found' +
+            '</div>';
+    }
+}
+
+// Modify the generateTimeOptions function
+function generateTimeOptions() {
+    const timeSelects = document.querySelectorAll('select[name="time_in"], select[name="time_out"]');
+    const defaultTimeIn = '{{ default_time_in }}';
+    const defaultTimeOut = '{{ default_time_out }}';
+    const selectedDate = document.getElementById('selected_date').value;
+    
+    timeSelects.forEach(select => {
+        // Clear existing options
+        $(select).empty();
+        
+        for (let hours = 0; hours < 24; hours++) {
+            for (let minutes = 0; minutes < 60; minutes += 15) {
+                const hour = hours.toString().padStart(2, '0');
+                const minute = minutes.toString().padStart(2, '0');
+                const period = hours < 12 ? 'AM' : 'PM';
+                let displayHour = hours % 12;
+                displayHour = displayHour === 0 ? 12 : displayHour;
+                
+                const timeValue = hour + ':' + minute;
+                const displayTime = displayHour + ':' + minute + ' ' + period;
+                
+                const option = new Option(displayTime, timeValue);
+                select.add(option);
+            }
+        }
+    });
+    
+    // Refresh both select pickers after generating options
+    $('#selected_time_in, #selected_time_out').selectpicker('refresh');
+}
+
+// Update the updateHours function to use the current total hours
+function updateHours() {
+    const hours = parseFloat(document.querySelector('input[name="hours"]').value) || 0;
+    const totalHours = parseFloat(document.getElementById('saved_total_hours').value) || 0;
+    const utilizedHours = parseFloat(document.getElementById('saved_utilized_hours').value) || 0;
+    
+    const newUtilizedHours = parseFloat(utilizedHours) + parseFloat(hours);
+    const pendingHours = totalHours - newUtilizedHours;
+    
+    document.getElementById('utilized_hours').value = newUtilizedHours.toFixed(2);
+    document.getElementById('pending_hours').value = pendingHours.toFixed(2);
+
+    if (pendingHours < 0) {
+        alert('Utilized hours cannot be greater than total hours');
+    }
+}
+
+
+function fetchAssignments(clientName, taskType) {
+    const assignmentField = document.getElementById(taskType + '_assignment');
+    if (!assignmentField) return;
+    
+    const select = assignmentField.querySelector('select');
+    if (!select) return;
+    
+    // Show loading state
+    $(select).empty().append('<option value="">Loading...</option>');
+    $(select).selectpicker('refresh');
+    
+    const url = '/timesheet/get-assignments/?client_name=' + encodeURIComponent(clientName) + '&task_type=' + encodeURIComponent(taskType);
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            $(select).empty().append('<option value="">Select Assignment</option>');
+            
+            if (data.assignments && data.assignments.length > 0) {
+                data.assignments.forEach(assignment => {
+                    // Create option with data-id attribute for the ObjectId
+                    const option = $('<option>', {
+                        value: assignment.id,  // Use the ObjectId as the value
+                        text: assignment.display,  // Use the display text for showing to user
+                        'data-id': assignment.id  // Store the ObjectId as a data attribute
+                    });
+                    $(select).append(option);
+                });
+            }
+            
+            $(select).selectpicker('refresh');
+        })
+        .catch(error => {
+            console.error('Error fetching assignments:', error);
+            $(select).empty().append('<option value="">Error loading assignments</option>');
+            $(select).selectpicker('refresh');
+        });
+}
+
+function toggleAssignmentFields() {
+    // Hide all assignment fields first
+    const assignmentFields = document.querySelectorAll('.assignment-field');
+    assignmentFields.forEach(field => {
+        field.style.display = 'none';
+        const select = field.querySelector('select');
+        if (select) {
+            select.value = '';
+            if (select.classList.contains('selectpicker')) {
+                $(select).selectpicker('refresh');
+            }
+        }
+        if (select) select.required = false;
+    });
+
+    // Show the relevant assignment field based on selected task
+    const taskSelect = document.getElementById('task_select');
+    const selectedTask = taskSelect.value;
+    const clientSelect = document.querySelector('select[name="client_name"]');
+    const clientName = clientSelect.value;
+    
+    if (selectedTask) {
+        const assignmentField = document.getElementById(selectedTask + '_assignment');
+        if (assignmentField) {
+            assignmentField.style.display = 'block';
+            const select = assignmentField.querySelector('select');
+            if (select) {
+                select.required = true;
+                
+                // Add change event listener to update hidden input when selection changes
+                select.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    if (selectedOption && selectedOption.value) {
+                        // Store the ObjectId in the hidden input
+                        document.getElementById('selected_assignment').value = selectedOption.value;
+                        document.getElementById('selected_assignment_display').value = selectedOption.text;
+                    } else {
+                        // Clear the hidden input if no option is selected
+                        document.getElementById('selected_assignment').value = '';
+                        document.getElementById('selected_assignment_display').value = '';
+                    }
+                });
+            }
+            
+            if (clientName) {
+                fetchAssignments(clientName, selectedTask);
+            } else {
+                alert('Please select a client first');
+                taskSelect.value = '';
+                $(taskSelect).selectpicker('refresh');
+            }
+            
+            if (select && select.classList.contains('selectpicker')) {
+                $(select).selectpicker('refresh');
+            }
+        }
+    }
+}
+
+// Add client change handler
+document.querySelector('select[name="client_name"]').addEventListener('change', function() {
+    const taskSelect = document.getElementById('task_select');
+    const selectedClient = this.value;
+    
+    // Reset task selection
+    taskSelect.value = '';
+    
+    if (selectedClient === 'OFFICE WORK') {
+        // Disable all options except OFFICE WORK
+        Array.from(taskSelect.options).forEach(option => {
+            if (option.value === 'OFFICE WORK') {
+                option.disabled = false;
+            } else {
+                option.disabled = true;
+            }
+        });
+    } else if (selectedClient === 'LEAVE') {
+        // Disable all options except LEAVE
+        Array.from(taskSelect.options).forEach(option => {
+            if (option.value === 'LEAVE') {
+                option.disabled = false;
+                // Automatically select LEAVE as the task
+                option.selected = true;
+            } else {
+                option.disabled = true;
+            }
+        });
+    } else {
+        // Enable all options
+        Array.from(taskSelect.options).forEach(option => {
+            option.disabled = false;
+        });
+        
+        // If there was a previously selected task, fetch its assignments
+        if (taskSelect.value) {
+            fetchAssignments(selectedClient, taskSelect.value);
+        }
+    }
+    
+    // Refresh the select picker
+    $(taskSelect).selectpicker('refresh');
+});
+
+// Function to close error message
+function closeError() {
+    const container = document.getElementById('jsErrorContainer');
+    container.classList.remove('show');
+    setTimeout(() => {
+        container.style.display = 'none';
+    }, 300);
+}
+
+// Add this function to show JavaScript validation errors
+function showError(message) {
+    const container = document.getElementById('jsErrorContainer');
+    const messageSpan = document.getElementById('jsErrorMessage');
+    
+    // Set the error message
+    messageSpan.textContent = message;
+    
+    // Show the container
+    container.style.display = 'block';
+    container.classList.add('show');
+    
+    // Scroll to top to show the error
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Add this function to count pending days
+function countPendingDays() {
+    let pendingDays = 0;
+    const pendingEntries = document.querySelectorAll('.list-group-horizontal');
+    
+    pendingEntries.forEach(entry => {
+        const hoursElement = entry.querySelector('.text-danger');
+        if (hoursElement) {
+            const hours = parseFloat(hoursElement.textContent);
+            if (hours > 0) {
+                pendingDays++;
+            }
+        }
+    });
+    
+    return pendingDays;
+}
+
+function confirmDelete(entryId) {
+    if (confirm('Are you sure you want to delete this timesheet entry?')) {
+        deleteRecord(entryId);
+    }
+}
+
+function deleteRecord(entryId) {
+    $.ajax({
+        url: "{% url 'delete_timesheet_entry' %}",
+        method: 'POST',
+        data: {
+            'entry_id': entryId
+        },
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                // Instead of reloading, refresh the entries display
+                refreshEntriesAfterDelete();
+                showError('Entry deleted successfully');
+            } else {
+                showError(response.message);
+            }
+        },
+        error: function(response) {
+            showError(response.responseJSON.message);
+        }
+    });
+}
+
+// Add function to refresh entries after delete
+function refreshEntriesAfterDelete() {
+    const date = document.getElementById('selected_date').value;
+    const timeIn = document.getElementById('selected_time_in').value;
+    const timeOut = document.getElementById('selected_time_out').value;
+
+    // Create form data for the request
+    const formData = new FormData();
+    formData.append('date', date);
+    formData.append('time_in', timeIn);
+    formData.append('time_out', timeOut);
+
+    // Fetch updated entries
+    fetch('/timesheet/calculate-hours/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the entries display
+            updateEntriesDisplay(data.date_entries);
+            
+            // Update hours display
+            document.getElementById('total_hours').value = data.total_hours.toFixed(2);
+            document.getElementById('utilized_hours').value = data.utilized_hours.toFixed(2);
+            document.getElementById('pending_hours').value = data.pending_hours.toFixed(2);
+            
+            // Update saved hours
+            document.getElementById('saved_utilized_hours').value = data.utilized_hours.toFixed(2);
+            document.getElementById('saved_pending_hours').value = data.pending_hours.toFixed(2);
+            document.getElementById('saved_total_hours').value = data.total_hours.toFixed(2);
+            
+            // Update max hours in the entry form
+            document.querySelector('input[name="hours"]').max = data.pending_hours;
+        } else {
+            showError('Error updating display: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('An error occurred while updating the display');
+    });
+}
+
+</script>
+{% endblock %}

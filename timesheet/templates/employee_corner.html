@@ -1,0 +1,222 @@
+{% extends 'layout.html' %}
+
+{% block body_block %}
+<div class="container">
+    <h2 class="header">Employee Corner</h2>
+    
+    <!-- Date Selection Form -->
+    <div class="card">
+        <div class="card-body">
+            <form method="get">
+                <label for="date">Select Date:</label>
+                <input type="date" id="date" name="date" 
+                       value="{{ selected_date|date:'Y-m-d' }}"
+                       max="{{ today|date:'Y-m-d' }}"
+                       onchange="this.form.submit()">
+            </form>
+        </div>
+    </div>
+    <!-- Employee List -->
+    <div class="card">
+        <div class="card-header">
+            <h5>Timesheet Overview for {{ selected_date|date:"D, d M Y" }}</h5>
+        </div>
+        <div class="card-body">
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th>Employee Name</th>
+                        <th>Utilized Hours</th>
+                        <th>Pending Hours</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in user_data %}
+                    <tr class="{% if data.is_critical %}critical{% endif %}">
+                        <td>{{ data.user.get_full_name }}</td>
+                        <td>{{ data.total_hours }}</td>
+                        <td>{{ data.pending_hours }}</td>
+                        <td>
+                            {% if data.is_critical %}
+                            <span class="badge critical">Critical (7+ days pending)</span>
+                            {% elif data.days_with_pending > 3 %}
+                            <span class="badge warning">Warning ({{ data.days_with_pending }} days pending)</span>
+                            {% else %}
+                            <span class="badge success">Good</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button onclick="toggleDetails('details-{{ data.user.id }}')" 
+                                    class="btn-primary">
+                                View Details
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" class="details-cell">
+                            <div id="details-{{ data.user.id }}" class="details-content" style="display: none;">
+                                {% if data.timesheet_entries %}
+                                <table class="details-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Client</th>
+                                            <th>Task</th>
+                                            <th>Assignment</th>
+                                            <th>Hours</th>
+                                            <th>Time In</th>
+                                            <th>Time Out</th>
+                                            <th>Remarks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for entry in data.timesheet_entries %}
+                                        <tr>
+                                            <td>{{ entry.client_name }}</td>
+                                            <td>{{ entry.task }}</td>
+                                            <td>{{ entry.assignment }}</td>
+                                            <td>{{ entry.hours }}</td>
+                                            <td>{{ entry.time_in }}</td>
+                                            <td>{{ entry.time_out }}</td>
+                                            <td>{{ entry.remarks|default:"-" }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% else %}
+                                <p class="no-entries">No timesheet entries for this date</p>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .header {
+        margin-bottom: 20px;
+    }
+
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        background: white;
+    }
+
+    .card-header {
+        padding: 10px 15px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .main-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .main-table th,
+    .main-table td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    .main-table th {
+        background: #f8f9fa;
+    }
+
+    .details-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .details-table th,
+    .details-table td {
+        padding: 6px;
+        border: 1px solid #ddd;
+        font-size: 0.9em;
+    }
+
+    .details-content {
+        padding: 10px;
+        background: #f8f9fa;
+    }
+
+    .btn-primary {
+        background: #0d6efd;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background: #0b5ed7;
+    }
+
+    .badge {
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-size: 0.85em;
+    }
+
+    .badge.critical {
+        background: #dc3545;
+        color: white;
+    }
+
+    .badge.warning {
+        background: #ffc107;
+        color: black;
+    }
+
+    .badge.success {
+        background: #198754;
+        color: white;
+    }
+
+    tr.critical {
+        background: #fff3f3;
+    }
+
+    .no-entries {
+        text-align: center;
+        color: #666;
+        margin: 10px 0;
+    }
+
+    .details-cell {
+        padding: 0 !important;
+    }
+</style>
+
+<script>
+    function toggleDetails(detailsId) {
+        const detailsElement = document.getElementById(detailsId);
+        const isHidden = detailsElement.style.display === 'none';
+        detailsElement.style.display = isHidden ? 'block' : 'none';
+        
+        // Update button text
+        const button = event.target;
+        button.textContent = isHidden ? 'Hide Details' : 'View Details';
+    }
+</script>
+{% endblock %}

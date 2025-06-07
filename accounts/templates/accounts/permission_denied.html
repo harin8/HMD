@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block head_block %}
+    {% load static %}
+    <title>HMD | Permission Denied</title>
+{% endblock %}
+
+{% block body_block %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-exclamation-triangle text-warning" style="font-size: 48px;"></i>
+                    </div>
+                    <h3 class="card-title">Permission Denied</h3>
+                    <p class="card-text">You don't have permission to access this resource.</p>
+                    
+                    <div class="mt-4">
+                        <h5>User Details:</h5>
+                        <p><strong>Username:</strong> {{ user.username }}</p>
+                        
+                        {% if groups %}
+                        <div class="mt-3">
+                            <h5>Your Roles:</h5>
+                            {% for group in groups %}
+                            <span class="badge badge-info mr-2">{{ group.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{% url 'Landing' %}" class="btn btn-primary">
+                            <i class="fas fa-home mr-2"></i>Return to Dashboard
+                        </a>
+                        
+                        {% if request.META.HTTP_REFERER %}
+                        <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary ml-2">
+                            <i class="fas fa-arrow-left mr-2"></i>Go Back
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

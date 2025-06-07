@@ -155,68 +155,54 @@
 </div>
 
 <script>
-    $(document).ready( function () {
-
+    $(document).ready(function () {
         {% if Data_Dict.Status == 'Completed' %}
             $('select').attr('disabled', true);
             $('input').attr('readonly', true);
         {% endif %}
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
+
+        // Get CSRF token from the hidden input field Django creates
+        const csrftoken = $('[name=csrfmiddlewaretoken]').val();
+        
+        // Set up CSRF token for all AJAX requests
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (settings.type !== 'GET') {  // Add token for non-GET requests
+                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
                 }
             }
-            return cookieValue;
-        }
-        const csrftoken = getCookie('csrftoken');
+        });
 
-        $("#save_button").click(function(e){
+        $("#save_button").click(function(e) {
             e.preventDefault();
-            record_id = $('#recordId').val();
-            accepted_by = $("#acceptedBy").val();
-            accepted_date = $("#acceptanceDate").val();
-            description = $("#description").val();
-            handled_by = $("#handledBy").val();
-            checked_by = $("#checkedBy").val();
-            concluded_by = $("#concludedBy").val();
-            date_of_doc = $("#dateOfDocument").val();
-            ref_no = $("#referenceNo").val();
-            remarks = $("#remarks").val();
+            const formData = {
+                Record_Id: $('#recordId').val(),
+                acceptedBy: $("#acceptedBy").val(),
+                acceptanceDate: $("#acceptanceDate").val(),
+                Remarks: $("#remarks").val(),
+                Handled_By: $("#handledBy").val(),
+                Checked_By: $("#checkedBy").val(),
+                Concluded_By: $("#concludedBy").val(),
+                description: $("#description").val(),
+                Date_of_Document: $("#dateOfDocument").val(),
+                Reference_No: $("#referenceNo").val(),
+                save_fur: false
+            };
+
             $.ajax({
                 type: "POST",
                 url: "{% url 'Further Other Forms Submit' %}",
-                beforeSend: function(xhr, settings) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                },
-                data: {
-                    Record_Id: record_id,
-                    acceptedBy: accepted_by,
-                    acceptanceDate: accepted_date,
-                    Remarks: remarks,
-                    Handled_By: handled_by,
-                    Checked_By: checked_by,
-                    Concluded_By: concluded_by,
-                    description: description,
-                    Date_of_Document: date_of_doc,
-                    Reference_No: ref_no,
-                    save_fur: false
-                },
-                success: function(result){
+                data: formData,
+                success: function(result) {
                     alert("Details Saved");
                     document.getElementById('backButton').click();
+                },
+                error: function(xhr, status, error) {
+                    alert("Error saving details: " + error);
                 }
             });
         });
     });
-
 </script>
 
 {% endblock %}

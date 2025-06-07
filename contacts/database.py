@@ -39,7 +39,11 @@ def check_if_contact_name_exists(name):
 
 
 def update_contact_details(r_id, temp):
-    result = db.contactMaster.update({'_id': ObjectId(r_id)}, temp)
+    result = db.contactMaster.update_one(
+        {'_id': ObjectId(r_id)},
+        {'$set': temp}
+    )
+    return result
 
 
 def get_contact_phone_email_from_name(name):

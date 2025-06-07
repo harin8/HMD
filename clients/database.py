@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
 
 def insert_group_code_to_db_new(g_c, g_n):
-    db.groupCode.update({}, {"$set": {g_c: g_n}}, True)
+    db.groupCode.update_one({}, {"$set": {g_c: g_n}}, True)
 
 
 def insert_new_group_to_db(g_n, g_r, h_n):
@@ -169,13 +169,18 @@ def get_client_it_size_list():
     return []
 
 
+def get_all_gst_value():
+    result = db.clientMaster.distinct('GST_no')
+    return result
+
+
 def get_all_distinct_value(field_name):
     result = db.clientMaster.distinct(field_name)
     return result
 
 
 def add_client_details(data_dict):
-    return db.clientMaster.insert(data_dict)
+    return db.clientMaster.insert_one(data_dict)
 
 
 def update_client_details_edit(client_id, data_dict):
@@ -188,7 +193,7 @@ def add_party_details(data_dict):
     if result:
         return []
     else:
-        return db.partyMaster.insert(data_dict)
+        return db.partyMaster.insert_one(data_dict)
 
 
 def get_it_no_range(group_name, client_type):
@@ -222,6 +227,10 @@ def get_audit_no_range(group_name, client_type):
     return 0, 0
 
 
+def get_gst_no_range():
+    return 1, 9999
+
+
 def get_party_list_from_group_name(group_name):
     return db.partyMaster.distinct('Party_name', {'Group_name': group_name})
 
@@ -250,7 +259,7 @@ def get_party_detail_from_id(id):
 
 def transfer_party(r_id, temp):
     # Code to add party in closed party list in db
-    result = db.partyMaster.update({'_id': ObjectId(r_id)}, temp)
+    result = db.partyMaster.update_one({'_id': ObjectId(r_id)}, temp)
 
 
 def close_party(r_id, temp):
@@ -306,7 +315,7 @@ def close_group_database(group_name, close_reason):
         db.clientCodeRule.delete_many({"Group": group_name})
         today_date = datetime.now()
         close_group_db = db["closedGroupMaster"]
-        result = db.closedGroupMaster.insert({"Group": group_name, "Reason": close_reason,
+        result = db.closedGroupMaster.insert_one({"Group": group_name, "Reason": close_reason,
                                               "Date_of_closure": today_date})
         return result
 
@@ -432,4 +441,3 @@ def verify_password(operation_name, entered_password):
             return False
     else:
         return False
-

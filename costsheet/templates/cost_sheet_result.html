@@ -1,0 +1,380 @@
+{% extends "landing.html" %}
+{% load costsheet_filters %}
+{% block head_block %}
+    {% load static %}
+    <title>HMD|Cost Sheet</title>
+    <style>
+        /* Add right-align class for numeric values */
+        .text-right {
+            text-align: right !important;
+        }
+        
+        @media print {
+            /* Reset all margins and padding */
+            * {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Ensure proper page setup */
+            @page {
+                margin: 1cm !important;
+                size: A4 !important;
+            }
+
+            /* Hide elements that shouldn't be printed */
+            .no-print {
+                display: none !important;
+            }
+            
+            /* Container adjustments */
+            .container-fluid {
+                width: 100% !important;
+                max-width: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .card-body {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            /* Table adjustments */
+            .table-responsive {
+                width: 100% !important;
+                overflow: visible !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            .table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            .table td, .table th {
+                border: 1px solid #000 !important;
+                padding: 8px !important;
+            }
+
+            /* Ensure first table is fully visible */
+            .table:first-of-type {
+                margin-top: 0 !important;
+                page-break-after: avoid !important;
+            }
+
+            /* Ensure tables don't break across pages */
+            .cost-sheet-sub {
+                page-break-inside: avoid !important;
+                margin-top: 20px !important;
+            }
+            
+            /* Ensure text is black for better printing */
+            body {
+                color: #000 !important;
+                background: #fff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            /* Hide DataTables elements */
+            .dataTables_wrapper .dataTables_length,
+            .dataTables_wrapper .dataTables_filter,
+            .dataTables_wrapper .dataTables_info,
+            .dataTables_wrapper .dataTables_processing,
+            .dataTables_wrapper .dataTables_paginate {
+                display: none !important;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body_block %}
+<div class="container-fluid">
+    <div class="row mb-3 no-print">
+        <div class="col-md-12">
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fas fa-print"></i> Print Cost Sheet
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row mb-3 no-print">
+                        <div class="col-md-3">
+                            <label for="miscExpSelect">MISC EXP Percentage:</label>
+                            <select class="form-control" id="miscExpSelect">
+                                <option value="10">10%</option>
+                                <option value="15">15%</option>
+                                <option value="20">20%</option>
+                                <option value="25">25%</option>
+                                <option value="30">30%</option>
+                                <option value="35">35%</option>
+                                <option value="40">40%</option>
+                                <option value="45">45%</option>
+                                <option value="50">50%</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="multiplierSelect">Multiplier:</label>
+                            <select class="form-control" id="multiplierSelect">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%">
+                            <tr>
+                                <th colspan="6" class="text-center">COST SHEET</th>
+                            </tr>
+                            <tr>
+                                <td><b>CLIENT NAME</b></td>
+                                <td> {{ client_name }}</td>
+                                <td><b>IT CODE</b></td>
+                                <td> {{ it_no }}</td>
+                                <td><b>AUDIT CODE</b></td>
+                                <td> {{ audit_no }}</td>
+                            </tr>
+                            <tr>
+                                <td><b>PARTY NAME</b></td>
+                                <td> {{ party_name }}</td>
+                                <td><b>GROUP</b></td>
+                                <td> {{ group_name }}</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </table>
+
+                        {% for record in records %}
+                        <table cellpadding="1" cellspacing="2" border="0" class="table table-striped table-bordered dataTable cost-sheet-sub" width="100%">
+                            <thead>
+                                <tr>
+                                    <th colspan="6">SUB COST SHEET {{ forloop.counter }}</th>
+                                </tr>
+                                <tr>
+                                    <td><b>TASK</b></td>
+                                    <td colspan="5"> {{ record.task }}</td>
+                                </tr>
+                                <tr>
+                                    <td><b>ASSIGNMENT</b></td>
+                                    <td colspan="5"> {{ record.assignment }}</td>
+                                </tr>
+                                <tr>
+                                    <th>SR. NO.</th>
+                                    <th>EMPLOYEE</th>
+                                    <th>DESIGNATION</th>
+                                    <th class="text-right">HOURS</th>
+                                    <th class="text-right">HOURLY RATE (RS.)</th>
+                                    <th class="text-right">COST (RS.)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in record.users %}
+                                <tr>
+                                    <td> {{ forloop.counter }}</td>
+                                    <td> {{ user.user_name }}</td>
+                                    <td> {{ user.designation }}</td>
+                                    <td class="hours text-right"> {{ user.hours }}</td>
+                                    <td class="text-right"> {{ user.rate }}</td>
+                                    <td class="cost text-right"> {{ user.hours|multiply:user.rate|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5">SUB TOTAL {{ forloop.counter }}</td>
+                                    <td class="subtotal text-right"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5">MISC EXP % SELECTED</td>
+                                    <td class="misc-exp-percent text-right"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5">% MISC EXP</td>
+                                    <td class="misc-exp text-right"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5">SUB TOTAL {{ forloop.counter }}+ MISC EXP</td>
+                                    <td class="subtotal-with-misc text-right"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5">MULTIPLIER</td>
+                                    <td class="multiplier-value text-right"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5">SUB TOTAL{{ forloop.counter }}+ MISC EXP x MULTIPLIER</td>
+                                    <td class="final-total text-right"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5"><b>TOTAL COST {{ forloop.counter }}</b></td>
+                                    <td class="total-cost text-right"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Function to format number in Indian style
+        function formatIndianNumber(num) {
+            if (num === null || num === undefined) return '0.00';
+            
+            // Convert to string with 2 decimal places
+            let [whole, decimal] = Number(num).toFixed(2).split('.');
+            
+            // Format the whole number part
+            let lastThree = whole.substring(whole.length - 3);
+            let otherNumbers = whole.substring(0, whole.length - 3);
+            let formatted = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + (otherNumbers ? "," : "") + lastThree;
+            
+            // Return with decimal part
+            return formatted + "." + decimal;
+        }
+
+        // Function to parse Indian number format back to number
+        function parseIndianNumber(str) {
+            if (!str) return 0;
+            // Remove all commas and convert to number
+            return parseFloat(str.replace(/,/g, '')) || 0;
+        }
+
+        // Initialize sub cost sheet tables
+        $('.cost-sheet-sub').each(function() {
+            $(this).DataTable({
+                dom: 'Bfrtip',
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                buttons: [],
+                columnDefs: [{
+                    targets: '_all',
+                    orderable: false
+                }],
+                paging: false,
+                searching: false,
+                info: false,
+                // Disable DataTables features during print
+                retrieve: true,
+                destroy: true
+            });
+        });
+
+        // Add print event listener
+        window.addEventListener('beforeprint', function() {
+            // Destroy DataTables before printing
+            $('.cost-sheet-sub').each(function() {
+                if ($.fn.DataTable.isDataTable(this)) {
+                    $(this).DataTable().destroy();
+                }
+            });
+        });
+
+        window.addEventListener('afterprint', function() {
+            // Reinitialize DataTables after printing
+            $('.cost-sheet-sub').each(function() {
+                if (!$.fn.DataTable.isDataTable(this)) {
+                    $(this).DataTable({
+                        dom: 'Bfrtip',
+                        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                        buttons: [],
+                        columnDefs: [{
+                            targets: '_all',
+                            orderable: false
+                        }],
+                        paging: false,
+                        searching: false,
+                        info: false,
+                        retrieve: true,
+                        destroy: true
+                    });
+                }
+            });
+        });
+
+        function calculateCosts() {
+            $('.cost-sheet-sub').each(function() {
+                var table = $(this);
+                var subtotal = 0;
+                
+                // Calculate subtotal from hours and rates
+                table.find('tbody tr').each(function() {
+                    // Parse the formatted numbers back to actual numbers for calculation
+                    var hours = parseIndianNumber($(this).find('.hours').text());
+                    var rate = parseIndianNumber($(this).find('td:eq(4)').text());
+                    var cost = hours * rate;
+                    subtotal += cost;
+                });
+                
+                // Get selected values
+                var miscExpPercent = parseFloat($('#miscExpSelect').val()) || 0;
+                var multiplier = parseFloat($('#multiplierSelect').val()) || 1;
+                
+                // Calculate all values
+                var miscExp = (subtotal * miscExpPercent) / 100;
+                var subtotalWithMisc = subtotal + miscExp;
+                var finalTotal = subtotalWithMisc * multiplier;
+                
+                // Update table cells with Indian number format
+                table.find('.subtotal').text(formatIndianNumber(subtotal));
+                table.find('.misc-exp').text(formatIndianNumber(miscExp));
+                table.find('.subtotal-with-misc').text(formatIndianNumber(subtotalWithMisc));
+                table.find('.multiplier-value').text(multiplier);
+                table.find('.misc-exp-percent').text(miscExpPercent + '%');
+                table.find('.final-total').text(formatIndianNumber(finalTotal));
+                table.find('.total-cost').text(formatIndianNumber(finalTotal));
+            });
+        }
+
+        // Format initial numbers in the table
+        $('.cost-sheet-sub').each(function() {
+            var table = $(this);
+            // Format hours and rates
+            table.find('tbody tr').each(function() {
+                var hours = parseFloat($(this).find('.hours').text()) || 0;
+                var rate = parseFloat($(this).find('td:eq(4)').text()) || 0;
+                var cost = hours * rate;
+                
+                // Store raw values in data attributes for calculations
+                $(this).find('.hours').attr('data-value', hours).text(formatIndianNumber(hours));
+                $(this).find('td:eq(4)').attr('data-value', rate).text(formatIndianNumber(rate));
+                $(this).find('.cost').attr('data-value', cost).text(formatIndianNumber(cost));
+            });
+        });
+
+        // Calculate initial values
+        calculateCosts();
+
+        // Recalculate when selections change
+        $('#miscExpSelect, #multiplierSelect').change(function() {
+            calculateCosts();
+        });
+    });
+</script>
+{% endblock %}

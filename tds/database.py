@@ -243,3 +243,12 @@ def add_further_tds_record(data_dict):
         x = None
         print('not updated')
     return x
+
+
+def delete_tds_return(client_code, ay, quarter_id, form_id, type_id):
+    result = db.tdsMaster.delete_one({'Client_code': client_code, 'AY': ay, 'Quarter': quarter_id, 'Form': form_id,
+                                      'Type': type_id})
+    if result.deleted_count > 0:
+        return True
+    else:
+        return False

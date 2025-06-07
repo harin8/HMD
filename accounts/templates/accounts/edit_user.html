@@ -1,0 +1,304 @@
+{% extends "layout.html" %}
+{% block head_block %}
+    {% load static %}
+    <title>HMD|Edit User</title>
+    <style>
+        .rate-history {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .rate-table {
+            width: 100%;
+            margin-top: 15px;
+        }
+        .rate-table th {
+            background-color: #e9ecef;
+            padding: 10px;
+        }
+        .rate-table td {
+            padding: 8px;
+            vertical-align: middle;
+        }
+        .current-rate {
+            background-color: #e3f2fd;
+        }
+    </style>
+{% endblock %}
+{% block body_block %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 py-3 mt-2">
+            <h4>Edit User: {{ edit_user.first_name }}</h4>
+        </div>
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <a href="{% url 'user_management' %}" class="btn btn-secondary" style="width: 200px;background-color:#0277bd">Back</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>First Name:</label>
+                            <input type="text" style="text-transform: uppercase;" name="first_name" class="form-control" value="{{ edit_user.first_name }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Surname:</label>
+                            <input type="text" style="text-transform: uppercase;" name="last_name" class="form-control" value="{{ edit_user.last_name }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Mobile No.:</label>
+                            <input type="text" name="username" class="form-control" value="{{ edit_user.username }}" pattern="[0-9]{10}" title="Please enter 10 digits" required>
+                            <small class="form-text text-muted">This is your login username</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" name="email" class="form-control" value="{{ edit_user.email }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Area:</label>
+                            <input type="text" style="text-transform: uppercase;" name="area" class="form-control" value="{{ user_profile.area }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Groups:</label>
+                            <select name="groups[]" class="form-control selectpicker" data-live-search="true" multiple required>
+                                {% for group in groups %}
+                                    <option value="{{ group.Group_name }}" 
+                                        {% if group.Group_name in user_profile.groups %}selected{% endif %}>
+                                        {{ group.Group_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Designation:</label>
+                            <input type="text" style="text-transform: uppercase;" name="designation" class="form-control" value="{{ user_profile.designation }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Role:</label>
+                            <select name="role" class="form-control selectpicker" required>
+                                <option value="">--Select Role--</option>
+                                {% for role in roles %}
+                                <option value="{{ role }}" {% if user_profile.role == role %}selected{% endif %}>
+                                    {{ role }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Password:</label>
+                            <input type="password" name="password" class="form-control" placeholder="Leave blank to keep current password">
+                            <small class="form-text text-muted">Only fill this if you want to change the password</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <label>Basic Time Settings:</label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Time In:</label>
+                                    <select name="time_in" class="form-control selectpicker" required>
+                                        <!-- Will be populated by JavaScript -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Time Out:</label>
+                                    <select name="time_out" class="form-control selectpicker" required>
+                                        <!-- Will be populated by JavaScript -->
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Effective Date:</label>
+                            <input type="date" name="effective_date" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Hourly Rate:</label>
+                            <input type="number" name="hourly_rate" class="form-control" step="0.01" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                {% if user_profile.rate_history %}
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <h6>Rate History <span class="badge badge-info">{{ user_profile.rate_history|length }} records</span></h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Effective Date</th>
+                                        <th>Hourly Rate</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for rate in user_profile.rate_history %}
+                                    <tr {% if forloop.first %}class="table-primary"{% endif %}>
+                                        <td>{{ rate.effective_date|date:"d-m-Y" }}</td>
+                                        <td>₹{{ rate.hourly_rate|floatformat:2 }}</td>
+                                        <td>
+                                            {% if forloop.first %}
+                                                <span class="badge badge-success">Current</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="is_active" name="is_active" 
+                                   {% if edit_user.is_active %}checked{% endif %}>
+                            <label class="form-check-label" for="is_active">Active Status</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">Update User</button>
+                        <button type="reset" class="btn btn-secondary">Reset</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to convert 24hr to 12hr format
+    function formatTime12Hour(hours, minutes) {
+        let period = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // Convert 0 to 12
+        minutes = minutes.toString().padStart(2, '0');
+        return `${hours}:${minutes} ${period}`;
+    }
+
+    // Function to convert 12hr to 24hr format
+    function formatTime24Hour(hours, minutes) {
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    }
+
+    // Function to generate time options
+    function generateTimeOptions() {
+        const timeSelects = document.querySelectorAll('select[name="time_in"], select[name="time_out"]');
+        
+        timeSelects.forEach(select => {
+            // Clear existing options
+            select.innerHTML = '';
+            
+            // Add default option
+            select.add(new Option('--Select Time--', ''));
+            
+            // Generate time options in 15-minute intervals
+            for (let hours = 0; hours < 24; hours++) {
+                for (let minutes = 0; minutes < 60; minutes += 15) {
+                    const timeValue = formatTime24Hour(hours, minutes);
+                    const displayTime = formatTime12Hour(hours, minutes);
+                    
+                    const option = new Option(displayTime, timeValue);
+                    
+                    // Set selected option if it matches the current value
+                    const currentValue = select.getAttribute('data-current');
+                    if (currentValue && timeValue === currentValue) {
+                        option.selected = true;
+                    }
+                    
+                    select.add(option);
+                }
+            }
+        });
+    }
+
+   // Set default values for time inputs
+   function setDefaultTimes() {
+        const timeIn = document.querySelector('select[name="time_in"]');
+        const timeOut = document.querySelector('select[name="time_out"]');
+        
+        // Default times (9:30 AM and 6:30 PM)
+        const defaultTimeIn = '09:30';
+        const defaultTimeOut = '18:30';
+        
+        // Set data attributes for current values
+        timeIn.setAttribute('data-current', defaultTimeIn);
+        timeOut.setAttribute('data-current', defaultTimeOut);
+        
+        // Generate options and set defaults
+        generateTimeOptions();
+    }
+
+    // Initialize time dropdowns with defaults
+    setDefaultTimes();
+
+    // For edit user page, set the saved values
+    const timeIn = document.querySelector('select[name="time_in"]');
+    const timeOut = document.querySelector('select[name="time_out"]');
+    
+    if (timeIn && timeOut) {
+        const savedTimeIn = "{{ user_profile.time_in|default:'09:30' }}";
+        const savedTimeOut = "{{ user_profile.time_out|default:'18:30' }}";
+        
+        timeIn.setAttribute('data-current', savedTimeIn);
+        timeOut.setAttribute('data-current', savedTimeOut);
+        generateTimeOptions();
+    }
+});
+
+$(document).ready(function() {
+    // Initialize bootstrap-select
+    $('.selectpicker').selectpicker({
+        style: 'btn-default',
+        size: 4
+    });
+});
+</script>
+{% endblock %} 

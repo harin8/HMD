@@ -1,6 +1,6 @@
 from django.urls import path
-from . import views
+from .views import generate_cost_sheet
 
 urlpatterns = [
-    path('generate_cost_sheet/', views.generate_cost_sheet, name='generate_cost_sheet'),
+    path('generate-cost-sheet/', generate_cost_sheet, name='generate_cost_sheet'),
 ] 

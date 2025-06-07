@@ -93,10 +93,10 @@ def add_judgments_data_in_db(data_dict):
     return x
 
 def update_judg_details(r_id, data_dict):
-    result = db.judgmentsMaster.update({'_id': ObjectId(r_id)}, {"$set": data_dict})
+    result = db.judgmentsMaster.update_one({'_id': ObjectId(r_id)}, {"$set": data_dict})
 
 def add_further_judg_file_record(file_data, r_id):
-    result = db.judgmentsMaster.update({'_id': ObjectId(r_id)}, {"$set": file_data})
+    result = db.judgmentsMaster.update_one({'_id': ObjectId(r_id)}, {"$set": file_data})
 
 def add_summary_details(data_dict):
     return db.judgSummaryMaster.insert_one(data_dict)

@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from . import database
-
+import clients.database as client_database
+from django.http import JsonResponse
 
 # Create your views here.
 
@@ -133,6 +134,7 @@ def further_tds_submit(request):
     tds_form = request.POST.get('tdsForm')
     filing_mode = request.POST.get('filingMode')
     filing_mode_name = database.get_tds_filing_mode_name_from_id(filing_mode)
+    print(request.POST)
     return_data_dict = {'Name': request.POST.get('name').upper(),
                         'Client_code': request.POST.get('clientCode'),
                         'AY': ay,
@@ -157,3 +159,24 @@ def further_tds_submit(request):
         data['Group_name'] = database.get_group_name_from_client_code(data['Client_code'])
 
     return render(request, 'existing_tds.html', {'TDS_List': all_tds_list})
+
+
+def delete_tds(request):
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        client_code = request.POST.get('tdsClientCode')
+        ay = request.POST.get('tdsAY')
+        quarter_id = request.POST.get('tdsQuarterId')
+        quarter_id_name = database.get_tds_quarter_name_from_id(quarter_id)
+        form_id = request.POST.get('tdsFormId')
+        form_id_name = database.get_tds_form_name_from_id(form_id)
+        type_id = request.POST.get('tdsTypeId')
+        type_id_name = database.get_tds_type_name_from_id(type_id)
+        if client_database.verify_password("Record Delete", password):  # Replace with your actual password check
+            if database.delete_tds_return(client_code, ay, quarter_id_name, form_id_name, type_id_name):
+                return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Record not found.'}, status=404)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Incorrect password.'}, status=403)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)

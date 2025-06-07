@@ -11,4 +11,5 @@ urlpatterns = [
     path('further_tds_info/<slug:client_no>/<slug:ay>/<slug:quarter>/<slug:form>/<slug:type>', views.further_tds_info,
          name='Further TDS Info'),
     path('further_tds_submit', views.further_tds_submit, name='Further TDS Submit'),
+    path('delete_tds', views.delete_tds, name='Delete TDS'),
 ]

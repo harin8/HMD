@@ -71,6 +71,7 @@
                                         {% else %}
                                             <a href="{% url 'Further CPC Info' it_no=each_return.It_no ay=each_return.AY r_type=each_return.Type_id %}" title="further info"><i class="fas fa-clipboard text-info"></i></a>
                                         {% endif %}
+                                        <a onclick="showPasswordPrompt('{{ each_return.It_no }}', '{{ each_return.AY }}', '{{ each_return.Type_id }}')" title="Delete" ><i class="fas fa-trash text-danger" style="cursor: pointer"></i></a>&nbsp;&nbsp;
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -99,7 +100,72 @@
         </div>
     </div>
 </div>
+
+<!-- Password Prompt Modal -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="passwordModalLabel">Enter Password</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="password" id="passwordInput" class="form-control" placeholder="Password">
+                <input type="hidden" id="returnITCode">
+                <input type="hidden" id="returnAY">
+                <input type="hidden" id="returnType">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="deleteRecord()">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
+    function showPasswordPrompt(ITCode, AY, Type) {
+        $('#returnITCode').val(ITCode);
+        $('#returnAY').val(AY);
+        $('#returnType').val(Type);
+        $('#passwordModal').modal('show');
+    }
+    $('#passwordModal').on('hidden.bs.modal', function () {
+        $('#passwordInput').val('');
+    });
+    function deleteRecord() {
+        const returnITCode = $('#returnITCode').val();
+        const returnAY = $('#returnAY').val();
+        const returnType = $('#returnType').val();
+        const password = $('#passwordInput').val();
+
+        $.ajax({
+            url: "{% url 'Delete Return' %}",
+            method: 'POST',
+            data: {
+                'returnITCode': returnITCode,
+                'returnAY': returnAY,
+                'returnType': returnType,
+                'password': password
+            },
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                alert(response.message);
+                if (response.status === 'success') {
+                    location.reload();
+                }
+            },
+            error: function(response) {
+                alert(response.responseJSON.message);
+            }
+        });
+
+        $('#passwordModal').modal('hide');
+    }
+
     $(document).ready( function () {
         var cpc_table = $('#cpc-returnList').DataTable({
             dom: 'Bfrtip',
@@ -125,4 +191,5 @@
         });
     });
 </script>
+
 {% endblock %}

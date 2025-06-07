@@ -1,0 +1,173 @@
+{% extends "layout.html" %}
+{% block head_block %}
+    <title>HMD|User Management</title>
+    <style>
+        .group-badge {
+            margin-right: 4px;
+            margin-bottom: 4px;
+            display: inline-block;
+        }
+    </style>
+{% endblock %}
+{% block body_block %}
+<div class="container-fluid">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h4>User Management</h4>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="{% url 'create_user' %}" class="btn btn-primary">Create New User</a>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Name</th>
+                    <th>Groups</th>
+                    <th>Area</th>
+                    <th>Designation</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                {% with profile=user.mongo_profile %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.get_full_name }}</td>
+                    <td>
+                        {% if profile.groups %}
+                            {% for group in profile.groups %}
+                                <span class="badge badge-info group-badge">{{ group }}</span>
+                            {% endfor %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ profile.area|default:"-" }}</td>
+                    <td>{{ profile.designation|default:"-" }}</td>
+                    <td>
+                        {% if user.is_active %}
+                        <span class="badge badge-success">Active</span>
+                        {% else %}
+                        <span class="badge badge-danger">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'edit_user' user.id %}" class="btn btn-sm btn-info">Edit</a>
+                        {% if not user.is_superuser %}
+                        <button class="btn btn-sm btn-danger delete-user" data-userid="{{ user.id }}" data-username="{{ user.username }}">Delete</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endwith %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Delete User Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete user <span id="deleteUsername"></span>?</p>
+                <form id="deleteUserForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>Enter your password to confirm:</label>
+                        <input type="password" class="form-control" id="confirmPassword" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let userToDelete = null;
+
+        // Handle delete button click
+        document.querySelectorAll('.delete-user').forEach(button => {
+            button.addEventListener('click', function() {
+                userToDelete = this.dataset.userid;
+                document.getElementById('deleteUsername').textContent = this.dataset.username;
+                $('#deleteUserModal').modal('show');
+            });
+        });
+
+        // Handle delete confirmation
+        document.getElementById('confirmDelete').addEventListener('click', function() {
+            const password = document.getElementById('confirmPassword').value;
+            if (!password) {
+                alert('Please enter your password');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('password', password);
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+            fetch(`/accounts/users/${userToDelete}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.message || 'Error deleting user');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    $('#deleteUserModal').modal('hide');
+                    location.reload();
+                } else {
+                    alert(data.message || 'Error deleting user');
+                }
+            })
+            .catch(error => {
+                alert(error.message || 'An error occurred while deleting the user');
+            });
+        });
+    });
+
+    window.setTimeout(function() {
+        $(".alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 5000);
+</script>
+{% endblock %} 

@@ -149,8 +149,21 @@
                                 </div>
 
                                 </div><br>
-<div class="row">
-    <div class="col-md-4">
+                                <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-check-label-inline">GST:</label>
+                                        &nbsp;<div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="GST" id="gst_yes" value="yes">
+                                            <label class="form-check-label" for="gst_yes">Yes</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                          <input checked class="form-check-input" type="radio" name="GST" id="gst_no" value="no">
+                                          <label class="form-check-label" for="gst_no">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label class="form-check-label-inline">TDS/TCS:</label>
                                         &nbsp;<div class="form-check form-check-inline">
@@ -158,12 +171,47 @@
                                             <label class="form-check-label" for="yes">Yes</label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                          <input checked class="form-check-input" type="radio" name="TDS" id="no" value="no">
+                                          <input class="form-check-input" type="radio" name="TDS" id="no" value="no">
                                           <label class="form-check-label" for="no">No</label>
                                         </div>
                                     </div>
-                                </div></div>
-        
+                                </div>
+                            </div>
+                            <div id="GST_No_Div" style="display:none">
+                                    <div class="row" >
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label>GST No:</label>
+                                                <select required id="no_gst" name="gstNo" class="form-control selectpicker dropdown" data-live-search="true"  data-dropup-auto="false">
+                                                     <option value="0">N.A.</option>
+                                                    {% for no in Available_GST_No %}
+                                                        <option value="{{ no|safe }}">G - {{ no | stringformat:"04d" }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label>GST Size:</label>
+                                                <!--<input required type="text" onkeyup="It_no(this.value)" pattern="[0-9]*" title="Only numbers allowed" id="it_no" class="form-control" name="itNo">-->
+                                                <select required id="gst_size" name="gstSize" class="form-control selectpicker dropdown" data-live-search="true"  data-dropup-auto="false">
+                                                    <option value="0">N.A</option>
+                                                    {% if Available_GST_No %}
+                                                    <option value="1">Big</option>
+                                                    <option value="2">Medium</option>
+                                                    <option value="3">Small</option>
+                                                    {% endif %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>GST Note: </label>
+                                                    <input type="text" id="gst_note" class="form-control" name="gstNote">
+                                                </div>
+                                            </div>
+                                    </div>
+                                </div>
                             <div class="row">
                                 <div class="col-md-12">Contact Details</div>
                             </div><br>
@@ -265,8 +313,27 @@
             }
         });
     }
-    $(document).ready( function () {
 
+    // Get references to the radio buttons and the div to display
+    const yesRadio = document.getElementById('gst_yes');
+    const noRadio = document.getElementById('gst_no');
+    const additionalInfoDiv = document.getElementById('GST_No_Div');
+
+    // Add event listener to detect changes in radio button selection
+    document.querySelectorAll('input[name="GST"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Check if "yes" radio button is selected
+            if (yesRadio.checked) {
+                // Display the additional info div
+                additionalInfoDiv.style.display = 'block';
+            } else {
+                // Hide the additional info div if "no" is selected
+                additionalInfoDiv.style.display = 'none';
+            }
+        });
+    });
+
+    $(document).ready( function () {
         $('select').selectpicker();
         $('select').prepend('<option value="-1" selected disabled>--Select--</option>');
 
@@ -277,6 +344,8 @@
         }
 
         $('select').selectpicker('refresh');
+        $('#no_gst option[value="0"]').remove();
+        $('#gst_size option[value="0"]').remove();
 
         {% if Show_Further %}
             var counter = 1;
@@ -320,8 +389,6 @@
             document.getElementById('client_type').value = $('#Client_Type_Form option:selected').text();
             $('select').selectpicker('refresh');
         {% endif %}
-
-
 
     });
 </script>

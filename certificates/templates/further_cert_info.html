@@ -155,67 +155,50 @@
 </div>
 
 <script>
-    $(document).ready( function () {
-        {% if Data_Dict.Status == 'Completed' %}
-            $('select').attr('disabled', true);
-            $('input').attr('readonly', true);
-        {% endif %}
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
+$(document).ready( function () {
+    {% if Data_Dict.Status == 'Completed' %}
+        $('select').attr('disabled', true);
+        $('input').attr('readonly', true);
+    {% endif %}
+
+    $("#save_button").click(function(e){
+        e.preventDefault();
+        record_id = $('#recordId').val();
+        accepted_by = $("#acceptedBy").val();
+        accepted_date = $("#acceptanceDate").val();
+        description = $("#description").val();
+        handled_by = $("#handledBy").val();
+        checked_by = $("#checkedBy").val();
+        signed_by = $("#signedBy").val();
+        date_of_cert = $("#dateOfCertificate").val();
+        udin = $("#udin").val();
+        remarks = $("#remarks").val();
+        $.ajax({
+            type: "POST",
+            url: "{% url 'Further Cert Submit' %}",
+            beforeSend: function(xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", document.querySelector('[name=csrfmiddlewaretoken]').value);
+            },
+            data: {
+                Record_Id: record_id,
+                acceptedBy: accepted_by,
+                acceptanceDate: accepted_date,
+                Remarks: remarks,
+                Handled_By: handled_by,
+                Checked_By: checked_by,
+                Signed_By: signed_by,
+                description: description,
+                Date_of_Certificate: date_of_cert,
+                Udin: udin,
+                save_fur: false
+            },
+            success: function(result){
+                alert("Details Saved");
+                document.getElementById('backButton').click();
             }
-            return cookieValue;
-        }
-
-        const csrftoken = getCookie('csrftoken');
-
-        $("#save_button").click(function(e){
-            e.preventDefault();
-            record_id = $('#recordId').val();
-            accepted_by = $("#acceptedBy").val();
-            accepted_date = $("#acceptanceDate").val();
-            description = $("#description").val();
-            handled_by = $("#handledBy").val();
-            checked_by = $("#checkedBy").val();
-            signed_by = $("#signedBy").val();
-            date_of_cert = $("#dateOfCertificate").val();
-            udin = $("#udin").val();
-            remarks = $("#remarks").val();
-            $.ajax({
-                type: "POST",
-                url: "{% url 'Further Cert Submit' %}",
-                beforeSend: function(xhr, settings) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                },
-                data: {
-                    Record_Id: record_id,
-                    acceptedBy: accepted_by,
-                    acceptanceDate: accepted_date,
-                    Remarks: remarks,
-                    Handled_By: handled_by,
-                    Checked_By: checked_by,
-                    Signed_By: signed_by,
-                    description: description,
-                    Date_of_Certificate: date_of_cert,
-                    Udin: udin,
-                    save_fur: false
-                },
-                success: function(result){
-                    alert("Details Saved");
-                    document.getElementById('backButton').click();
-                }
-            });
         });
     });
+});
 
 </script>
 

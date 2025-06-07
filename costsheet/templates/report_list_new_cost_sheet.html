@@ -1,0 +1,189 @@
+{% extends "landing.html" %}
+{% block head_block %}
+    {% load static %}
+    <title>HMD|Cost Sheet</title>
+{% endblock %}
+
+{% block body_block %}
+{% load reports_tags %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 py-3 mt-2">
+            <h4>Cost Sheet</h4>
+        </div>
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <a style="color: white" id="backButton" href="{% url 'Reports Landing' %}"><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
+        </div>
+    </div>
+    <form role="form" id="report_submit" class="form-horizontal" action="{% url 'generate_cost_sheet' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="ids" value="">
+        <input type="hidden" name="types" value="">
+        <div class="row">
+            <div class="form-group col-md-3">
+                <button id="submit" type="submit" class="btn btn-success" >Submit</button>&nbsp;&nbsp;
+            </div>
+        </div>
+        <br>
+
+        {% if Result_list|length > 0 %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="col-md-3" id="group_filter">
+                            <label for="groupSelect">Filter by Group Name:</label>
+                            <select id="groupSelect" multiple class="form-control dropdown" data-live-search="true"  data-dropup-auto="false" data-actions-box="true">
+                            </select>
+                        </div><br>
+                        <div class="table-responsive">
+                            <table cellpadding="1" cellspacing="2" border="0" class="table table-striped table-bordered dataTable" id="reportList" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th align="left">Group Name</th>
+                                        <th align="left">Party Name</th>
+                                        <th align="left">Client Code</th>
+                                        <th align="left">Client Name</th>
+                                        <th align="left">Task Name</th>
+                                        <th align="left">Task Particular</th>
+                                        <th align="left">Year</th>
+                                        <th align="left">Start Date</th>
+                                        <th align="left">End Date</th>
+                                        <th align="left">Original Remarks</th>
+                                        <th align="left">Read/Unread</th>
+                                        <th align="left">Report's Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for each_cert in Result_list %}
+                                    <tr {% if each_cert.Read == "Read" %} style="background-color:#98cc65" {% endif %}>
+                                        <td></td>
+                                        <td> {{each_cert|private:'_id'}} </td>
+                                        <td align="left">{{ each_cert.Group_name }}</td>
+                                        <td align="left">{{ each_cert.Party_name }}</td>
+                                        <td align="left">{{ each_cert.Client_code }}</td>
+                                        <td align="left">{{ each_cert.Name }}</td>
+                                        <td align="left">{{ each_cert.Type }}</td>
+                                        <td align="left">{{ each_cert.Task }}</td>
+                                        <td align="left">{{ each_cert.Year }}</td>
+                                        <td align="left">{{ each_cert.Start_date }}</td>
+                                        <td align="left">{{ each_cert.End_date }}</td>
+                                        {% if each_cert.Closure_remarks %}
+                                            <td align="left">{{ each_cert.Closure_remarks }}</td>
+                                        {% else %}
+                                            <td align="left">{{ each_cert.Remarks }}</td>
+                                        {% endif %}
+                                        <td align="left">{{ each_cert.Read }}</td>
+                                        <td align="left">{{ each_cert.Report_remarks }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th align="left">Group Name</th>
+                                            <th align="left">Party Name</th>
+                                            <th align="left">Client Code</th>
+                                            <th align="left">Client Name</th>
+                                            <th align="left">Task Name</th>
+                                            <th align="left">Task Particular</th>
+                                            <th align="left">Year</th>
+                                            <th align="left">Start Date</th>
+                                            <th align="left">End Date</th>
+                                            <th align="left">Original Remarks</th>
+                                            <th align="left">Read/Unread</th>
+                                            <th align="left">Report's Remarks</th>
+                                        </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+            <div class="col-md-12 py-3 mt-2">
+                <h6><center>No Results</center></h6>
+            </div>
+        {% endif %}
+    </form>
+</div>
+
+<script>
+    $(document).ready( function () {
+        var report_table = $('#reportList').DataTable({
+            dom: 'Bfrtip',
+            lengthMenu: [[10,25,50,100,-1],[10,25,50,100,"All"]],
+            createdRow: function( row, data, dataIndex){
+                if( data[11] == 'Read'){
+                    $(row).css({'background-color':'#98cc65'});
+                }
+            },
+            columnDefs: [{
+                targets: 0,
+                orderable: false,
+                createdCell: function (td, cellData, rowData, row, col) {
+                    $(td).addClass('select-checkbox');
+                }
+            },
+            {
+                targets: [1],
+                visible: false
+            }],
+            select: {
+                style:    'multi',
+                selector: 'td:first-child'
+            },
+			buttons: [{
+                extend: 'excel',
+                title: 'Reports'
+            },
+            {
+                extend: 'pageLength'
+            }]
+		});
+
+		// Filter the DataTable based on the selected group name
+        $('#groupSelect').on('changed.bs.select', function (e) {
+            var selectedGroups = $(this).val();
+            if (selectedGroups && selectedGroups.length > 0) {
+                var searchRegex = '^(' + selectedGroups.join('|') + ')$';
+                report_table.column(0).search(searchRegex, true, false).draw();
+            } else {
+                report_table.column(0).search('').draw();
+            }
+        });
+
+		$('#report_submit').submit(function(e) {
+
+		    var selectedRows = report_table.rows('.selected').data();
+		    var all_ids = [];
+		    var all_types = [];
+		    
+		    // Collect IDs and types from selected rows
+		    for(var i = 0; i < selectedRows.length; i++) {
+		        // Add the ID and type to our arrays
+		        all_ids.push(selectedRows[i][1]);  // ID is in column 1
+		        all_types.push(selectedRows[i][6]); // Type is in column 6
+		    }
+		    
+		    // Set the hidden input values
+		    $('input[name="ids"]').val(all_ids.join(','));
+		    $('input[name="types"]').val(all_types.join('^,^'));
+		    
+		    // Validate and submit
+		    if(all_ids.length > 0) {
+		        return true;
+		    } else {
+		        alert('No record is selected. Please select at least one record to proceed.');
+		        return false;
+		    }
+		});
+	});
+</script>
+
+{% endblock %}

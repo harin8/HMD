@@ -57,7 +57,6 @@
 	<script src="{% static 'assets/js/tinymce/tinymce.min.js' %}"></script>
 
 	<script src="{% static 'assets/js/custom_page/datatable_group_filter.js' %}"></script>
-
 </head>
 <body data-layout="horizontal">
 	<div id="wrapper">
@@ -81,17 +80,29 @@
 						<li class="dropdown notification-list">
 							<a class="nav-link dropdown-toggle nav-user mr-0 waves-effect waves-light" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
 								<img src="{% static 'assets/images/avatar-male.png' %}" alt="user-image" class="rounded-circle">
+								<span class="pro-user-name ml-1">{{ user.first_name }} {{ user.last_name }}</span>
 							</a>
-							<div class="dropdown-menu dropdown-menu-right profile-dropdown ">
+							<div class="dropdown-menu dropdown-menu-right profile-dropdown">
+								<!-- User Profile Header -->
 								<div class="dropdown-header noti-title">
-									<h6 class="text-overflow m-0">Welcome, </h6>
+									<h6 class="text-overflow m-0">Welcome!</h6>
 								</div>
 
-								<div class="dropdown-divider"></div>
-								<a href="#" class="dropdown-item notify-item">
-									<i class="fe-log-out"></i>
-									<span>Logout</span>
-								</a>
+								<!-- Menu Items -->
+									<a class="dropdown-item" href="{% url 'user_management' %}">
+										<i class="fe-users mr-1"></i> User Management
+									</a>
+									
+									<div class="dropdown-divider"></div>
+								
+
+								<!-- Logout Form -->
+								<form method="post" action="{% url 'logout' %}" class="dropdown-item">
+									{% csrf_token %}
+									<button type="submit" class="btn btn-link p-0">
+										<i class="fe-log-out mr-1"></i> Logout
+									</button>
+								</form>
 							</div>
 						</li>
 					</ul>
@@ -118,13 +129,26 @@
 					<div id="navigation">
 						<!-- Navigation Menu-->
 						<ul class="navigation-menu">
+							{% if perms.it_return.view_it_return %}
 							<li><a href="{% url 'Landing' %}"><i class="fe-airplay"></i>Dashboard</a></li>
-							<li><a href="{% url 'Client Landing' %}">Masters</a></li>
-							<li><a href="{% url 'Contacts Landing' %}">Contact Master</a></li>
-							<li><a href="{% url 'Insertions Landing' %}">Insertions</a></li>
+							{% endif %}
+							{% if perms.clients.view_clients %}
+							<li><a href="{% url 'Client Landing' %}">Clients</a></li>
+							{% endif %}
+							{% if perms.contacts.view_contacts %}
+							<li><a href="{% url 'Contacts Landing' %}">Contacts</a></li>
+							{% endif %}
+							{% if perms.judgments.view_judgments %}
+							<li><a href="{% url 'Judgments Landing' %}"><i class="fe-book"></i>Judgments</a></li>
+							{% endif %}
+							{% if perms.insertions.view_insertions %}
+							<li><a href="{% url 'Insertions Landing' %}"><i class="fe-book"></i>Insertions</a></li>
+							{% endif %}
+							{% if perms.accounts.view_accounts %}
+							<li><a href="{% url 'user_management' %}"><i class="fe-users"></i>Accounts</a></li>
+							{% endif %}
 						</ul>
 						<!-- End navigation menu -->
-						<div class="clearfix"></div>
 					</div>
 					<!-- end #navigation -->
 				</div>
@@ -159,6 +183,9 @@
     <!-- end Footer -->
     <!-- ./wrapper -->
 	<script src="{% static 'assets/js/app.min.js' %}"></script>
+    {% if user.is_authenticated %}
+    <script src="{% static 'assets/js/auto_logout.js' %}"></script>
+    {% endif %}
 </body>
 </html>
 

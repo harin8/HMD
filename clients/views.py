@@ -1,8 +1,10 @@
 from django.http import JsonResponse
 from django.shortcuts import render
+from accounts.decorators import permission_required
 from clients import database
 from contacts import database as contact_database
-
+from accounts import database as accounts_database
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -27,8 +29,10 @@ def create_new_client(request):
         show_further = True
         it_no_list = database.get_all_distinct_value('It_no')
         audit_no_list = database.get_all_distinct_value('Audit_no')
+        gst_no_list = database.get_all_gst_value()
         it_start, it_end = database.get_it_no_range(group_name, client_type_form_name)
         audit_start, audit_end = database.get_audit_no_range(group_name, client_type_form_name)
+        gst_start, gst_end = database.get_gst_no_range()
         party_list = database.get_party_list_from_group_name(group_name)
         if (it_start == 0 and it_end == 0) or (audit_start == 0 and audit_end == 0):
             return render(request, 'new_client.html')
@@ -36,14 +40,18 @@ def create_new_client(request):
             # convert it no from clientMaster to int
             it_no_list_int = [int(x) for x in it_no_list]
             audit_no_list_int = [int(x) for x in audit_no_list]
+            gst_no_list_int = [int(x) for x in gst_no_list]
             it_no_range = [x for x in range(it_start, it_end + 1)]
             audit_no_range = [x for x in range(audit_start, audit_end + 1)]
+            gst_no_range = [x for x in range(gst_start, gst_end + 1)]
             available_it_no = sorted(list(set(it_no_range) - set(it_no_list_int)))
             available_audit_no = sorted(list(set(audit_no_range) - set(audit_no_list_int)))
+            available_gst_no = sorted(list(set(gst_no_range) - set(gst_no_list_int)))
             contact_list = contact_database.get_all_contact_details(False)
             return render(request, 'new_client.html', {'Show_Further': show_further,
                                                        'Available_It_No': available_it_no,
                                                        'Available_Audit_No': available_audit_no,
+                                                       'Available_GST_No': available_gst_no[:20],
                                                        'Group_No': group_no,
                                                        'Type_Selected': client_type_form,
                                                        'Contact_List': contact_list,
@@ -58,21 +66,36 @@ def submit_new_client(request):
     group_name = request.POST.get('groupName', '')
     client_type = request.POST.get('clientType', '')
     party_name = request.POST.get('partyName', '')
+
     it_no = request.POST.get('itNo', '0')
     it_note = request.POST.get('itNote', '')
+    it_size = request.POST.get('itSize', '0')
+
     audit_note = request.POST.get('auditNote', '')
     audit_no = request.POST.get('auditNo', '0')
-    it_size = request.POST.get('itSize', '0')
     audit_size = request.POST.get('auditSize', '0')
+
+    gst_note = request.POST.get('gstNote', '')
+    gst_no = request.POST.get('gstNo', '0')
+    gst_size = request.POST.get('gstSize', '0')
+
     tds = request.POST.get('TDS', 'no')
     tds_bool = 'True'
+    gst = request.POST.get('GST', 'no')
+    gst_bool = 'True'
     if tds == 'no':
         tds_bool = 'False'
+    if gst == 'no':
+        gst_bool = 'False'
+        gst_no = '0'
+        gst_size = '0'
+        gst_note = ''
     contact_list = []
     contact_names = request.POST.getlist('contactName')
     contact_designation = request.POST.getlist('contactDesignation')
     it_size_name = database.get_it_audit_size(it_size)
     audit_size_name = database.get_it_audit_size(audit_size)
+    gst_size_name = database.get_it_audit_size(gst_size)
     error_message = ''
     '''contact_nos = request.POST.getlist('contactNo')
     contact_emails = request.POST.getlist('contactEmail')'''
@@ -104,7 +127,11 @@ def submit_new_client(request):
                              'Audit_no': audit_no,
                              'Audit_size': audit_size_name,
                              'Audit_note': audit_note,
+                             'GST_no': gst_no,
+                             'GST_size': gst_size_name,
+                             'GST_note': gst_note,
                              'TDS': tds_bool,
+                             'GST': gst_bool,
                              'Contact_details': contact_list
                              }
                 data_add = database.add_client_details(data_dict)
@@ -123,26 +150,35 @@ def edit_client_list(request):
 def closure_client_list(request):
     all_return_list = database.get_client_master_list(id_field=True)
     closed_client_list = database.get_closed_client_master_list(id_field=False)
+    closed_client_contact_list = closed_client_list
+    for x in closed_client_contact_list:
+        del x['Closure_date']
     return render(request, 'client_closure_list.html', {'client_List': all_return_list,
-                                                        'closed_client_list': closed_client_list, 'can_edit': True})
+                                                        'closed_client_list': closed_client_list, 'can_edit': True,
+                                                        'closed_client_contact_list': closed_client_contact_list})
 
 
 def edit_one_client(request, id):
+    gst_no_list = database.get_all_gst_value()
     client_details = database.get_client_detail_from_id(id)
     audit_no_list = database.get_all_distinct_value('Audit_no')
     audit_start, audit_end = database.get_audit_no_range(client_details['Group_name'], client_details['Client_type'])
+    gst_start, gst_end = database.get_gst_no_range()
     party_list = database.get_party_list_from_group_name(client_details['Group_name'])
 
     audit_no_list_int = [int(x) for x in audit_no_list]
     audit_no_range = [x for x in range(audit_start, audit_end + 1)]
     available_audit_no = sorted(list(set(audit_no_range) - set(audit_no_list_int)))
     available_audit_no.append(client_details['Audit_no'])
-
+    gst_no_list_int = [int(x) for x in gst_no_list]
+    gst_no_range = [x for x in range(gst_start, gst_end + 1)]
+    available_gst_no = sorted(list(set(gst_no_range) - set(gst_no_list_int)))
     contact_list = contact_database.get_all_contact_details(False)
 
     return render(request, 'edit_client.html', {'Password': True,
                                                 'Client_Details': client_details,
                                                 'Available_Audit_No': available_audit_no,
+                                                'Available_GST_No': available_gst_no[:20],
                                                 'Party_List': party_list,
                                                 'Contact_List': contact_list})
 
@@ -151,18 +187,32 @@ def submit_edit_client(request):
     password = request.POST.get('password', '')
     client_id = request.POST.get('clientID')
     party_name = request.POST.get('partyName')
+
     it_size = request.POST.get('itSize')
     it_size_name = database.get_it_audit_size(it_size)
     it_note = request.POST.get('itNote')
+
     audit_no = request.POST.get('auditNo')
     audit_size = request.POST.get('auditSize')
     audit_size_name = database.get_it_audit_size(audit_size)
     audit_note = request.POST.get('auditNote')
+
+    gst_note = request.POST.get('gstNote', '')
+    gst_no = request.POST.get('gstNo', '0')
+    gst_size = request.POST.get('gstSize', '0')
+    gst_size_name = database.get_it_audit_size(gst_size)
+
     tds = request.POST.get('TDS', 'no')
     tds_bool = 'True'
     if tds == 'no':
         tds_bool = 'False'
-
+    gst = request.POST.get('GST', 'no')
+    gst_bool = 'True'
+    if gst == 'no':
+        gst_bool = 'False'
+        gst_no = '0'
+        gst_size_name = 'NA'
+        gst_note = ''
     contact_list = []
     contact_names = request.POST.getlist('contactName')
     contact_designation = request.POST.getlist('contactDesignation')
@@ -186,7 +236,11 @@ def submit_edit_client(request):
             'Audit_no': audit_no,
             'Audit_size': audit_size_name,
             'Audit_note': audit_note,
+            'GST_no': gst_no,
+            'GST_size': gst_size_name,
+            'GST_note': gst_note,
             'TDS': tds_bool,
+            'GST': gst_bool,
             'Contact_details': contact_list
         }
         update_client = database.update_client_details_edit(client_id, data_dict)
@@ -196,8 +250,10 @@ def submit_edit_client(request):
     else:
         client_details = database.get_client_detail_from_id(client_id)
         audit_no_list = database.get_all_distinct_value('Audit_no')
+        gst_no_list = database.get_all_gst_value()
         audit_start, audit_end = database.get_audit_no_range(client_details['Group_name'],
                                                              client_details['Client_type'])
+        gst_start, gst_end = database.get_gst_no_range()
         party_list = database.get_party_list_from_group_name(client_details['Group_name'])
 
         audit_no_list_int = [int(x) for x in audit_no_list]
@@ -205,10 +261,15 @@ def submit_edit_client(request):
         available_audit_no = sorted(list(set(audit_no_range) - set(audit_no_list_int)))
         available_audit_no.append(client_details['Audit_no'])
 
+        gst_no_list_int = [int(x) for x in gst_no_list]
+        gst_no_range = [x for x in range(gst_start, gst_end + 1)]
+        available_gst_no = sorted(list(set(gst_no_range) - set(gst_no_list_int)))
+
         contact_list = contact_database.get_all_contact_details(False)
         return render(request, 'edit_client.html', {'Password': True,
                                                     'Client_Details': client_details,
                                                     'Available_Audit_No': available_audit_no,
+                                                    'Available_GST_No': available_gst_no[:20],
                                                     'Party_List': party_list,
                                                     'Contact_List': contact_list,
                                                     'Error': True, 'Alert': "Password is Incorrect."})
@@ -413,9 +474,13 @@ def submit_transfer_party(request):
                                                            'Hide': True, 'Party_Detail': party_detail,
                                                            'Group_c_n': group_code_name, 'Client_List': client_list})
 
-
+@permission_required('clients', 'view')
 def group_master_list(request):
     all_group_list = database.get_all_group_list()
+    # add group head to the group list
+    for group in all_group_list:
+        group_heads = accounts_database.get_group_heads(group['Group'])
+        group['Heads'] = ', '.join([User.objects.get(id=head.id).first_name + ' ' + User.objects.get(id=head.id).last_name for head in group_heads])
     return render(request, 'group_master.html', {"Group_list": all_group_list})
 
 
@@ -550,4 +615,3 @@ def check_client_name(request):
 
     name_exist = database.check_client_name_present(client_name)
     return JsonResponse({'exists': name_exist})
-

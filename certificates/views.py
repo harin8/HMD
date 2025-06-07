@@ -1,15 +1,18 @@
 from django.core.files.storage import FileSystemStorage
-from django.shortcuts import render
+from accounts.decorators import permission_required
 from . import database
 import datetime
 from datetime import datetime
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseNotFound
+from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseNotFound, JsonResponse
+import clients.database as client_database
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
-
-
+@login_required
+@permission_required('certificates', 'view')
 def landing(request):
+
     all_client_list = database.get_all_clients_details()
     cert_list = database.get_all_certificate_list()
     for data in cert_list:
@@ -29,6 +32,8 @@ def landing(request):
                                               'Cert_Desc': certificate_description_list})
 
 
+@login_required
+@permission_required('certificates', 'add')
 def submit_certificate(request):
     client_name = request.POST.get('Client_Name')
     accepted_by = request.POST.get('Accepted_By')
@@ -58,7 +63,8 @@ def submit_certificate(request):
     return render(request, 'landing_c.html', {'Client_list': all_client_list, 'Cert_list': cert_list,
                                               'Cert_Desc': certificate_description_list})
 
-
+@login_required
+@permission_required('certificates', 'view')
 def further_cert_info(request, id):
     exist_result = database.get_cert_details(id)
     exist_result['Client_code'] = database.get_client_code_from_name(exist_result['Name'])
@@ -74,7 +80,8 @@ def further_cert_info(request, id):
     return render(request, 'landing_c.html', {'Client_list': all_client_list, 'Cert_list': cert_list,
                                               'Cert_Desc': certificate_description_list})
 
-
+@login_required
+@permission_required('certificates', 'add')
 def further_cert_submit(request):
     save_bool = request.POST.get('save_fur', True)
     if save_bool == 'false':
@@ -101,6 +108,9 @@ def further_cert_submit(request):
 
     result = database.add_further_cert_record(data_dict, r_id)
     cert_list = database.get_all_certificate_list()
+    #Get group filter
+    group_list = client_database.get_all_available_group_code()
+
     for data in cert_list:
         data['Client_code'] = database.get_client_code_from_name(data['Name'])
         data['Group_name'] = database.get_group_name_from_client_name(data['Name'])
@@ -109,7 +119,8 @@ def further_cert_submit(request):
     return render(request, 'landing_c.html', {'Client_list': all_client_list, 'Cert_list': cert_list,
                                               'Cert_Desc': certificate_description_list})
 
-
+@login_required
+@permission_required('certificates', 'add')
 def submit_cert_File(request):
     r_id = request.POST.get('Record_Id')
     if request.FILES['myfile']:
@@ -132,6 +143,8 @@ def submit_cert_File(request):
         uploaded_file_url = fs.url(file)
     return further_cert_info(request, r_id)
 
+@login_required
+@permission_required('certificates', 'view')
 def pdf_view(request, id):
     fs = FileSystemStorage()
     exist_result = database.get_cert_details(id)
@@ -139,9 +152,24 @@ def pdf_view(request, id):
     if fs.exists(filename):
         with fs.open(filename) as pdf:
             response = HttpResponse(pdf, content_type='application/pdf')
-            # response['Content-Disposition'] = 'attachment; filename="mypdf.pdf"' #user will be prompted with the browser’s open/save file
+            # response['Content-Disposition'] = 'attachment; filename="mypdf.pdf"' #user will be prompted with the browser's open/save file
             response[
                 'Content-Disposition'] = 'inline; filename="KARAN03132022015234.pdf"'  # user will be prompted display the PDF in the browser
             return response
     else:
         return HttpResponseNotFound('The requested pdf was not found.')
+
+@login_required
+@permission_required('certificates', 'delete')
+def delete_certificate(request):
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        r_id = request.POST.get('record_id')
+        if client_database.verify_password("Record Delete", password):  
+            if database.delete_certificate(r_id):
+                return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Record not found.'}, status=404)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Incorrect password.'}, status=403)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)

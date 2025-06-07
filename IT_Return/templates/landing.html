@@ -10,51 +10,64 @@
             <h4 class="text-center header-title mb-3">MENU</h4>
             <div class="card">
                 <div class="card-body">
+                    {% if perms.it_return.view_it_return %}
                     <div class="card">
                         <button type="button" class="btn btn-link" id="it-return">
                             <div class="card-body">IT Returns</div>
                         </button>
                     </div><br>
+                    {% endif %}
+                    {% if perms.tds.view_tds %}
                     <div class="card">
                         <button type="button" class="btn btn-link" id="tds">
                             <div class="card-body">TDS/TCS</div>
                         </button>
                     </div><br>
+                    {% endif %}
+                    {% if perms.certificates.view_certificates %}
                     <div class="card">
                         <a role="button" href="{% url 'Certificates Landing' %}" class="btn btn-link" id="certificates">
                             <div class="card-body">Certificates</div>
                         </a>
                     </div><br>
+                    {% endif %}
+                    {% if perms.other_forms.view_other_forms %}
                     <div class="card">
                         <a role="button" href="{% url 'Other Forms Landing' %}" class="btn btn-link" id="otherForms">
                             <div class="card-body">Other Forms/Activities</div>
                         </a>
                     </div><br>
+                    {% endif %}
+                    {% if perms.proceedings.view_proceedings %}
                     <div class="card">
                         <button type="button" class="btn btn-link" id="proceedings">
                             <div class="card-body">Proceedings</div>
                         </button>
                     </div><br>
+                    {% endif %}
+                    {% if perms.reports.view_reports %}
                     <div class="card">
                         <a role="button" href="{% url 'Reports Landing' %}" class="btn btn-link" id="reports">
                             <div class="card-body">Reports</div>
                         </a>
-                    </div><br><div class="card" style="background-color: DodgerBlue;">
-                        <a role="button" href="{% url 'Judgments Landing' %}" class="btn btn-link" id="judgments">
-                            <div class="card-body" style="font-size: 1.35em;"> <font color="#FFFFFF"> Judgments / Articles </font></div>
+                    </div><br>
+                    {% endif %}
+                    {% if perms.timesheet.view_timesheet %}
+                    <div class="card" style="background-color: #0f9884;">
+                        <a role="button" href="{% url 'fill_timesheet' %}" class="btn btn-link" id="timesheet" style=" font-size: large; color: white;">
+                            <div class="card-body">Timesheet</div>
                         </a>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
         <div class="col-md-4 m-4 align-self-center" id="sub-menu" style="display: none;"></div>
 
-
-
-        <div class="col-md-4 mt-4 mb-4" id="live_board" style="margin-left:200px">
+        <div class="col-md-4 mt-4 mb-4 ms-auto" id="live_board" style="margin-left: 200px;">
             <h4 class="text-center header-title mb-3" style="width: 150%">LIVE BOARD</h4>
             <div class="card scroll" style="width: 150%"><br>
-                <div class="col-md-12">
+                <div class="col-md-12"><br>
                     <div class="form-group row">
                         <div class="col-md-8">
                             <select class="selectpicker form-control" id="proceedingsFilter" placeholder="Enter Proceedings">

@@ -15,5 +15,5 @@ urlpatterns = [
     path('further_cpc_info/<slug:it_no>/<slug:ay>/<slug:r_type>', views.further_cpc_info, name='Further CPC Info'),
     path('further_cpc_submit', views.further_cpc_submit, name='Further CPC Submit'),
     path('group_filter_list', views.group_filter_list, name='Group Filter List'),
-
+    path('delete_return', views.delete_return, name='Delete Return'),
 ]

@@ -1,16 +1,17 @@
-import ssl
 import pymongo as pymongo
 from django.shortcuts import render
+from accounts.decorators import permission_required
 from . import database
 from django.core.files.storage import FileSystemStorage
 import datetime
 from datetime import datetime
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseNotFound
+from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseNotFound, JsonResponse
+import clients.database as client_database
 
 # Create your views here.
 
-
+@permission_required('other_forms', 'view')
 def landing(request):
     all_client_list = database.get_all_clients_details()
     other_forms_list = database.get_all_other_forms_list()
@@ -30,6 +31,7 @@ def landing(request):
                                                        'Other_forms_desc': otherForms_description_list})
 
 
+@permission_required('other_forms', 'add')
 def submit_certificate(request):
     client_name = request.POST.get('Client_Name')
     client_code = request.POST.get('Client_Code')
@@ -59,6 +61,7 @@ def submit_certificate(request):
                                                        'Other_forms_desc': otherForms_description_list})
 
 
+@permission_required('other_forms', 'view')
 def further_other_forms_info(request, id):
     exist_result = database.get_other_forms_details(id)
     exist_result['Client_code'] = database.get_client_code_from_name(exist_result['Name'])
@@ -75,6 +78,7 @@ def further_other_forms_info(request, id):
                                                        'Other_forms_desc': otherForms_description_list})
 
 
+@permission_required('other_forms', 'add')
 def further_other_forms_submit(request):
     save_bool = request.POST.get('save_fur', True)
     if save_bool == 'false':
@@ -110,6 +114,7 @@ def further_other_forms_submit(request):
                                                        'Other_forms_desc': otherForms_description_list})
 
 
+@permission_required('other_forms', 'add')
 def submit_otherform_File(request):
     r_id = request.POST.get('Record_Id')
     if request.FILES['myfile']:
@@ -132,6 +137,7 @@ def submit_otherform_File(request):
         uploaded_file_url = fs.url(file)
     return further_other_forms_info(request, r_id)
 
+
 def pdf_view(request, id):
     fs = FileSystemStorage()
     exist_result = database.get_other_forms_details(id)
@@ -145,3 +151,18 @@ def pdf_view(request, id):
             return response
     else:
         return HttpResponseNotFound('The requested pdf was not found.')
+
+
+@permission_required('other_forms', 'delete')
+def delete_other_forms(request):
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        id = request.POST.get('otherFormId')
+        if client_database.verify_password("Record Delete", password): 
+            if database.delete_other_forms_record(id):
+                return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Record not found.'}, status=404)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Incorrect password.'}, status=403)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)

@@ -40,7 +40,7 @@ def check_if_contact_name_exists(name):
 
 
 def update_contact_details(r_id, temp):
-    result = db.forumAuthorMaster.update({'_id': ObjectId(r_id)}, temp)
+    result = db.forumAuthorMaster.update_one({'_id': ObjectId(r_id)}, temp)
 
 
 def check_if_certificate_description_exists(name):

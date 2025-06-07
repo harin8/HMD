@@ -1,7 +1,6 @@
-from django.urls import path
+from django.urls import path, re_path
 from django.conf.urls.static import static
 from django.conf import settings
-from django.conf.urls import url
 
 from . import views
 
@@ -17,7 +16,7 @@ urlpatterns = [
     path('pdf_view/<slug:id>', views.pdf_view, name='PDF View'),
     path('further_pro_submit/', views.further_proc_submit, name='Further Proc Submit'),
     path('submit_proceedings_events/', views.submit_proceedings_events, name='Further Proc Event Submit'),
-    url(r'^view-pdf/$', views.pdf_view, name='pdf_view')
+    re_path(r'^view-pdf/$', views.pdf_view, name='pdf_view')
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

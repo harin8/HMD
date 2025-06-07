@@ -376,6 +376,7 @@ def event_landing(request, id):
 def pdf_view(request, id):
     fs = FileSystemStorage()
     exist_result = database.get_proc_details(id)
+    print(exist_result)
     filename = exist_result['File_name']
 
     if fs.exists(filename):

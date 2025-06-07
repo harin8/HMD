@@ -146,23 +146,6 @@
         {% endif %}
         $('.selectpicker').selectpicker('refresh');
 
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        const csrftoken = getCookie('csrftoken');
-
         $("#save_button").click(function(e){
             e.preventDefault();
             client_no = $("#client_no").val();
@@ -183,8 +166,8 @@
             $.ajax({
                 type: "POST",
                 url: "{% url 'Further TDS Submit' %}",
-                beforeSend: function(xhr, settings) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                 },
                 data: {
                     name: c_name,

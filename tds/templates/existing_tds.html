@@ -66,13 +66,15 @@
                                     <td>
                                         {% if each_return.Status == 'Initiated' %}
                                             <a href="{% url 'Create New TDS' client_no=each_return.Client_code ay=each_return.AY quarter=each_return.Quarter_id form=each_return.Form_id type=each_return.Type_id %}" title="Edit" ><i class="fe-edit text-info"></i></a>&nbsp;&nbsp;
-                                            <a href="{% url 'Further TDS Info' client_no=each_return.Client_code ay=each_return.AY quarter=each_return.Quarter_id form=each_return.Form_id type=each_return.Type_id %}" title="further info"><i class="fas fa-clipboard text-info"></i></a>
+                                            <a href="{% url 'Further TDS Info' client_no=each_return.Client_code ay=each_return.AY quarter=each_return.Quarter_id form=each_return.Form_id type=each_return.Type_id %}" title="further info"><i class="fas fa-clipboard text-info"></i></a>&nbsp;&nbsp;
+                                            <a onclick="showPasswordPrompt('{{ each_return.Client_code }}', '{{ each_return.AY }}', '{{ each_return.Quarter_id }}', '{{ each_return.Form_id }}', '{{ each_return.Type_id }}')" title="Delete" ><i class="fas fa-trash text-danger" style="cursor: pointer"></i></a>&nbsp;&nbsp;
                                         {% endif %}
                                         {% if each_return.Status == 'Not initiated' %}
                                             <a href="{% url 'Create New TDS' client_no=each_return.Client_code ay=each_return.AY quarter=each_return.Quarter_id form=each_return.Form_id type=each_return.Type_id %}" title="Edit" ><i class="fe-edit text-info"></i></a>&nbsp;&nbsp;
                                         {% endif %}
                                         {% if each_return.Status == 'Completed' %}
                                             <a href="{% url 'Further TDS Info' client_no=each_return.Client_code ay=each_return.AY quarter=each_return.Quarter_id form=each_return.Form_id type=each_return.Type_id %}" title="View"><i class="fas fa-eye text-success"></i></a>&nbsp;&nbsp;
+                                            <a onclick="showPasswordPrompt('{{ each_return.Client_code }}', '{{ each_return.AY }}', '{{ each_return.Quarter_id }}', '{{ each_return.Form_id }}', '{{ each_return.Type_id }}')" title="Delete" ><i class="fas fa-trash text-danger" style="cursor: pointer"></i></a>&nbsp;&nbsp;
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -104,7 +106,81 @@
         </div>
     </div>
 </div>
+
+<!-- Password Prompt Modal -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="passwordModalLabel">Enter Password</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="password" id="passwordInput" class="form-control" placeholder="Password">
+                <input type="hidden" id="tdsClientCode">
+                <input type="hidden" id="tdsAY">
+                <input type="hidden" id="tdsQuarterId">
+                <input type="hidden" id="tdsFormId">
+                <input type="hidden" id="tdsTypeId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="deleteRecord()">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+    function showPasswordPrompt(Client_code, AY, Quarter_id, Form_id, Type_id) {
+        $('#tdsClientCode').val(Client_code);
+        $('#tdsAY').val(AY);
+        $('#tdsQuarterId').val(Quarter_id);
+        $('#tdsFormId').val(Form_id);
+        $('#tdsTypeId').val(Type_id);
+        $('#passwordModal').modal('show');
+    }
+    $('#passwordModal').on('hidden.bs.modal', function () {
+        $('#passwordInput').val('');
+    });
+    function deleteRecord() {
+        const tdsClientCode = $('#tdsClientCode').val();
+        const tdsAY = $('#tdsAY').val();
+        const tdsQuarterId = $('#tdsQuarterId').val();
+        const tdsFormId = $('#tdsFormId').val();
+        const tdsTypeId = $('#tdsTypeId').val();
+        const password = $('#passwordInput').val();
+
+        $.ajax({
+            url: "{% url 'Delete TDS' %}",
+            method: 'POST',
+            data: {
+                'tdsClientCode': tdsClientCode,
+                'tdsAY': tdsAY,
+                'tdsQuarterId': tdsQuarterId,
+                'tdsFormId': tdsFormId,
+                'tdsTypeId': tdsTypeId,
+                'password': password
+            },
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                alert(response.message);
+                if (response.status === 'success') {
+                    location.reload();
+                }
+            },
+            error: function(response) {
+                alert(response.responseJSON.message);
+            }
+        });
+
+        $('#passwordModal').modal('hide');
+    }
+
     $(document).ready( function () {
         var table = $('#existing-tdsList').DataTable({
             dom: 'Bfrtip',
@@ -132,4 +208,5 @@
     });
 
 </script>
+
 {% endblock %}

@@ -232,7 +232,7 @@ def add_further_proc_record(data_dict, r_id):
 
 
 def add_further_proc_file_record(file_data, r_id):
-    result = db.proceedingsMaster.update({'_id': ObjectId(r_id)}, {"$set": file_data})
+    result = db.proceedingsMaster.update_one({'_id': ObjectId(r_id)}, {"$set": file_data})
 
 
 def get_group_name_from_client_name(c_name):
@@ -251,7 +251,7 @@ def get_client_code_from_name(name):
 
 
 def update_proc_details(r_id, data_dict):
-    result = db.proceedingsMaster.update({'_id': ObjectId(r_id)}, {"$set": data_dict})
+    result = db.proceedingsMaster.update_one({'_id': ObjectId(r_id)}, {"$set": data_dict})
 
 
 def add_event_details(data_dict):

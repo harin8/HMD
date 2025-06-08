@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
 from pathlib import Path
+from datetime import datetime, timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
@@ -47,7 +48,12 @@ INSTALLED_APPS = [
     'other_forms',
     'tds',
     'reports',
-    'proceedings', 'judgments', 'insertions'
+    'proceedings',
+    'judgments',
+    'insertions',
+    'timesheet',
+    'accounts',
+    'costsheet'
 ]
 
 MIDDLEWARE = [
@@ -58,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'accounts.middleware.PermissionMiddleware',
 ]
 
 ROOT_URLCONF = 'HMD_Software.urls'
@@ -73,6 +80,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'accounts.context_processors.csrf_token',
             ],
         },
     },
@@ -87,7 +95,7 @@ WSGI_APPLICATION = 'HMD_Software.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -116,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -134,3 +142,24 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MEDIA_URL = '/media/'
+
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+LOGIN_EXEMPT_URLS = [
+    '/accounts/login/',
+    '/accounts/logout/',
+    '/static/',
+    '/media/',
+]
+
+# CSRF Settings
+CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_SAMESITE = 'Lax'  # Add this line
+CSRF_COOKIE_HTTPONLY = False
+CSRF_USE_SESSIONS = True
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000']  # Add your domain in production
+
+# Add this to your settings.py
+TIMESHEET_START_DATE = datetime(2025, 4, 1).replace(hour=0, minute=0, second=0, microsecond=0)

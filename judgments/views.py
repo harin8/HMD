@@ -136,7 +136,6 @@ def submit_judg_File(request):
         date_time = now.strftime("%m%d%Y%H%M%S")
         only_file_name = myfile.name.rsplit('.', 1)[0] + date_time
         file = only_file_name + "." + myfile.name.rsplit('.', 1)[1]
-        print(file)
         file_data = {
             'File_name': file
         }

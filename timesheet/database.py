@@ -189,3 +189,11 @@ def get_user_timesheets_by_task_assignment(assignment_id):
         entry['rate_history'] = users['rate_history']
 
     return entries
+
+
+def get_user_first_effective_date(user_id):
+    """Get user's effective date"""
+    rate_history = db.userProfiles.find_one({'django_user_id': str(user_id)}, {'_id': 0, 'effective_date': 1, 'rate_history': 1})
+    if rate_history:
+        return rate_history['rate_history'][-1]['effective_date']
+    return rate_history['effective_date']

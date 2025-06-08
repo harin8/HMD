@@ -3,7 +3,7 @@ from django.contrib import messages
 from accounts.database import get_user_profile_mongo, get_group_members
 from accounts.decorators import permission_required
 from .database import (
-    save_timesheet, get_user_timesheets, 
+    get_user_first_effective_date, save_timesheet, get_user_timesheets, 
     get_it_returns, get_certificates, get_client_names,
     get_other_forms, get_proceedings, get_tds, delete_timesheet_entry as db_delete_timesheet_entry,
 )
@@ -27,6 +27,7 @@ def is_admin(user):
 @permission_required('timesheet', 'view')
 def fill_timesheet(request):
     today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    user_effective_date = get_user_first_effective_date(request.user.id)
     
     if request.method == 'POST':
         hours = float(request.POST.get('hours', 0))
@@ -98,6 +99,7 @@ def fill_timesheet(request):
         return redirect('fill_timesheet')
     
     context = {
+        'user_effective_date':user_effective_date,
         'today': today,
         'client_names': get_client_names(),
     }

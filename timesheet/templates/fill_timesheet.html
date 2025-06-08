@@ -110,6 +110,7 @@
                 <div class="form-group">
                     <label>Date:</label>
                     <input type="date" name="date" id="selected_date" class="form-control" required
+                            min="{{ user_effective_date|date:'Y-m-d' }}"
                             max="{{ today|date:'Y-m-d' }}"
                             value="{{ today|date:'Y-m-d' }}">
                 </div>

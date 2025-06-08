@@ -134,7 +134,6 @@ def further_tds_submit(request):
     tds_form = request.POST.get('tdsForm')
     filing_mode = request.POST.get('filingMode')
     filing_mode_name = database.get_tds_filing_mode_name_from_id(filing_mode)
-    print(request.POST)
     return_data_dict = {'Name': request.POST.get('name').upper(),
                         'Client_code': request.POST.get('clientCode'),
                         'AY': ay,

@@ -210,13 +210,13 @@
                                     <td class="subtotal text-right"></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4">MISC EXP % SELECTED</td>
+                                    <td colspan="4">MISC EXP %</td>
                                     <td class="misc-exp-percent text-right"></td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="5">% MISC EXP</td>
-                                    <td class="misc-exp text-right"></td>
+                                    <td colspan="5">SUBTOTAL with MISC EXP</td>
+                                    <td class="subtotal-with-misc text-right"></td>
                                 </tr>
                                 <tr>
                                     <td colspan="4">MULTIPLIER</td>
@@ -342,7 +342,6 @@
                 
                 // Update table cells with Indian number format
                 table.find('.subtotal').text(formatIndianNumber(subtotal));
-                table.find('.misc-exp').text(formatIndianNumber(miscExp));
                 table.find('.subtotal-with-misc').text(formatIndianNumber(subtotalWithMisc));
                 table.find('.multiplier-value').text(multiplier);
                 table.find('.misc-exp-percent').text(miscExpPercent + '%');

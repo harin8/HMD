@@ -51,8 +51,13 @@ def fill_timesheet(request):
             while days_checked < 7:
                 if check_date.weekday() != 6:  # Not Sunday
                     daily_entries = get_user_timesheets(request.user.id, check_date)
-                    daily_total = sum(entry.get('hours', 0) for entry in daily_entries)
-                    if total_hours - daily_total > 0:  # If there are pending hours
+                    if daily_entries:
+                        # Check if the last entry of the day has pending_hours set to 0
+                        last_entry = daily_entries[0]  # get_user_timesheets returns sorted by created_at desc
+                        if last_entry.get('pending_hours', 0) - last_entry.get('hours', 0) > 0:  # If pending_hours is not 0
+                            days_with_pending += 1
+                    else:
+                        # If no entries exist for the day, consider it as pending
                         days_with_pending += 1
                     days_checked += 1
                 check_date -= timedelta(days=1)

@@ -266,24 +266,83 @@ def get_party_name_from_name(name):
         return ''
 
 
-def live_board_proceedings_list():
-    result = list(db.proceedingsMaster.aggregate([{"$match": {"Status": "", "Closure_date": {"$ne": "", "$exists": True}}},
-                                                  {"$project": {"_id": 1, "Closure_date": {"$dateFromString": {
-                                                      "dateString": "$Closure_date",
-                                                      "format": "%Y-%m-%d"}},
-                                                                "Name": 1, "AY": 1, "Description": 1,
-                                                                "Section": 1, "Closure_remarks": 1,
-                                                                "In_past": {"$cond": [{"$gte": ["$Closure_date",
-                                                                                                datetime.now()]},
-                                                                                      "No", "Yes"]}}},
-                                                  {"$sort": {"Closure_date": 1}},
-                                                  {"$project": {"_id": 1, "Name": 1, "AY": 1, "Description": 1,
-                                                                "Section": 1, "Closure_remarks": 1,
-                                                                "Closure_date": 1,
-                                                                "In_past": {"$cond": [{"$gte": ["$Closure_date",
-                                                                                                datetime.now()]},
-                                                                                      "No", "Yes"]}}},
-                                                  ]))
+def mark_proceedings_case(proceeding_id, username):
+    """Mark a proceedings case for a specific user"""
+    result = db.proceedingsMaster.update_one(
+        {'_id': ObjectId(proceeding_id)},
+        {'$addToSet': {'marked_by': username}}
+    )
+    return result.modified_count > 0
+
+
+def unmark_proceedings_case(proceeding_id, username):
+    """Unmark a proceedings case for a specific user"""
+    result = db.proceedingsMaster.update_one(
+        {'_id': ObjectId(proceeding_id)},
+        {'$pull': {'marked_by': username}}
+    )
+    return result.modified_count > 0
+
+
+def is_case_marked_by_user(proceeding_id, username):
+    """Check if a case is marked by a specific user"""
+    result = db.proceedingsMaster.find_one(
+        {'_id': ObjectId(proceeding_id), 'marked_by': username}
+    )
+    return result is not None
+
+
+def live_board_proceedings_list(username=None, show_marked_only=False):
+    """Get proceedings list for live board with optional filtering by marked cases"""
+    match_query = {
+        "Status": "",
+        "Closure_date": {"$ne": "", "$exists": True}
+    }
+    
+    if show_marked_only and username:
+        match_query["marked_by"] = username
+
+    result = list(db.proceedingsMaster.aggregate([
+        {"$match": match_query},
+        {"$project": {
+            "_id": 1,
+            "Closure_date": {"$dateFromString": {
+                "dateString": "$Closure_date",
+                "format": "%Y-%m-%d"
+            }},
+            "Name": 1,
+            "AY": 1,
+            "Description": 1,
+            "Section": 1,
+            "Closure_remarks": 1,
+            "marked_by": 1,
+            "In_past": {"$cond": [
+                {"$gte": ["$Closure_date", datetime.now()]},
+                "No",
+                "Yes"
+            ]}
+        }},
+        {"$sort": {"Closure_date": 1}},
+        {"$project": {
+            "_id": 1,
+            "Name": 1,
+            "AY": 1,
+            "Description": 1,
+            "Section": 1,
+            "Closure_remarks": 1,
+            "Closure_date": 1,
+            "marked_by": 1,
+            "In_past": {"$cond": [
+                {"$gte": ["$Closure_date", datetime.now()]},
+                "No",
+                "Yes"
+            ]}
+        }}
+    ]))
+    
+    # Add is_marked field for each proceeding
+    for proc in result:
+        proc['is_marked'] = username in proc.get('marked_by', []) if username else False
 
     return result
 

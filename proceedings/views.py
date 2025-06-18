@@ -7,9 +7,28 @@ import datetime
 from datetime import datetime
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseNotFound
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 # Create your views here.
 
 
+@login_required
+def mark_case(request):
+    """View to mark/unmark a proceedings case"""
+    if request.method == 'POST':
+        proceeding_id = request.POST.get('proceeding_id')
+        action = request.POST.get('action')  # 'mark' or 'unmark'
+        username = request.user.id
+        
+        if action == 'mark':
+            success = database.mark_proceedings_case(proceeding_id, username)
+        else:  # unmark
+            success = database.unmark_proceedings_case(proceeding_id, username)
+            
+        return JsonResponse({'success': success})
+    return JsonResponse({'success': False}, status=400)
+
+@login_required
 def landing(request):
     ay = request.GET.get('A.Y')
     ay_list = database.get_ay_list()
@@ -215,6 +234,8 @@ def further_proc_info(request, id):
     exist_result = database.get_proc_details(id)
     exist_result['Client_code'] = database.get_client_code_from_name(exist_result['Name'])
     exist_result['Group_name'] = database.get_group_name_from_client_name(exist_result['Name'])
+    exist_result['is_marked'] = database.is_case_marked_by_user(id, request.user.id)
+    
     event = exist_result['Event']
     if exist_result:
         if event == 0:
@@ -376,13 +397,12 @@ def event_landing(request, id):
 def pdf_view(request, id):
     fs = FileSystemStorage()
     exist_result = database.get_proc_details(id)
-    print(exist_result)
     filename = exist_result['File_name']
 
     if fs.exists(filename):
         with fs.open(filename) as pdf:
             response = HttpResponse(pdf, content_type='application/pdf')
-            # response['Content-Disposition'] = 'attachment; filename="mypdf.pdf"' #user will be prompted with the browser’s open/save file
+            # response['Content-Disposition'] = 'attachment; filename="mypdf.pdf"' #user will be prompted with the browser's open/save file
             response[
                 'Content-Disposition'] = 'inline; filename="KARAN03132022015234.pdf"'  # user will be prompted display the PDF in the browser
             return response

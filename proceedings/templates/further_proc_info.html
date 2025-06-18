@@ -2,15 +2,33 @@
 {% extends "layout.html" %}
 {% block head_block %}
 <title>HMD|Proceedings Further</title>
+<style>
+    .btn-outline-warning:hover {
+        background-color: #ffc107;
+        color: #000;
+    }
+    .btn-warning {
+        color: #000;
+    }
+    .mark-case-btn {
+        margin-right: 10px;
+    }
+</style>
 {% endblock %}
 {% block body_block %}
 {% load certificate_tags %}
+{% csrf_token %}
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-6 py-3 mt-2">
             <h4>{% if Data_Dict.Type == 3 %} Other Proceedings {% endif %} {% if Data_Dict.Type == 2 %} Judicial/Appellate Proceedings {% endif %} {% if Data_Dict.Type == 1 %} Regular Proceedings {% endif %}</h4>
         </div>
         <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
+            <button class="btn btn-sm mark-case-btn {% if Data_Dict.is_marked %}btn-warning{% else %}btn-outline-warning{% endif %}" 
+                    onclick="toggleMarkCase(event, '{{ Data_Dict|private:'_id' }}', {{ Data_Dict.is_marked|default:False|lower }})"
+                    title="Mark this case for quick access">
+                <i class="fas {% if Data_Dict.is_marked %}fa-star{% else %}fa-star-o{% endif %}"></i> Mark My Case
+            </button>
             <a style="color: white" id="backButton" {% if Data_Dict.Type == 3%} href="{% url 'Other Proceedings Landing' %}"  {% endif %} {% if Data_Dict.Type == 2%} href="{% url 'Judicial Proceedings Landing' %}"  {% endif %} {% if Data_Dict.Type == 1%} href="{% url 'Regular Proceedings Landing' %}"  {% endif %}><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
         </div>
     </div>
@@ -394,28 +412,59 @@
 </div>
 
 <script>
+    function toggleMarkCase(event, proceedingId, isMarked) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const action = isMarked ? 'unmark' : 'mark';
+        const button = event.currentTarget;
+        
+        $.ajax({
+            url: '{% url "Mark Case" %}',
+            method: 'POST',
+            data: {
+                proceeding_id: proceedingId,
+                action: action,
+                csrfmiddlewaretoken: document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            success: function(response) {
+                if (response.success) {
+                    if (action === 'mark') {
+                        button.classList.remove('btn-outline-warning');
+                        button.classList.add('btn-warning');
+                        button.querySelector('i').classList.remove('fa-star-o');
+                        button.querySelector('i').classList.add('fa-star');
+                    } else {
+                        button.classList.remove('btn-warning');
+                        button.classList.add('btn-outline-warning');
+                        button.querySelector('i').classList.remove('fa-star');
+                        button.querySelector('i').classList.add('fa-star-o');
+                    }
+                }
+            },
+        });
+    }
 
-    $(document).ready( function () {
+    $(document).ready(function() {
+        $('#save_button_1').on('click', function() {
+            $("#Case_Reference_no").prop('readonly', true);
+            $("#Forum_Bench").prop('readonly', true);
+            $("#Led_By").prop('readonly', true);
+        });
 
-    $('#save_button_1').on('click', function() {
-        $("#Case_Reference_no").prop('readonly', true);
-        $("#Forum_Bench").prop('readonly', true);
-        $("#Led_By").prop('readonly', true);
-    });
+        $('#Elevate_Yes').on('click', function() {
+            $("#closure_title").show();
+            $("#closure_details").show();
+            $("#submitDiv1").show();
+            $("#contacts").hide();
+            $("#contact_span").hide();
+        });
 
-    $('#Elevate_Yes').on('click', function() {
-        $("#closure_title").show();
-        $("#closure_details").show();
-        $("#submitDiv1").show();
-        $("#contacts").hide();
-        $("#contact_span").hide();
-    });
-
-    $('#reset_button_1').on('click', function() {
-        $("#Case_Reference_no").prop('readonly', false);
-        $("#Forum_Bench").prop('readonly', false);
-        $("#Led_By").prop('readonly', false);
-    });
+        $('#reset_button_1').on('click', function() {
+            $("#Case_Reference_no").prop('readonly', false);
+            $("#Forum_Bench").prop('readonly', false);
+            $("#Led_By").prop('readonly', false);
+        });
         var counter = 1;
         $('#add_contact').on('click', function(e) {
             if(counter == 1){
@@ -446,62 +495,45 @@
             $('input').attr('readonly', true);
              $("#Closure_Remarks").attr('readonly', false);
         {% endif %}
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        const csrftoken = getCookie('csrftoken');
 
-        $("#save_button").click(function(e){
+        $("#save_button").click(function(e) {
             e.preventDefault();
-            record_id = $('#recordId').val();
-            accepted_by = $("#acceptedBy").val();
-            accepted_date = $("#acceptanceDate").val();
-            description = $("#description").val();
-            handled_by = $("#handledBy").val();
-            checked_by = $("#checkedBy").val();
-            signed_by = $("#signedBy").val();
-            date_of_cert = $("#dateOfCertificate").val();
-            udin = $("#udin").val();
-            remarks = $("#remarks").val();
+            const formData = {
+                Record_Id: $('#recordId').val(),
+                acceptedBy: $("#acceptedBy").val(),
+                acceptanceDate: $("#acceptanceDate").val(),
+                description: $("#description").val(),
+                Handled_By: $("#handledBy").val(),
+                Checked_By: $("#checkedBy").val(),
+                Signed_By: $("#signedBy").val(),
+                Date_of_Certificate: $("#dateOfCertificate").val(),
+                Udin: $("#udin").val(),
+                Remarks: $("#remarks").val(),
+                save_fur: false,
+                csrfmiddlewaretoken: document.querySelector('[name=csrfmiddlewaretoken]').value
+            };
+
             $.ajax({
                 type: "POST",
                 url: "{% url 'Further Cert Submit' %}",
-                beforeSend: function(xhr, settings) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                },
-                data: {
-                    Record_Id: record_id,
-                    acceptedBy: accepted_by,
-                    acceptanceDate: accepted_date,
-                    Remarks: remarks,
-                    Handled_By: handled_by,
-                    Checked_By: checked_by,
-                    Signed_By: signed_by,
-                    description: description,
-                    Date_of_Certificate: date_of_cert,
-                    Udin: udin,
-                    save_fur: false
-                },
-                success: function(result){
+                data: formData,
+                success: function() {
                     alert("Details Saved");
                     document.getElementById('backButton').click();
                 }
             });
         });
     });
-
 </script>
+
+<style>
+    .btn-outline-warning:hover {
+        background-color: #ffc107;
+        color: #000;
+    }
+    .btn-warning {
+        color: #000;
+    }
+</style>
 
 {% endblock %}

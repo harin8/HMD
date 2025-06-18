@@ -9,14 +9,23 @@ import clients.database as client_database
 # Create your views here.
 @login_required
 def landing(request):
-    proc_list = proc_database.live_board_proceedings_list()
+    """Updated landing view with marked cases support"""
+    show_marked_only = request.GET.get('show_marked_only', 'false').lower() == 'true'
+    username = request.user.id if show_marked_only else None
+    
+    proc_list = proc_database.live_board_proceedings_list(username, show_marked_only)
+    
     live_board_unique_proceedings = []
     for data in proc_list:
         data['Client_code'] = proc_database.get_client_code_from_name(data['Name'])
         data['Group_name'] = proc_database.get_group_name_from_client_name(data['Name'])
         live_board_unique_proceedings.append(data['Description'])
-    return render(request, 'landing.html', {'Live_Board': proc_list,
-                                            'Unique_Proceedings': list(set(live_board_unique_proceedings))})
+    
+    return render(request, 'landing.html', {
+        'Live_Board': proc_list,
+        'Unique_Proceedings': list(set(live_board_unique_proceedings)),
+        'show_marked_only': show_marked_only
+    })
 
 @login_required
 @permission_required('IT_Return', 'view')

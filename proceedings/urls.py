@@ -16,7 +16,8 @@ urlpatterns = [
     path('pdf_view/<slug:id>', views.pdf_view, name='PDF View'),
     path('further_pro_submit/', views.further_proc_submit, name='Further Proc Submit'),
     path('submit_proceedings_events/', views.submit_proceedings_events, name='Further Proc Event Submit'),
-    re_path(r'^view-pdf/$', views.pdf_view, name='pdf_view')
+    re_path(r'^view-pdf/$', views.pdf_view, name='pdf_view'),
+    path('mark-case/', views.mark_case, name='Mark Case'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

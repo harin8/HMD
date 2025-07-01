@@ -26,6 +26,7 @@
                 <thead>
                     <tr>
                         <th>Employee Name</th>
+                        <th>Total Hours</th>
                         <th>Utilized Hours</th>
                         <th>Pending Hours</th>
                         <th>Status</th>
@@ -36,11 +37,12 @@
                     {% for data in user_data %}
                     <tr class="{% if data.is_critical %}critical{% endif %}">
                         <td>{{ data.user.get_full_name }}</td>
+                        <td>{{ data.standard_hours|floatformat:2 }}</td>
                         <td>{{ data.total_hours }}</td>
                         <td>{{ data.pending_hours }}</td>
                         <td>
                             {% if data.is_critical %}
-                            <span class="badge critical">Critical (7+ days pending)</span>
+                            <span class="badge critical">Critical ({{ data.days_with_pending }} days pending)</span>
                             {% elif data.days_with_pending > 3 %}
                             <span class="badge warning">Warning ({{ data.days_with_pending }} days pending)</span>
                             {% else %}
@@ -55,7 +57,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="5" class="details-cell">
+                        <td colspan="6" class="details-cell">
                             <div id="details-{{ data.user.id }}" class="details-content" style="display: none;">
                                 {% if data.timesheet_entries %}
                                 <table class="details-table">
@@ -128,17 +130,30 @@
     .main-table {
         width: 100%;
         border-collapse: collapse;
+        font-size: 0.9em;
     }
 
     .main-table th,
     .main-table td {
-        padding: 8px;
+        padding: 8px 6px;
         border: 1px solid #ddd;
         text-align: left;
+        vertical-align: middle;
     }
 
     .main-table th {
         background: #f8f9fa;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .main-table td {
+        white-space: nowrap;
+    }
+
+    .main-table td:nth-child(1) {
+        white-space: normal;
+        min-width: 150px;
     }
 
     .details-table {

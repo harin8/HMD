@@ -166,15 +166,34 @@ def get_pending_entries(request):
     # Get entries for the last 7 days or until start date
     pending_entries = []
     today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    # Calculate the start date for checking (either user's start date or 7 days ago)
+    start_check_date = user_start_date if user_start_date else today - timedelta(days=7)
+    
+    # Get all timesheet entries for the date range in one query to reduce database calls
+    from .database import db
+    all_entries = list(db.timesheetMaster.find({
+        'user_id': str(request.user.id),
+        'date': {'$gte': start_check_date, '$lte': today}
+    }).sort('date', -1).sort('created_at', -1))
+    
+    # Group entries by date for easier processing
+    entries_by_date = {}
+    for entry in all_entries:
+        date_str = entry['date'].strftime('%Y-%m-%d')
+        if date_str not in entries_by_date:
+            entries_by_date[date_str] = []
+        entries_by_date[date_str].append(entry)
+    
     days_back = 0
-
     # Keep going back until we find 7 days with pending hours or hit user's start date
     while len(pending_entries) < 7:
         check_date = today - timedelta(days=days_back)
         if user_start_date and check_date < user_start_date:
             break
         if check_date.weekday() != 6:  # Skip Sundays
-            daily_entries = get_user_timesheets(request.user.id, check_date, id=False)
+            date_str = check_date.strftime('%Y-%m-%d')
+            daily_entries = entries_by_date.get(date_str, [])
             
             # Get time in/out from first entry of the day, or use defaults if no entries
             if daily_entries:
@@ -278,36 +297,96 @@ def employee_corner(request):
     user_data = []
     today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     
+    # Pre-fetch all user profiles to reduce database calls
+    user_profiles = {}
     for user in all_users:
-        # Get user profile for working hours
-        user_profile = get_user_profile_mongo(user.id)
+        user_profiles[user.id] = get_user_profile_mongo(user.id)
+    
+    # Get all timesheet entries for all users for the selected date and recent dates for pending calculation
+    from .database import db
+    user_ids = [str(user.id) for user in all_users]
+    
+    # Calculate the start date for pending days calculation (7 days ago or user's start date)
+    min_start_date = today - timedelta(days=7)
+    for user in all_users:
+        user_profile = user_profiles[user.id]
+        user_start_date = user_profile.get('effective_date')
+        if user_start_date and user_start_date < min_start_date:
+            min_start_date = user_start_date
+    
+    # Fetch all timesheet entries for the date range
+    all_timesheet_entries = list(db.timesheetMaster.find({
+        'user_id': {'$in': user_ids},
+        'date': {'$gte': min_start_date, '$lte': today}
+    }, {'_id': 0}).sort('date', -1).sort('created_at', -1))
+    
+    # Group entries by user and date for easier processing
+    entries_by_user_date = {}
+    for entry in all_timesheet_entries:
+        user_id = entry['user_id']
+        date_str = entry['date'].strftime('%Y-%m-%d')
+        if user_id not in entries_by_user_date:
+            entries_by_user_date[user_id] = {}
+        if date_str not in entries_by_user_date[user_id]:
+            entries_by_user_date[user_id][date_str] = []
+        entries_by_user_date[user_id][date_str].append(entry)
+    
+    for user in all_users:
+        user_profile = user_profiles[user.id]
         default_time_in = user_profile.get('time_in', '09:00')
         default_time_out = user_profile.get('time_out', '18:00')
         user_start_date = user_profile.get('effective_date')
         
-        # Calculate standard hours
-        time_in = datetime.strptime(default_time_in, '%H:%M')
-        time_out = datetime.strptime(default_time_out, '%H:%M')
-        standard_hours = (time_out - time_in).seconds / 3600
-        
         # Get timesheet entries for selected date
-        daily_entries = get_user_timesheets(user.id, selected_date)
+        selected_date_str = selected_date.strftime('%Y-%m-%d')
+        daily_entries = entries_by_user_date.get(str(user.id), {}).get(selected_date_str, [])
+        
+        # Get time in/out from first entry of the selected date, or use defaults if no entries
+        if daily_entries:
+            first_entry = daily_entries[0]  # Get the first entry of the day
+            time_in = first_entry.get('time_in', default_time_in)
+            time_out = first_entry.get('time_out', default_time_out)
+        else:
+            time_in = default_time_in
+            time_out = default_time_out
+        
+        # Calculate standard hours for the selected date
+        time_in_obj = datetime.strptime(time_in, '%H:%M')
+        time_out_obj = datetime.strptime(time_out, '%H:%M')
+        standard_hours = (time_out_obj - time_in_obj).seconds / 3600
+        
         daily_total = sum(entry.get('hours', 0) for entry in daily_entries)
         pending_hours = standard_hours - daily_total if selected_date.weekday() != 6 else 0
         
-        # Calculate pending days from user's start date
+        # Calculate pending days from user's start date or last 7 days, whichever is more recent
+        start_check_date = user_start_date if user_start_date else today - timedelta(days=7)
         days_with_pending = 0
         total_pending_days = 0
         check_date = today
         
-        # Count pending days from user's start date or last 7 days, whichever is more recent
-        start_check_date = user_start_date if user_start_date else today - timedelta(days=7)
+        user_entries = entries_by_user_date.get(str(user.id), {})
         
         while check_date >= start_check_date:
             if check_date.weekday() != 6:  # Skip Sunday
-                day_entries = get_user_timesheets(user.id, check_date)
+                check_date_str = check_date.strftime('%Y-%m-%d')
+                day_entries = user_entries.get(check_date_str, [])
+                
+                # Get time in/out from first entry of this day, or use defaults if no entries
+                if day_entries:
+                    first_day_entry = day_entries[0]
+                    day_time_in = first_day_entry.get('time_in', default_time_in)
+                    day_time_out = first_day_entry.get('time_out', default_time_out)
+                else:
+                    day_time_in = default_time_in
+                    day_time_out = default_time_out
+                
+                # Calculate standard hours for this specific day
+                day_time_in_obj = datetime.strptime(day_time_in, '%H:%M')
+                day_time_out_obj = datetime.strptime(day_time_out, '%H:%M')
+                day_standard_hours = (day_time_out_obj - day_time_in_obj).seconds / 3600
+                
                 day_total = sum(entry.get('hours', 0) for entry in day_entries)
-                if standard_hours - day_total > 0:
+                if day_standard_hours - day_total > 0:
                     days_with_pending += 1
                 total_pending_days += 1
             check_date -= timedelta(days=1)
@@ -327,6 +406,7 @@ def employee_corner(request):
             'total_pending_days': total_pending_days,
             'start_date': start_check_date.strftime('%Y-%m-%d') if start_check_date else None
         })
+    
     # Sort users by pending hours and critical status
     user_data.sort(key=lambda x: (-x['is_critical'], -x['pending_hours']))
     

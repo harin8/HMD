@@ -38,7 +38,7 @@
             <div class="col-md-2">
                 <div class="form-group">
                     <label>A.Y.:</label>
-                    <select required name="AY" class="form-control" id="ay" {% if Data_Dict.Submitted_ini %} disabled {% endif %}>
+                    <select required name="AY" class="form-control selectpicker" id="ay" {% if Data_Dict.Submitted_ini %} disabled {% endif %}>
                         {% for ay in AY_list %}
                             {% if ay == AY_Selected %}
                                 <option value="{{ ay|safe }}" selected> {{ay|title}} </option>
@@ -202,9 +202,38 @@
 <script>
     $(document).ready( function () {
 
-        $('select').selectpicker();
-        $('select').prepend('<option value="-1" selected disabled>--Select--</option>');
-        $('select').selectpicker('refresh');
+        $('.selectpicker').selectpicker();
+        $('.selectpicker').prepend('<option value="-1" selected disabled>--Select--</option>');
+        $('.selectpicker').selectpicker('refresh');
+
+        // Add validation to ensure users select a valid option
+        $('form').on('submit', function(e) {
+            var isValid = true;
+            $('.selectpicker').each(function() {
+                var selectedValue = $(this).val();
+                if (selectedValue === '-1' || selectedValue === null || selectedValue === undefined) {
+                    isValid = false;
+                    $(this).closest('.form-group').addClass('has-error');
+                    $(this).focus();
+                } else {
+                    $(this).closest('.form-group').removeClass('has-error');
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please select a valid option for all required fields.');
+                return false;
+            }
+        });
+
+        // Remove error styling when user selects a valid option
+        $('.selectpicker').on('changed.bs.select', function() {
+            var selectedValue = $(this).val();
+            if (selectedValue !== '-1' && selectedValue !== null && selectedValue !== undefined) {
+                $(this).closest('.form-group').removeClass('has-error');
+            }
+        });
 
         var certificate_table = $('#existing-proceedingsList').DataTable({
             dom: 'Bfrtip',
@@ -266,7 +295,7 @@
           $('#clientName').val(client_list[i].Name);
           client_code_list_temp.push(client_list[i].Client_code);
           client_name_list_temp.push(client_list[i].Name);
-          $('select').selectpicker('refresh');
+          $('.selectpicker').selectpicker('refresh');
         }
       }
     }
@@ -280,7 +309,7 @@
           $('#groupName').val(client_list[i].Group_name);
           client_code_list_temp.push(client_list[i].Client_code);
           group_name_list_temp.push(client_list[i].Group_name);
-          $('select').selectpicker('refresh');
+          $('.selectpicker').selectpicker('refresh');
         }
       }
     }
@@ -294,7 +323,7 @@
           $('#clientName').val(client_list[i].Name);
           group_name_list_temp.push(client_list[i].Group_name);
           client_name_list_temp.push(client_list[i].Name);
-          $('select').selectpicker('refresh');
+          $('.selectpicker').selectpicker('refresh');
         }
       }
     }

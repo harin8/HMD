@@ -40,7 +40,7 @@
        <div class="col-md-2">
             <div class="form-group">
                 <label>A.Y.:</label>
-                <select required name="AY" class="form-control" id="ay" {% if Data_Dict.Submitted_ini %} disabled {% endif %}>
+                <select required name="AY" class="form-control selectpicker" id="ay" {% if Data_Dict.Submitted_ini %} disabled {% endif %}>
                     {% for ay in AY_list %}
                         {% if ay == AY_Selected %}
                             <option value="{{ ay|safe }}" selected> {{ay|title}} </option>
@@ -215,33 +215,61 @@
 
 <script>
     $(document).ready( function () {
+      $('.selectpicker').selectpicker();
+      $('.selectpicker').prepend('<option value="-1" selected disabled>--Select--</option>');
+      $('.selectpicker').selectpicker('refresh');
 
-        $('select').selectpicker();
-        $('select').prepend('<option value="-1" selected disabled>--Select--</option>');
-        $('select').selectpicker('refresh');
-
-        var certificate_table = $('#existing-proceedingsList').DataTable({
-            dom: 'Bfrtip',
-            lengthMenu: [[10,25,50,100,-1],[10,25,50,100,"All"]],
-			buttons: [{
-                extend: 'excel',
-                title: 'Proceedings'
-            },
-            {
-                extend: 'pageLength'
-            }]
-		});
-
-		// Filter the DataTable based on the selected group name
-        $('#groupSelect').on('changed.bs.select', function (e) {
-            var selectedGroups = $(this).val();
-            if (selectedGroups && selectedGroups.length > 0) {
-                var searchRegex = '^(' + selectedGroups.join('|') + ')$';
-                certificate_table.column(0).search(searchRegex, true, false).draw();
+      // Add validation to ensure users select a valid option
+      $('form').on('submit', function(e) {
+        var isValid = true;
+        $('.selectpicker').each(function() {
+            var selectedValue = $(this).val();
+            if (selectedValue === '-1' || selectedValue === null || selectedValue === undefined) {
+                isValid = false;
+                $(this).closest('.form-group').addClass('has-error');
+                $(this).focus();
             } else {
-                certificate_table.column(0).search('').draw();
+                $(this).closest('.form-group').removeClass('has-error');
             }
         });
+        
+        if (!isValid) {
+          e.preventDefault();
+          alert('Please select a valid option for all required fields.');
+          return false;
+        }
+      });
+
+      // Remove error styling when user selects a valid option
+      $('.selectpicker').on('changed.bs.select', function() {
+        var selectedValue = $(this).val();
+        if (selectedValue !== '-1' && selectedValue !== null && selectedValue !== undefined) {
+          $(this).closest('.form-group').removeClass('has-error');
+        }
+      });
+
+      var certificate_table = $('#existing-proceedingsList').DataTable({
+        dom: 'Bfrtip',
+        lengthMenu: [[10,25,50,100,-1],[10,25,50,100,"All"]],
+        buttons: [{
+          extend: 'excel',
+          title: 'Proceedings'
+        },
+        {
+          extend: 'pageLength'
+        }]
+		  });
+
+		  // Filter the DataTable based on the selected group name
+      $('#groupSelect').on('changed.bs.select', function (e) {
+        var selectedGroups = $(this).val();
+        if (selectedGroups && selectedGroups.length > 0) {
+            var searchRegex = '^(' + selectedGroups.join('|') + ')$';
+            certificate_table.column(0).search(searchRegex, true, false).draw();
+        } else {
+            certificate_table.column(0).search('').draw();
+        }
+      });
     });
 
     var client_list = {{ Client_list|safe }};
@@ -280,7 +308,7 @@
           $('#clientName').val(client_list[i].Name);
           client_code_list_temp.push(client_list[i].Client_code);
           client_name_list_temp.push(client_list[i].Name);
-          $('select').selectpicker('refresh');
+          $('.selectpicker').selectpicker('refresh');
         }
       }
     }
@@ -294,7 +322,7 @@
           $('#groupName').val(client_list[i].Group_name);
           client_code_list_temp.push(client_list[i].Client_code);
           group_name_list_temp.push(client_list[i].Group_name);
-          $('select').selectpicker('refresh');
+          $('.selectpicker').selectpicker('refresh');
         }
       }
     }
@@ -308,7 +336,7 @@
           $('#clientName').val(client_list[i].Name);
           group_name_list_temp.push(client_list[i].Group_name);
           client_name_list_temp.push(client_list[i].Name);
-          $('select').selectpicker('refresh');
+          $('.selectpicker').selectpicker('refresh');
         }
       }
     }

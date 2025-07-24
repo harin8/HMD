@@ -39,6 +39,7 @@ def submit_certificate(request):
     accepted_by = request.POST.get('Accepted_By')
     client_code = request.POST.get('Client_Code')
     acceptance_date = request.POST.get('Acceptance_Date')
+    detailed_description = request.POST.get('Detailed_Description')
     #acceptance_date_type = database.string_to_date(acceptance_date)
     description = request.POST.get('Description')
     # check if client name is valid
@@ -51,6 +52,7 @@ def submit_certificate(request):
             'Accepted_by': accepted_by.upper(),
             'Acceptance_date': acceptance_date,
             'Description': description.upper(),
+            'Detailed_description': detailed_description.upper(),
             'File': 0
         }
         result = database.add_certificate_data_in_db(data_dict)

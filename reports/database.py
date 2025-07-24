@@ -123,7 +123,7 @@ def get_cert_result(client_name, group_name_list, period, read, party):
         data['Group_name'] = get_group_name_from_client_name(data['Name'])
         data['Client_code'] = get_client_code_from_name(data['Name'])
         data['Party_name'] = get_party_name_from_name(data['Name'])
-        data['Task'] = data['Description']
+        data['Task'] = data['Description'] + " - " + data['Detailed_description']
         data['Year'] = ''
         data['Start_date'] = data['Acceptance_date_str']
         data['End_date'] = data['Date_of_certificate_str']
@@ -157,7 +157,7 @@ def get_other_result(client_name, group_name_list, period, read, party):
         data['Group_name'] = get_group_name_from_client_name(data['Name'])
         data['Client_code'] = get_client_code_from_name(data['Name'])
         data['Party_name'] = get_party_name_from_name(data['Name'])
-        data['Task'] = data['Description']
+        data['Task'] = data['Description'] + " - " + data['Detailed_description']
         data['Year'] = ''
         data['Start_date'] = data['Acceptance_date_str']
         data['End_date'] = data['Date_of_certificate_str']

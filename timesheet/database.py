@@ -70,11 +70,11 @@ def get_it_returns(client_name):
 
 def get_certificates(client_name):
     results = list(db.certificateMaster.find({'Read': {'$ne': 'Read'}, 'Name': client_name}, 
-                                          {'Description': 1, 'Remarks': 1}))
+                                          {'Description': 1, 'Remarks': 1, 'Detailed_description': 1}))
     
     formatted_results = []
     for result in results:
-        display_text = f"{result['Description']} + {result.get('Remarks', '')}"
+        display_text = f"{result['Description']} +  {result.get('Detailed_description', '')} + {result.get('Remarks', '')}"
         formatted_results.append({
             'id': str(result['_id']),
             'display': display_text
@@ -83,10 +83,10 @@ def get_certificates(client_name):
 
 def get_other_forms(client_name):
     results = list(db.otherFormsMaster.find({'Read': {'$ne': 'Read'}, 'Name': client_name}, 
-                                         {'Description': 1, 'Remarks': 1}))
+                                         {'Description': 1, 'Remarks': 1, 'Detailed_description': 1}))
     formatted_results = []
     for result in results:
-        display_text = f"{result['Description']} + {result.get('Remarks', '')}"
+        display_text = f"{result['Description']} + {result.get('Detailed_description', '')} + {result.get('Remarks', '')}"
         formatted_results.append({
             'id': str(result['_id']),
             'display': display_text

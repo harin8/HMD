@@ -67,6 +67,14 @@
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Detailed Description:</label>
+                <input style="text-transform:uppercase" required type="text" name="Detailed_Description" id="detailedDescription" class="form-control" placeholder="Enter Detailed Description" value="">
+            </div>
+        </div>
+    </div>
     <br>
     <div class="row">
       <div class="form-group col-md-3">
@@ -106,6 +114,7 @@
                                     <th align="left">Accepted By</th>
                                     <th align="left">Acceptance Date</th>
                                     <th align="left">Description</th>
+                                    <th align="left">Detailed Description</th>
                                     <th align="left">Handled By</th>
                                     <th align="left">Checked By</th>
                                     <th align="left">Signed By</th>
@@ -124,6 +133,7 @@
                                     <td align="left">{{ each_cert.Accepted_by }}</td>
                                     <td align="left">{{ each_cert.Acceptance_date }}</td>
                                     <td align="left">{{ each_cert.Description }}</td>
+                                    <td align="left">{{ each_cert.Detailed_description }}</td>
                                     <td align="left">{{ each_cert.Handled_by }}</td>
                                     <td align="left">{{ each_cert.Checked_by }}</td>
                                     <td align="left">{{ each_cert.Signed_by }}</td>
@@ -152,6 +162,7 @@
                                         <th align="left">Accepted By</th>
                                         <th align="left">Acceptance Date</th>
                                         <th align="left">Description</th>
+                                        <th align="left">Detailed Description</th>
                                         <th align="left">Handled By</th>
                                         <th align="left">Checked By</th>
                                         <th align="left">Signed By</th>

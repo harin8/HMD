@@ -82,13 +82,13 @@ def get_roi_result(client_name, group_name_list, ay, read, party):
         result = list(db.returnMaster.find({'Read': 'Read', 'Name': {'$in': client_name}, 'AY': {'$in': ay}}))
     for data in result:
         data['Group_name'] = get_group_name_from_client_name(data['Name'])
-        data['Client_code'] = get_client_code_from_name(data['Name'])
-        data['Party_name'] = get_party_name_from_name(data['Name'])
-        data['Task'] = data['Type']
-        data['Start_date'] = date_to_IST_format(data['Acceptance_date'])
+        data['Client_code'] = get_client_code_from_name(data.get('Name', ''))
+        data['Party_name'] = get_party_name_from_name(data.get('Name', ''))
+        data['Task'] = data.get('Type', '')
+        data['Start_date'] = date_to_IST_format(data.get('Acceptance_date', ''))
         data['Year'] = "AY - " + data['AY']
         try:
-            data['End_date'] = date_to_IST_format(data['Filing_date'])
+            data['End_date'] = date_to_IST_format(data.get('Filing_date', ''))
         except:
             data['End_date'] = '-'
         data['Type'] = 'ROI'
@@ -106,11 +106,11 @@ def get_cert_result(client_name, group_name_list, period, read, party):
     new_result = []
     for data in result:
         try:
-            date_of_cert = data['Date_of_certificate']
+            date_of_cert = data.get('Date_of_certificate', '')
         except:
             date_of_cert = '-'
         try:
-            date_of_accept = datetime.datetime.strptime(data['Acceptance_date'], '%Y-%m-%d')
+            date_of_accept = datetime.datetime.strptime(data.get('Acceptance_date', ''), '%Y-%m-%d')
         except:
             date_of_accept = datetime.datetime.now()
 
@@ -120,12 +120,12 @@ def get_cert_result(client_name, group_name_list, period, read, party):
             new_result.append(data)
 
     for data in new_result:
-        data['Group_name'] = get_group_name_from_client_name(data['Name'])
-        data['Client_code'] = get_client_code_from_name(data['Name'])
-        data['Party_name'] = get_party_name_from_name(data['Name'])
-        data['Task'] = data['Description'] + " - " + data['Detailed_description']
+        data['Group_name'] = get_group_name_from_client_name(data.get('Name', ''))
+        data['Client_code'] = get_client_code_from_name(data.get('Name', ''))
+        data['Party_name'] = get_party_name_from_name(data.get('Name', ''))
+        data['Task'] = data.get('Description', '') + " - " + data.get('Detailed_description', '')
         data['Year'] = ''
-        data['Start_date'] = data['Acceptance_date_str']
+        data['Start_date'] = data.get('Acceptance_date_str', '')
         data['End_date'] = data['Date_of_certificate_str']
         data['Type'] = 'Certificate'
     return new_result
@@ -141,11 +141,11 @@ def get_other_result(client_name, group_name_list, period, read, party):
     new_result = []
     for data in result:
         try:
-            date_of_cert = data['Date_of_document']
+            date_of_cert = data.get('Date_of_document', '')
         except:
             date_of_cert = '-'
         try:
-            date_of_accept = datetime.datetime.strptime(data['Acceptance_date'], '%Y-%m-%d')
+            date_of_accept = datetime.datetime.strptime(data.get('Acceptance_date', ''), '%Y-%m-%d')
         except:
             date_of_accept = datetime.datetime.now()
         if date_of_accept >= datetime.datetime.strptime(period['Start_date'], '%Y-%m-%d'):
@@ -154,13 +154,13 @@ def get_other_result(client_name, group_name_list, period, read, party):
             new_result.append(data)
 
     for data in new_result:
-        data['Group_name'] = get_group_name_from_client_name(data['Name'])
-        data['Client_code'] = get_client_code_from_name(data['Name'])
-        data['Party_name'] = get_party_name_from_name(data['Name'])
-        data['Task'] = data['Description'] + " - " + data['Detailed_description']
+        data['Group_name'] = get_group_name_from_client_name(data.get('Name', ''))
+        data['Client_code'] = get_client_code_from_name(data.get('Name', ''))
+        data['Party_name'] = get_party_name_from_name(data.get('Name', ''))
+        data['Task'] = data.get('Description', '') + " - " + data.get('Detailed_description', '')
         data['Year'] = ''
-        data['Start_date'] = data['Acceptance_date_str']
-        data['End_date'] = data['Date_of_certificate_str']
+        data['Start_date'] = data.get('Acceptance_date_str', '')
+        data['End_date'] = data.get('Date_of_certificate_str', '')
         data['Type'] = 'Other'
     return new_result
 
@@ -173,14 +173,14 @@ def get_tds_result(client_name, group_name_list, ay, read, party):
     else:
         result = list(db.tdsMaster.find({'Read': 'Read', 'Name': {'$in': client_name}, 'AY': {'$in': ay}}))
     for data in result:
-        data['Group_name'] = get_group_name_from_client_name(data['Name'])
-        data['Client_code'] = get_client_code_from_name(data['Name'])
-        data['Party_name'] = get_party_name_from_name(data['Name'])
-        data['Task'] = "[" + data['Form'] + "] " + data['Type']
-        data['Start_date'] = date_to_IST_format(data['Acceptance_date'])
+        data['Group_name'] = get_group_name_from_client_name(data.get('Name', ''))
+        data['Client_code'] = get_client_code_from_name(data.get('Name', ''))
+        data['Party_name'] = get_party_name_from_name(data.get('Name', ''))
+        data['Task'] = "[" + data.get('Form', '') + "] " + data.get('Type', '')
+        data['Start_date'] = date_to_IST_format(data.get('Acceptance_date', ''))
         data['Year'] = "AY - [" + data['AY'] + "] Q - [" + data['Quarter'] + "]"
         try:
-            data['End_date'] = date_to_IST_format(data['Filing_date'])
+            data['End_date'] = date_to_IST_format(data.get('Filing_date', ''))
         except:
             data['End_date'] = '-'
         data['Type'] = 'TDS'
@@ -197,19 +197,19 @@ def get_proceedings_result(client_name, group_name_list, ay, read, party):
     else:
         result = list(db.proceedingsMaster.find({'Read': 'Read', 'Name': {'$in': client_name}, 'AY': {'$in': ay}}))
     for data in result:
-        data['Group_name'] = get_group_name_from_client_name(data['Name'])
-        data['Client_code'] = get_client_code_from_name(data['Name'])
-        data['Party_name'] = get_party_name_from_name(data['Name'])
+        data['Group_name'] = get_group_name_from_client_name(data.get('Name', ''))
+        data['Client_code'] = get_client_code_from_name(data.get('Name', ''))
+        data['Party_name'] = get_party_name_from_name(data.get('Name', ''))
         try:
-            data['Task'] = data['Description'] + " - " + str(data['Section']) + "-" +\
-                           str(data['Case_reference_no']) + " - " + data['Closure_particulars']
+            data['Task'] = data.get('Description', '') + " - " + str(data.get('Section', '')) + "-" +\
+                           str(data.get('Case_reference_no', '')) + " - " + data.get('Closure_particulars', '')
         except Exception as ex:
-            data['Task'] = data['Description'] + " - " + str(data['Case_reference_no'])
-        data['Start_date'] = date_to_IST_format(data['Base_date'])
-        data['Year'] = "AY - " + data['AY']
+            data['Task'] = data.get('Description', '') + " - " + str(data.get('Case_reference_no', ''))
+        data['Start_date'] = date_to_IST_format(data.get('Base_date', ''))
+        data['Year'] = "AY - " + data.get('AY', '')
         try:
-            if data["Status"] == "Completed":
-                data['End_date'] = date_to_IST_format(data['Closure_date'])
+            if data.get("Status", '') == "Completed":
+                data['End_date'] = date_to_IST_format(data.get('Closure_date', ''))
             else:
                 data['End_date'] = '-'
         except:

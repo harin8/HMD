@@ -347,3 +347,40 @@ def live_board_proceedings_list(username=None, show_marked_only=False):
     return result
 
 
+def delete_proceedings_record(proceeding_id):
+    """Delete a proceedings record by ID and its related events"""
+    try:
+        # First get the proceedings record before deleting
+        proc_record = db.proceedingsMaster.find_one({'_id': ObjectId(proceeding_id)})
+        if not proc_record:
+            return False
+            
+        # Get all related events before deleting
+        events_records = list(db.proceedingsEventMaster.find({'Proceeding_id': proceeding_id}))
+        
+        # Add deletion timestamp and move to deleted collections
+        proc_record['deleted_at'] = datetime.now()
+        proc_record['original_id'] = proc_record['_id']
+        del proc_record['_id']  # Remove the original _id so MongoDB creates a new one
+        
+        # Insert into deleted proceedings collection
+        db.deletedProceedingsMaster.insert_one(proc_record)
+        
+        # Move events to deleted events collection
+        for event in events_records:
+            event['deleted_at'] = datetime.now()
+            event['original_id'] = event['_id']
+            event['proceeding_original_id'] = proceeding_id
+            del event['_id']  # Remove the original _id so MongoDB creates a new one
+            db.deletedProceedingsEventMaster.insert_one(event)
+        
+        # Now delete from original collections
+        events_result = db.proceedingsEventMaster.delete_many({'Proceeding_id': proceeding_id})
+        result = db.proceedingsMaster.delete_one({'_id': ObjectId(proceeding_id)})
+        
+        return result.deleted_count > 0
+    except Exception as e:
+        print(f"Error deleting proceedings record: {e}")
+        return False
+
+

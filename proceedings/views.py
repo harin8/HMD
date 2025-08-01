@@ -9,6 +9,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseNotFound
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+import clients.database as client_database
 # Create your views here.
 
 
@@ -408,3 +409,18 @@ def pdf_view(request, id):
             return response
     else:
         return HttpResponseNotFound('The requested pdf was not found.')
+
+
+def delete_proceedings(request):
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        id = request.POST.get('proceedingId')
+        if client_database.verify_password("Record Delete", password): 
+            if database.delete_proceedings_record(id):
+                return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Record not found.'}, status=404)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Incorrect password.'}, status=403)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
+

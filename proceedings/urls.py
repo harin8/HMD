@@ -18,6 +18,7 @@ urlpatterns = [
     path('submit_proceedings_events/', views.submit_proceedings_events, name='Further Proc Event Submit'),
     re_path(r'^view-pdf/$', views.pdf_view, name='pdf_view'),
     path('mark-case/', views.mark_case, name='Mark Case'),
+    path('delete-proceedings/', views.delete_proceedings, name='Delete Proceedings'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

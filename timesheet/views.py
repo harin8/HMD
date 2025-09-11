@@ -1,32 +1,52 @@
-from django.shortcuts import render, redirect
+import json
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional
+
 from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.core.serializers.json import DjangoJSONEncoder
+from django.http import JsonResponse, HttpRequest
+from django.shortcuts import render, redirect
+
 from accounts.database import get_user_profile_mongo, get_group_members
 from accounts.decorators import permission_required
 from .database import (
-    get_user_first_effective_date, save_timesheet, get_user_timesheets, 
-    get_it_returns, get_certificates, get_client_names,
-    get_other_forms, get_proceedings, get_tds, delete_timesheet_entry as db_delete_timesheet_entry,
+    get_user_first_effective_date,
+    save_timesheet,
+    get_user_timesheets,
+    get_it_returns,
+    get_certificates,
+    get_client_names,
+    get_other_forms,
+    get_proceedings,
+    get_tds,
+    delete_timesheet_entry as db_delete_timesheet_entry,
 )
-from datetime import datetime, timedelta
-from django.http import JsonResponse
-from django.contrib.auth import get_user_model
-import json
-from django.core.serializers.json import DjangoJSONEncoder
 
 
-def is_group_head(user):
+def is_group_head(user) -> bool:
+    """Check if user is a Group Head."""
     return user.groups.filter(name='Group Head').exists()
 
-def is_super_group_head(user):
+
+def is_super_group_head(user) -> bool:
+    """Check if user is a Super Group Head."""
     return user.groups.filter(name='Super Group Head').exists()
 
-def is_admin(user):
+
+def is_admin(user) -> bool:
+    """Check if user is a Super Admin."""
     return user.groups.filter(name='Super Admin').exists()
 
 # Create your views here.
+
+
 @permission_required('timesheet', 'view')
-def fill_timesheet(request):
-    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+def fill_timesheet(request: HttpRequest):
+    """Handle timesheet entry form submission and display."""
+    today = datetime.now().replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
     user_effective_date = get_user_first_effective_date(request.user.id)
     
     if request.method == 'POST':
@@ -48,9 +68,21 @@ def fill_timesheet(request):
             days_with_pending = 0
             days_checked = 0
             check_date = today
-            while days_checked < 7:
+            
+            # Get user's effective date to determine the start date for checking
+            user_profile = get_user_profile_mongo(request.user.id)
+            user_effective_date = user_profile.get('effective_date') if user_profile else None
+            
+            # Calculate the start date for checking (either user's effective date or 7 days ago)
+            start_check_date = (
+                user_effective_date if user_effective_date else today - timedelta(days=7)
+            )
+            
+            while days_checked < 7 and check_date >= start_check_date:
                 if check_date.weekday() != 6:  # Not Sunday
-                    daily_entries = get_user_timesheets(request.user.id, check_date)
+                    daily_entries = get_user_timesheets(
+                        request.user.id, check_date
+                    )
                     if daily_entries:
                         # Check if the last entry of the day has pending_hours set to 0
                         last_entry = daily_entries[0]  # get_user_timesheets returns sorted by created_at desc
@@ -63,7 +95,10 @@ def fill_timesheet(request):
                 check_date -= timedelta(days=1)
             
             if days_with_pending >= 7:
-                messages.error(request, 'Cannot submit timesheet for today. You have pending hours for more than 7 days. Please complete previous timesheets first.')
+                messages.error(
+                    request,
+                    'Cannot submit timesheet for today. You have pending hours for more than 7 days. Please complete previous timesheets first.'
+                )
                 return redirect('fill_timesheet')
         
         # Calculate utilized and pending hours
@@ -80,7 +115,10 @@ def fill_timesheet(request):
             
         # Check if new hours exceed pending hours
         if hours > pending_hours:
-            messages.error(request, f'Hours cannot exceed pending hours ({pending_hours})')
+            messages.error(
+                request,
+                f'Hours cannot exceed pending hours ({pending_hours})'
+            )
             return redirect('fill_timesheet')
         
         timesheet_data = {
@@ -104,7 +142,7 @@ def fill_timesheet(request):
         return redirect('fill_timesheet')
     
     context = {
-        'user_effective_date':user_effective_date,
+        'user_effective_date': user_effective_date,
         'today': today,
         'client_names': get_client_names(),
     }
@@ -112,12 +150,16 @@ def fill_timesheet(request):
 
 
 @permission_required('timesheet', 'view')
-def get_assignments(request):
+def get_assignments(request: HttpRequest) -> JsonResponse:
+    """Get assignments based on client name and task type."""
     client_name = request.GET.get('client_name')
     task_type = request.GET.get('task_type')
     
     if not client_name or not task_type:
-        return JsonResponse({'error': 'Client name and task type are required'}, status=400)
+        return JsonResponse(
+            {'error': 'Client name and task type are required'},
+            status=400
+        )
     
     try:
         assignments = []
@@ -135,40 +177,53 @@ def get_assignments(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-#Give date and user id, return time in and time out for that day's first entry, if it doesn't exist, return default time in and time out
+# Give date and user id, return time in and time out for that day's first entry,
+# if it doesn't exist, return default time in and time out
+
 
 @permission_required('timesheet', 'view')
-def get_time_settings(request):
-    
+def get_time_settings(request: HttpRequest) -> JsonResponse:
+    """Get time settings for a specific date."""
     date = datetime.strptime(request.GET.get('date'), '%Y-%m-%d')
-    existing_entries = get_user_timesheets(request.user.id, date, limit=1)
+    existing_entries = get_user_timesheets(
+        request.user.id, date, limit=1
+    )
     user_profile = get_user_profile_mongo(request.user.id)
+    
     if existing_entries:
-        time_in = existing_entries[0].get('time_in', user_profile.get('time_in', '09:00'))
-        time_out = existing_entries[0].get('time_out', user_profile.get('time_out', '18:00'))
+        time_in = existing_entries[0].get(
+            'time_in', user_profile.get('time_in', '09:00')
+        )
+        time_out = existing_entries[0].get(
+            'time_out', user_profile.get('time_out', '18:00')
+        )
     else:
         time_in = user_profile.get('time_in', '09:00')
         time_out = user_profile.get('time_out', '18:00')
+    
     return JsonResponse({'time_in': time_in, 'time_out': time_out})
 
 
 
 @permission_required('timesheet', 'view')
-def get_pending_entries(request):
-    
+def get_pending_entries(request: HttpRequest) -> JsonResponse:
+    """Get pending timesheet entries for the user."""
     user_profile = get_user_profile_mongo(request.user.id)
     # Default time in and and time out and start date of employee
     default_time_in = user_profile.get('time_in', '09:00')
     default_time_out = user_profile.get('time_out', '18:00')
     user_start_date = user_profile.get('effective_date')
-    
 
     # Get entries for the last 7 days or until start date
     pending_entries = []
-    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today = datetime.now().replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
     
     # Calculate the start date for checking (either user's start date or 7 days ago)
-    start_check_date = user_start_date if user_start_date else today - timedelta(days=7)
+    start_check_date = (
+        user_start_date if user_start_date else today - timedelta(days=7)
+    )
     
     # Get all timesheet entries for the date range in one query to reduce database calls
     from .database import db
@@ -214,7 +269,6 @@ def get_pending_entries(request):
             
             # Only add days that have pending hours
             if pending_hours > 0:
-               
                 pending_entries.append({
                     'date': check_date.strftime('%d-%m-%Y'),
                     'day': check_date.strftime('%A'),
@@ -222,16 +276,21 @@ def get_pending_entries(request):
                 })
         days_back += 1
 
-    return JsonResponse({"data": pending_entries}, encoder=DjangoJSONEncoder)
+    return JsonResponse(
+        {"data": pending_entries}, encoder=DjangoJSONEncoder
+    )
 
 @permission_required('timesheet', 'view')
-def calculate_hours(request):
+def calculate_hours(request: HttpRequest) -> JsonResponse:
+    """Calculate hours for timesheet entry."""
     error = False
     error_message = ''
 
     date = datetime.strptime(request.POST.get('date'), '%Y-%m-%d')
     # Get existing entries for the selected date
-    existing_entries = get_user_timesheets(request.user.id, date, id=True)
+    existing_entries = get_user_timesheets(
+        request.user.id, date, id=True
+    )
     
     # Use 9am and 6pm if request does not have time in time out
     time_in = request.POST.get('time_in', '09:00')
@@ -242,12 +301,16 @@ def calculate_hours(request):
     time_out_obj = datetime.strptime(time_out, '%H:%M')
     total_hours = (time_out_obj - time_in_obj).seconds / 3600
 
-    utilized_hours = sum(entry.get('hours', 0) for entry in existing_entries)
+    utilized_hours = sum(
+        entry.get('hours', 0) for entry in existing_entries
+    )
     pending_hours = total_hours - utilized_hours
 
     if utilized_hours > total_hours:
         error = True
-        error_message = "Your total hours can not be less than utilzed hours"
+        error_message = (
+            "Your total hours can not be less than utilzed hours"
+        )
 
 
     response_data = {
@@ -266,7 +329,8 @@ def calculate_hours(request):
 
 
 @permission_required('timesheet', 'view')
-def employee_corner(request):
+def employee_corner(request: HttpRequest):
+    """Display employee corner with timesheet data for managers."""
     User = get_user_model()
     
     # Get selected date from request, default to today
@@ -275,7 +339,9 @@ def employee_corner(request):
         selected_date = datetime.strptime(selected_date, '%Y-%m-%d')
     else:
         selected_date = datetime.now()
-    selected_date = selected_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    selected_date = selected_date.replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
     
     # Get all active users based on role
     if is_super_group_head(request.user) or request.user.is_superuser:
@@ -295,7 +361,9 @@ def employee_corner(request):
         all_users = User.objects.none()
     
     user_data = []
-    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today = datetime.now().replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
     
     # Pre-fetch all user profiles to reduce database calls
     user_profiles = {}
@@ -420,12 +488,32 @@ def employee_corner(request):
     return render(request, 'employee_corner.html', context)
 
 @permission_required('timesheet', 'view')
-def delete_timesheet_entry(request):
+def delete_timesheet_entry(request: HttpRequest) -> JsonResponse:
+    """Delete a timesheet entry."""
     if request.method == 'POST':
         entry_id = request.POST.get('entry_id')
-        success = db_delete_timesheet_entry(entry_id, str(request.user.id))
+        success = db_delete_timesheet_entry(
+            entry_id, str(request.user.id)
+        )
         if success:
-            return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
+            return JsonResponse(
+                {
+                    'status': 'success',
+                    'message': 'Record deleted successfully.'
+                }
+            )
         else:
-            return JsonResponse({'status': 'error', 'message': 'Record not found.'}, status=404)
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
+            return JsonResponse(
+                {
+                    'status': 'error',
+                    'message': 'Record not found.'
+                },
+                status=404
+            )
+    return JsonResponse(
+        {
+            'status': 'error',
+            'message': 'Invalid request method.'
+        },
+        status=405
+    )

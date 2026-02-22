@@ -11,7 +11,7 @@ import clients.database as client_database
 def landing(request):
     """Updated landing view with marked cases support"""
     show_marked_only = request.GET.get('show_marked_only', 'false').lower() == 'true'
-    username = request.user.id if show_marked_only else None
+    username = request.user.id
     
     proc_list = proc_database.live_board_proceedings_list(username, show_marked_only)
     

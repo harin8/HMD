@@ -70,8 +70,12 @@
                 <div class="col-md-12"><br>
                     <div class="form-group row">
                         <div class="col-md-6">
-                            <select class="selectpicker form-control" id="proceedingsFilter" placeholder="Enter Proceedings">
-                                <option value="all">All</option>
+                            <select class="selectpicker form-control" id="proceedingsFilter"
+                                    multiple
+                                    data-live-search="true"
+                                    data-actions-box="true"
+                                    data-dropup-auto="false"
+                                    title="All Proceedings">
                                 {% for each_proc in Unique_Proceedings %}
                                     <option value="{{ each_proc }}">{{ each_proc }}</option>
                                 {% endfor %}
@@ -82,6 +86,21 @@
                         </div>
                         <div class="col-md-2">
                             <button class="btn btn-block" style="background-color:DodgerBlue; color:white" onclick="printCertificate()">Print</button>
+                        </div>
+                    </div>
+                    <div class="form-group row align-items-end mt-1">
+                        <div class="col-md-3">
+                            <label class="mb-1" style="font-size:12px;font-weight:600;">From Date</label>
+                            <input type="date" id="dateFrom" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="mb-1" style="font-size:12px;font-weight:600;">To Date</label>
+                            <input type="date" id="dateTo" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-sm btn-secondary btn-block" onclick="clearDateFilter()" title="Clear date filter">
+                                <i class="fe-x"></i> Clear Dates
+                            </button>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -96,7 +115,7 @@
                     <h4 id="filter_selected" style="display:none; text-align:center">ALL</h4>
                 <div class="card-body" id="proceeding_list">
                     {% for each_proc in Live_Board %}
-                    <a href="{% url 'Further Proc Info' id=each_proc|private:'_id' %}">
+                    <a href="{% url 'Further Proc Info' id=each_proc|private:'_id' %}" data-closure-date="{{ each_proc.Closure_date|date:'Y-m-d' }}">
                         <p style="display:none" class="proceeding-description">{{ each_proc.Description }}</p>
                         <ul class="list-group list-group-horizontal" style="margin-bottom:5px" >
                             {% if each_proc.In_past == "Yes" %}
@@ -171,20 +190,43 @@
     }
 
     function filterProceedings() {
-        var filterValue = $('#proceedingsFilter').val().toLowerCase();
-        
+        var selectedValues = $('#proceedingsFilter').val(); // returns array or null
+        var noSelection = !selectedValues || selectedValues.length === 0;
+
+        var dateFrom = $('#dateFrom').val();  // 'YYYY-MM-DD' or ''
+        var dateTo   = $('#dateTo').val();    // 'YYYY-MM-DD' or ''
+
         $('#proceeding_list a').each(function() {
             var $item = $(this);
             var proceedingsText = $item.find('p').text().toLowerCase();
-            
-            if (filterValue === 'all' || proceedingsText === filterValue) {
-                $item.css('display', 'block');
-            } else {
-                $item.css('display', 'none');
+
+            // --- Proceedings-type filter ---
+            var typeMatch = noSelection || selectedValues.some(function(v) {
+                return proceedingsText === v.toLowerCase();
+            });
+
+            // --- Date-range filter ---
+            var closureDateStr = $item.data('closure-date'); // 'YYYY-MM-DD'
+            var dateMatch = true;
+            if (closureDateStr) {
+                if (dateFrom) dateMatch = dateMatch && (closureDateStr >= dateFrom);
+                if (dateTo)   dateMatch = dateMatch && (closureDateStr <= dateTo);
             }
+
+            $item.css('display', (typeMatch && dateMatch) ? 'block' : 'none');
         });
-        
-        $('#filter_selected').text($('#proceedingsFilter').val());
+
+        var label = noSelection ? 'ALL' : selectedValues.join(', ');
+        if (dateFrom || dateTo) {
+            label += ' \u2503 ' + (dateFrom || '...') + ' \u2192 ' + (dateTo || '...');
+        }
+        $('#filter_selected').text(label);
+    }
+
+    function clearDateFilter() {
+        $('#dateFrom').val('');
+        $('#dateTo').val('');
+        filterProceedings();
     }
 
     function printCertificate() {
@@ -201,6 +243,9 @@
     }
 
     $(document).ready( function () {
+        // Initialize the multiselect proceedings filter
+        $('#proceedingsFilter').selectpicker();
+
         var modal_toggle = false;
         $('#it-return').on('click', function(event) {
             event.preventDefault(); // To prevent following the link (optional)

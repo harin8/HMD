@@ -1,7 +1,6 @@
-<!DOCTYPE html>
 {% extends "layout.html" %}
 {% block head_block %}
-<title>HMD|Proceedings Further</title>
+<title>HMD | Proceedings Further</title>
 <style>
     .btn-outline-warning:hover {
         background-color: #ffc107;
@@ -13,32 +12,51 @@
     .mark-case-btn {
         margin-right: 10px;
     }
+    .back-btn {
+        width: 200px;
+        background-color: #0277bd;
+        text-decoration: underline;
+    }
 </style>
 {% endblock %}
+
 {% block body_block %}
 {% load certificate_tags %}
-{% csrf_token %}
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-6 py-3 mt-2">
-            <h4>{% if Data_Dict.Type == 3 %} Other Proceedings {% endif %} {% if Data_Dict.Type == 2 %} Judicial/Appellate Proceedings {% endif %} {% if Data_Dict.Type == 1 %} Regular Proceedings {% endif %}</h4>
+            <h4>
+                {% if Data_Dict.Type == 3 %}Other Proceedings{% endif %}
+                {% if Data_Dict.Type == 2 %}Judicial/Appellate Proceedings{% endif %}
+                {% if Data_Dict.Type == 1 %}Regular Proceedings{% endif %}
+            </h4>
         </div>
-        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right:20px;">
-            <button class="btn btn-sm mark-case-btn {% if Data_Dict.is_marked %}btn-warning{% else %}btn-outline-warning{% endif %}" 
-                    onclick="toggleMarkCase(event, '{{ Data_Dict|private:'_id' }}', {{ Data_Dict.is_marked|default:False|lower }})"
-                    title="Mark this case for quick access">
+        <div class="col-md-6 py-3 mt-2 text-right" style="padding-right: 20px;">
+            <button
+                class="btn btn-sm mark-case-btn {% if Data_Dict.is_marked %}btn-warning{% else %}btn-outline-warning{% endif %}"
+                onclick="toggleMarkCase(event, '{{ Data_Dict|private:'_id' }}', {{ Data_Dict.is_marked|default:False|lower }})"
+                title="Mark this case for quick access">
                 <i class="fas {% if Data_Dict.is_marked %}fa-star{% else %}fa-star-o{% endif %}"></i> Mark My Case
             </button>
-            <a style="color: white" id="backButton" {% if Data_Dict.Type == 3%} href="{% url 'Other Proceedings Landing' %}"  {% endif %} {% if Data_Dict.Type == 2%} href="{% url 'Judicial Proceedings Landing' %}"  {% endif %} {% if Data_Dict.Type == 1%} href="{% url 'Regular Proceedings Landing' %}"  {% endif %}><button style="width: 200px;background-color:#0277bd;text-decoration:underline" class="btn btn-secondary back">Back</button></a>
+            <a style="color: white;" id="backButton"
+                {% if Data_Dict.Type == 3 %} href="{% url 'Other Proceedings Landing' %}" {% endif %}
+                {% if Data_Dict.Type == 2 %} href="{% url 'Judicial Proceedings Landing' %}" {% endif %}
+                {% if Data_Dict.Type == 1 %} href="{% url 'Regular Proceedings Landing' %}" {% endif %}>
+                <button class="btn btn-secondary back back-btn">Back</button>
+            </a>
         </div>
     </div>
+
     <div class="row">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
-                    <form role="form" name="frmFurAdd" action="{% url 'Further Proc Submit' %}" class="form-horizontal" method="post" enctype="multipart/form-data" >
-                        <input type="hidden" id="recordId" value="{{ Data_Dict|private:'_id' }}" name="Record_Id">
+
+                    {# ── Section 1: Case Details ── #}
+                    <form role="form" name="frmFurAdd" action="{% url 'Further Proc Submit' %}" class="form-horizontal" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
+                        <input type="hidden" id="recordId" value="{{ Data_Dict|private:'_id' }}" name="Record_Id">
+
                         <div class="row">
                             <div class="col-md-2" id="GroupName_div">
                                 <label class="form-label">Group Name:</label>
@@ -59,12 +77,14 @@
                                 </select>
                             </div>
                         </div>
+
                         <br>
+
                         <div class="row">
                             <div class="col-md-2">
                                 <div class="form-group">
                                     <label>AY:</label>
-                                    <input required readonly style="text-transform:uppercase" type="text" name="AY" id="AY" class="form-control eventTodayDateTime" placeholder="Enter AY" value="{{ Data_Dict.AY }}">
+                                    <input required readonly style="text-transform: uppercase;" type="text" name="AY" id="AY" class="form-control eventTodayDateTime" placeholder="Enter AY" value="{{ Data_Dict.AY }}">
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -76,15 +96,16 @@
                             <div class="col-md-5">
                                 <div class="form-group">
                                     <label>Description:</label>
-                                    <input required readonly style="text-transform:uppercase" type="text" name="Description" id="description" class="form-control eventTodayDateTime" placeholder="Type Description" value="{{ Data_Dict.Description }}">
+                                    <input required readonly style="text-transform: uppercase;" type="text" name="Description" id="description" class="form-control eventTodayDateTime" placeholder="Type Description" value="{{ Data_Dict.Description }}">
                                 </div>
                             </div>
                         </div>
+
                         <div class="row">
                             <div class="col-md-2">
                                 <div class="form-group">
                                     <label>Base Document:</label>
-                                    <input required readonly style="text-transform:uppercase" type="text" name="Base_Document" id="Base_Document" class="form-control eventTodayDateTime" placeholder="Enter Name" value="{{ Data_Dict.Base_document }}">
+                                    <input required readonly style="text-transform: uppercase;" type="text" name="Base_Document" id="Base_Document" class="form-control eventTodayDateTime" placeholder="Enter Name" value="{{ Data_Dict.Base_document }}">
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -96,35 +117,42 @@
                             <div class="col-md-5">
                                 <div class="form-group">
                                     <label>Led By:</label>
-                                    <input required style="text-transform:uppercase" type="text" name="Led_By" id="Led_By" class="form-control eventTodayDateTime" placeholder="Type Description" value="{{ Data_Dict.Led_by }}" {% if Data_Dict.Led_by != ""%} readonly {% endif %}>
+                                    <input required style="text-transform: uppercase;" type="text" name="Led_By" id="Led_By" class="form-control eventTodayDateTime" placeholder="Type Description" value="{{ Data_Dict.Led_by }}" {% if Data_Dict.Led_by != "" %} readonly {% endif %}>
                                 </div>
                             </div>
                         </div>
+
                         <div class="row">
-                            <div class="col-md-3  ">
+                            <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Case Reference No:</label>
-                                    <input style="text-transform:uppercase" type="text" name="Case_Reference_no" id="Case_Reference_no" class="form-control eventTodayDateTime" value="{{ Data_Dict.Case_reference_no }}" readonly>
+                                    <input style="text-transform: uppercase;" type="text" name="Case_Reference_no" id="Case_Reference_no" class="form-control eventTodayDateTime" value="{{ Data_Dict.Case_reference_no }}" readonly>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Forum/Bench:</label>
-                                    <input style="text-transform:uppercase" type="text" name="Forum_Bench" id="Forum_Bench" class="form-control eventTodayDateTime" value="{{ Data_Dict.Forum_bench }}" readonly>
+                                    <input style="text-transform: uppercase;" type="text" name="Forum_Bench" id="Forum_Bench" class="form-control eventTodayDateTime" value="{{ Data_Dict.Forum_bench }}" readonly>
                                 </div>
                             </div>
-                            {% if Data_Dict.Status != 'Completed'%}
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Closure Due Date:</label>
+                                    <input type="date" name="Closure_Due_Date" id="Closure_Due_Date" class="form-control" value="{{ Data_Dict.Closure_due_date }}" readonly>
+                                </div>
+                            </div>
+                            {% if Data_Dict.Status != 'Completed' %}
                             <div class="col-md-1">
                                 <div class="form-group">
-                                    <label style="color:white;">Remarks</label>
-                                    <input type="hidden" value=1 name="Type">
-                                    <button class="btn btn-primary" style="width:200px;" onclick="return confirmSubmit()" name="save_button_1" id="save_button_1" value="">&nbsp;Save Details </button>&nbsp;
+                                    <label style="color: white;">Remarks</label>
+                                    <input type="hidden" value="1" name="Type">
+                                    <button class="btn btn-primary" style="width: 200px;" onclick="return confirmSubmit()" name="save_button_1" id="save_button_1" value="">&nbsp;Save Details</button>&nbsp;
                                 </div>
                             </div>
-                            <div class="col-md-1" style=" padding-left: 80px;">
+                            <div class="col-md-1" style="padding-left: 80px;">
                                 <div class="form-group">
-                                    <label style="color:white;">Remarks</label>
-                                    <input class="btn btn-secondary" style=" width: 200px;"  type="button" name="reset_button_1" id="reset_button_1" value="Edit Details">&nbsp;&nbsp;
+                                    <label style="color: white;">Remarks</label>
+                                    <input class="btn btn-secondary" style="width: 200px;" type="button" name="reset_button_1" id="reset_button_1" value="Edit Details">&nbsp;&nbsp;
                                 </div>
                             </div>
                             {% endif %}
@@ -133,20 +161,18 @@
                     </form>
 
                     <script>
-                        function confirmSubmit()
-                            {
-                            var agree=confirm("Are you sure you wish to continue?");
-                            if (agree){
-                                return true ;
-                                document.getElementById('savedetails').value = 0;
+                        function confirmSubmit() {
+                            var agree = confirm("Are you sure you wish to continue?");
+                            if (agree) {
+                                return true;
+                            } else {
+                                document.getElementById('savedetails').value = 1;
+                                return false;
                             }
-                            else{
-                                  document.getElementById('savedetails').value =1;
-                            }
-
-                            }
+                        }
                     </script>
 
+                    {# ── Section 2: List of Events ── #}
                     <h4>List Of Events</h4>
                     <br>
                     <div class="row">
@@ -186,7 +212,8 @@
                             </div>
                         </div>
                     </div>
-                    {% if Data_Dict.Event == 1%}
+
+                    {% if Data_Dict.Event == 1 %}
                     {% for each_event in Event_list %}
                     <div class="row">
                         <div class="col-md-2">
@@ -227,19 +254,20 @@
                     </div>
                     {% endfor %}
                     {% endif %}
-                    <span id="contact_span"  {% if Data_Dict.Event == 1%} style="display:none;" {% endif %}>
-                        <form role="form" name="frmFurAdd" action="{% url 'Further Proc Event Submit' %}" class="form-horizontal" method="post" enctype="multipart/form-data">
-                            <input type="hidden" value="{{ Data_Dict|private:'_id' }}" name="Record_Id">
+
+                    <span id="contact_span" {% if Data_Dict.Event == 1 %} style="display: none;" {% endif %}>
+                        <form role="form" name="frmEventAdd" action="{% url 'Further Proc Event Submit' %}" class="form-horizontal" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
+                            <input type="hidden" value="{{ Data_Dict|private:'_id' }}" name="Record_Id">
                             <div id="event_div" class="row contacts">
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        <input required style="text-transform:uppercase" type="date" name="Event_Date" id="Event_Date" class="form-control eventTodayDateTime" placeholder="Enter Name" value="{{ Data_Dict.Event_date }}">
+                                        <input required style="text-transform: uppercase;" type="date" name="Event_Date" id="Event_Date" class="form-control eventTodayDateTime" value="{{ Data_Dict.Event_date }}">
                                     </div>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        <input required style="text-transform:uppercase" type="date" name="Event_Actual_Date" id="Event_Actual_Date" class="form-control eventTodayDateTime" placeholder="Enter Actual Date" value="{{ Data_Dict.Actual_date }}">
+                                        <input required style="text-transform: uppercase;" type="date" name="Event_Actual_Date" id="Event_Actual_Date" class="form-control eventTodayDateTime" placeholder="Enter Actual Date" value="{{ Data_Dict.Actual_date }}">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-1">
@@ -253,67 +281,71 @@
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <div class="form-group ">
-                                      <input required style="text-transform:uppercase" type="text" name="Event_Particulars" id="Event_Particulars" class="form-control eventTodayDateTime" placeholder="" value="{{ Data_Dict.Event_particulars }}">
+                                    <div class="form-group">
+                                        <input required style="text-transform: uppercase;" type="text" name="Event_Particulars" id="Event_Particulars" class="form-control eventTodayDateTime" value="{{ Data_Dict.Event_particulars }}">
                                     </div>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        <input style="text-transform:uppercase" type="date" name="Event_Next_date" id="Event_Next_date" class="form-control eventMaxTodayDateTime" placeholder="Enter Actual Date" value="{{ Data_Dict.Actual_date }}">
+                                        <input style="text-transform: uppercase;" type="date" name="Event_Next_date" id="Event_Next_date" class="form-control eventMaxTodayDateTime" value="{{ Data_Dict.Actual_date }}">
                                     </div>
                                 </div>
                                 <div class="col-md-1">
                                     <div class="form-group">
-
-                                      <input required style="text-transform:uppercase" type="text" name="Event_Handled_By" id="Event_Handled_By" class="form-control" placeholder="" value="{{ Data_Dict.Handled_by }}">
+                                        <input required style="text-transform: uppercase;" type="text" name="Event_Handled_By" id="Event_Handled_By" class="form-control" value="{{ Data_Dict.Handled_by }}">
                                     </div>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                      <input required style="text-transform:uppercase" type="text" name="Event_Remarks" id="Event_Remarks" class="form-control" placeholder="" value="{{ Data_Dict.Event_remarks }}" >
+                                        <input required style="text-transform: uppercase;" type="text" name="Event_Remarks" id="Event_Remarks" class="form-control" value="{{ Data_Dict.Event_remarks }}">
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-1">
-                                    <button type="submit" {% if Data_Dict.Status == 'Completed'%} style="display:none;" {% endif %} class="btn btn-success" >Submit</button>&nbsp;&nbsp;
+                                    <button type="submit" {% if Data_Dict.Status == 'Completed' %} style="display: none;" {% endif %} class="btn btn-success">Submit</button>&nbsp;&nbsp;
                                 </div>
                             </div>
                         </form>
                     </span>
-                    {% if Data_Dict.Event == 1%}
-                    <div class="row" id="contacts" style="padding-top:30px;">
+
+                    {% if Data_Dict.Event == 1 %}
+                    <div class="row" id="contacts" style="padding-top: 30px;">
                         <div class="form-group col-md-3">
-                            {% if Data_Dict.Status != 'Completed'%}
+                            {% if Data_Dict.Status != 'Completed' %}
                                 <button id="add_contact" class="btn btn-success">Add</button>
-                                <button id="remove_contact" class="btn btn-danger" style="display:none;">Remove</button>
+                                <button id="remove_contact" class="btn btn-danger" style="display: none;">Remove</button>
                             {% endif %}
                         </div>
                     </div>
                     {% endif %}
+
                     <br>
+
                     {% if Data_Dict.Event == 1 %}
                         {% if Data_Dict.Status != 'Completed' %}
                             <button type="button" id="Elevate_Yes" class="btn btn-primary">Close Proceedings</button>
                             <br><br>
                         {% endif %}
                     {% endif %}
-                    <h4  id="closure_title" {% if Data_Dict.Status != 'Completed' %} style="display : none;" {% endif %}>Closure Details</h4>
+
+                    {# ── Section 3: Closure Details ── #}
+                    <h4 id="closure_title" {% if Data_Dict.Status != 'Completed' %} style="display: none;" {% endif %}>Closure Details</h4>
                     <br>
-                    <form role="form" name="frmFurAdd" action="{% url 'Further Proc Submit' %}" class="form-horizontal" method="post" enctype="multipart/form-data">
-                        <input type="hidden" value="{{ Data_Dict|private:'_id' }}" name="Record_Id">
+                    <form role="form" name="frmClosureAdd" action="{% url 'Further Proc Submit' %}" class="form-horizontal" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <div class="row" id="closure_details" {% if Data_Dict.Status != 'Completed' %} style="display : none;" {% endif %}>
+                        <input type="hidden" value="{{ Data_Dict|private:'_id' }}" name="Record_Id">
+                        <div class="row" id="closure_details" {% if Data_Dict.Status != 'Completed' %} style="display: none;" {% endif %}>
                             <div class="col-md-2">
                                 <div class="form-group">
                                     <label>Date:</label>
-                                    <input required type="date" name="Closure_Date" id="Closure_Date" class="form-control eventTodayDateTime" {% if Data_Dict.Status == 'Completed' %} value="{{Data_Dict.Closure_date}}" {% endif %}>
+                                    <input required type="date" name="Closure_Date" id="Closure_Date" class="form-control eventTodayDateTime" {% if Data_Dict.Status == 'Completed' %} value="{{ Data_Dict.Closure_date }}" {% endif %}>
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <div class="form-group">
                                     <label>Actual Date:</label>
-                                    <input required type="date" name="Actual_Closure_Date" id="Actual_Closure_Date" class="form-control eventTodayDateTime" {% if Data_Dict.Status == 'Completed' %} value="{{Data_Dict.Actual_closure_date}}" {% endif %}>
+                                    <input required type="date" name="Actual_Closure_Date" id="Actual_Closure_Date" class="form-control eventTodayDateTime" {% if Data_Dict.Status == 'Completed' %} value="{{ Data_Dict.Actual_closure_date }}" {% endif %}>
                                 </div>
                             </div>
                             {% if Data_Dict.Status != 'Completed' %}
@@ -336,51 +368,53 @@
                             </div>
                             {% endif %}
                             <div class="col-md-3">
-                                <div class="form-group ">
+                                <div class="form-group">
                                     <label>Particulars:</label>
-                                    <input required style="text-transform:uppercase" type="text" name="Closure_Particulars" id="Closure_Particulars" class="form-control eventTodayDateTime" placeholder="" {% if Data_Dict.Status == 'Completed' %} value="{{ Data_Dict.Closure_particulars }}" {% endif %}>
+                                    <input required style="text-transform: uppercase;" type="text" name="Closure_Particulars" id="Closure_Particulars" class="form-control eventTodayDateTime" {% if Data_Dict.Status == 'Completed' %} value="{{ Data_Dict.Closure_particulars }}" {% endif %}>
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <div class="form-group ">
+                                <div class="form-group">
                                     <label>Handled By:</label>
-                                    <input required style="text-transform:uppercase" type="text" name="Closure_Handled_By" id="Closure_Handled_By" class="form-control eventTodayDateTime" placeholder="" {% if Data_Dict.Status == 'Completed' %} value="{{ Data_Dict.Closure_handled_by }}" {% endif %}>
+                                    <input required style="text-transform: uppercase;" type="text" name="Closure_Handled_By" id="Closure_Handled_By" class="form-control eventTodayDateTime" {% if Data_Dict.Status == 'Completed' %} value="{{ Data_Dict.Closure_handled_by }}" {% endif %}>
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <div class="form-group ">
+                                <div class="form-group">
                                     <label>Remarks</label>
-                                    <input required style="text-transform:uppercase" type="text" name="Closure_Remarks" id="Closure_Remarks" class="form-control eventTodayDateTime" placeholder="" {% if Data_Dict.Status == 'Completed' %} value="{{ Data_Dict.Closure_remarks }}" {% endif %}>
+                                    <input required style="text-transform: uppercase;" type="text" name="Closure_Remarks" id="Closure_Remarks" class="form-control eventTodayDateTime" {% if Data_Dict.Status == 'Completed' %} value="{{ Data_Dict.Closure_remarks }}" {% endif %}>
                                 </div>
                             </div>
                             {% if Data_Dict.Status != 'Completed' %}
-                                 <div class="col-md-2">
-                                    <div class="form-group ">
-                                        <label>Choose File To Upload:</label>
-                                      <input required type="file"  class="form-control" name="myfile">
-                                      </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Choose File To Upload:</label>
+                                    <input required type="file" class="form-control" name="myfile">
                                 </div>
+                            </div>
                             {% endif %}
                             {% if Data_Dict.Status == 'Completed' %}
-                                 <div class="col-md-2">
-                                    <div class="form-group ">
-                                        <label>File Uploaded</label>
-                                        <input required style="text-transform:uppercase" type="text" class="form-control eventTodayDateTime" placeholder="" {% if Data_Dict.Status == 'Completed' %} value="{{ Data_Dict.File_name }}" {% endif %}>
-                                    </div>
-                                 </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>File Uploaded</label>
+                                    <input readonly style="text-transform: uppercase;" type="text" class="form-control eventTodayDateTime" value="{{ Data_Dict.File_name }}">
+                                </div>
+                            </div>
                             {% endif %}
                         </div>
                         <div class="row">
                             <div class="col-md-3">
-                                <input type="hidden" value=2 name="Type">
-                                {% if Data_Dict.Status != 'Completed'%}
-                                <button type="button"  id="submitDiv1" style="display:none;" class="btn btn-success" data-toggle="modal" data-target="#createFolder" data-whatever="@mdo">Submit</button>
+                                <input type="hidden" value="2" name="Type">
+                                {% if Data_Dict.Status != 'Completed' %}
+                                <button type="button" id="submitDiv1" style="display: none;" class="btn btn-success" data-toggle="modal" data-target="#createFolder" data-whatever="@mdo">Submit</button>
                                 {% endif %}
-                                {% if Data_Dict.Status == 'Completed'%}
-                                <button type="submit" id="submitDiv2" style="display:show;" class="btn btn-success" >Submit</button>&nbsp;&nbsp;
+                                {% if Data_Dict.Status == 'Completed' %}
+                                <button type="submit" id="submitDiv2" class="btn btn-success">Submit</button>&nbsp;&nbsp;
                                 {% endif %}
                             </div>
                         </div>
+
+                        {# ── Confirm close-proceedings modal ── #}
                         <div class="modal fade" id="createFolder" tabindex="-1" role="dialog" aria-labelledby="createFolderTitle" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered" role="document">
                                 <div class="modal-content">
@@ -390,8 +424,8 @@
                                     <div class="modal-body">
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <input type="submit" name="close_proceedings" value="Yes" class="btn btn-success" >&nbsp;&nbsp;
-                                                <input type="submit" name="close_proceedings" value="No" class="btn btn-secondary" >
+                                                <input type="submit" name="close_proceedings" value="Yes" class="btn btn-success">&nbsp;&nbsp;
+                                                <input type="submit" name="close_proceedings" value="No" class="btn btn-secondary">
                                             </div>
                                         </div>
                                     </div>
@@ -399,12 +433,7 @@
                             </div>
                         </div>
                     </form>
-                    {% if Data_Dict.Status != 'Completed' %}
-                    <div class="row">
-                    </div>
-                    </div>
-                    {% endif %}
-                    </form>
+
                 </div>
             </div>
         </div>
@@ -415,10 +444,10 @@
     function toggleMarkCase(event, proceedingId, isMarked) {
         event.preventDefault();
         event.stopPropagation();
-        
+
         const action = isMarked ? 'unmark' : 'mark';
         const button = event.currentTarget;
-        
+
         $.ajax({
             url: '{% url "Mark Case" %}',
             method: 'POST',
@@ -441,99 +470,89 @@
                         button.querySelector('i').classList.add('fa-star-o');
                     }
                 }
-            },
+            }
         });
     }
 
-    $(document).ready(function() {
-        $('#save_button_1').on('click', function() {
-            $("#Case_Reference_no").prop('readonly', true);
-            $("#Forum_Bench").prop('readonly', true);
-            $("#Led_By").prop('readonly', true);
+    $(document).ready(function () {
+        $('#save_button_1').on('click', function () {
+            $('#Case_Reference_no').prop('readonly', true);
+            $('#Forum_Bench').prop('readonly', true);
+            $('#Led_By').prop('readonly', true);
+            $('#Closure_Due_Date').prop('readonly', true);
         });
 
-        $('#Elevate_Yes').on('click', function() {
-            $("#closure_title").show();
-            $("#closure_details").show();
-            $("#submitDiv1").show();
-            $("#contacts").hide();
-            $("#contact_span").hide();
+        $('#Elevate_Yes').on('click', function () {
+            $('#closure_title').show();
+            $('#closure_details').show();
+            $('#submitDiv1').show();
+            $('#contacts').hide();
+            $('#contact_span').hide();
         });
 
-        $('#reset_button_1').on('click', function() {
-            $("#Case_Reference_no").prop('readonly', false);
-            $("#Forum_Bench").prop('readonly', false);
-            $("#Led_By").prop('readonly', false);
+        $('#reset_button_1').on('click', function () {
+            $('#Case_Reference_no').prop('readonly', false);
+            $('#Forum_Bench').prop('readonly', false);
+            $('#Led_By').prop('readonly', false);
+            $('#Closure_Due_Date').prop('readonly', false);
         });
+
         var counter = 1;
-        $('#add_contact').on('click', function(e) {
-            if(counter == 1){
-                $("#contact_span").show();
-                 counter += 1;
-               $("#add_contact").hide();
-               $("#remove_contact").show();
+        $('#add_contact').on('click', function () {
+            if (counter === 1) {
+                $('#contact_span').show();
+                counter += 1;
+                $('#add_contact').hide();
+                $('#remove_contact').show();
             }
         });
 
-        $('#remove_contact').on('click', function(e) {
+        $('#remove_contact').on('click', function (e) {
             e.preventDefault();
-            if(counter > 2) {
+            if (counter > 2) {
                 $('.row.contacts').last().remove();
                 counter -= 1;
-            }
-            else{
+            } else {
                 counter = 1;
-                 $("#contact_span").hide();
-                 $("#add_contact").show();
-                $("#remove_contact").hide();
+                $('#contact_span').hide();
+                $('#add_contact').show();
+                $('#remove_contact').hide();
             }
         });
-
 
         {% if Data_Dict.Status == 'Completed' %}
             $('select').attr('disabled', true);
             $('input').attr('readonly', true);
-             $("#Closure_Remarks").attr('readonly', false);
+            $('#Closure_Remarks').attr('readonly', false);
         {% endif %}
 
-        $("#save_button").click(function(e) {
+        $('#save_button').on('click', function (e) {
             e.preventDefault();
             const formData = {
                 Record_Id: $('#recordId').val(),
-                acceptedBy: $("#acceptedBy").val(),
-                acceptanceDate: $("#acceptanceDate").val(),
-                description: $("#description").val(),
-                Handled_By: $("#handledBy").val(),
-                Checked_By: $("#checkedBy").val(),
-                Signed_By: $("#signedBy").val(),
-                Date_of_Certificate: $("#dateOfCertificate").val(),
-                Udin: $("#udin").val(),
-                Remarks: $("#remarks").val(),
+                acceptedBy: $('#acceptedBy').val(),
+                acceptanceDate: $('#acceptanceDate').val(),
+                description: $('#description').val(),
+                Handled_By: $('#handledBy').val(),
+                Checked_By: $('#checkedBy').val(),
+                Signed_By: $('#signedBy').val(),
+                Date_of_Certificate: $('#dateOfCertificate').val(),
+                Udin: $('#udin').val(),
+                Remarks: $('#remarks').val(),
                 save_fur: false,
                 csrfmiddlewaretoken: document.querySelector('[name=csrfmiddlewaretoken]').value
             };
 
             $.ajax({
-                type: "POST",
-                url: "{% url 'Further Cert Submit' %}",
+                type: 'POST',
+                url: '{% url "Further Cert Submit" %}',
                 data: formData,
-                success: function() {
-                    alert("Details Saved");
+                success: function () {
+                    alert('Details Saved');
                     document.getElementById('backButton').click();
                 }
             });
         });
     });
 </script>
-
-<style>
-    .btn-outline-warning:hover {
-        background-color: #ffc107;
-        color: #000;
-    }
-    .btn-warning {
-        color: #000;
-    }
-</style>
-
 {% endblock %}

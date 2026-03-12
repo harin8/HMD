@@ -38,8 +38,8 @@ def login_view(request):
 
 @permission_required('accounts', 'view')
 def user_management(request):
-    # Get all users except the current user and not active user
-    users = User.objects.filter(is_active=True).exclude(id=request.user.id)
+    # Get all users except the current user
+    users = User.objects.all().exclude(id=request.user.id)
     
     # Attach MongoDB profiles to users
     for user in users:

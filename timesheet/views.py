@@ -63,44 +63,7 @@ def fill_timesheet(request: HttpRequest):
         time_out_obj = datetime.strptime(time_out, '%H:%M')
         total_hours = (time_out_obj - time_in_obj).seconds / 3600
         
-        # Only check pending days if trying to submit for today
-        if entry_date >= today:
-            days_with_pending = 0
-            days_checked = 0
-            check_date = today
-            
-            # Get user's effective date to determine the start date for checking
-            user_profile = get_user_profile_mongo(request.user.id)
-            user_effective_date = user_profile.get('effective_date') if user_profile else None
-            
-            # Calculate the start date for checking (either user's effective date or 7 days ago)
-            start_check_date = (
-                user_effective_date if user_effective_date else today - timedelta(days=7)
-            )
-            
-            while days_checked < 7 and check_date >= start_check_date:
-                if check_date.weekday() != 6:  # Not Sunday
-                    daily_entries = get_user_timesheets(
-                        request.user.id, check_date
-                    )
-                    if daily_entries:
-                        # Check if the last entry of the day has pending_hours set to 0
-                        last_entry = daily_entries[0]  # get_user_timesheets returns sorted by created_at desc
-                        if last_entry.get('pending_hours', 0) - last_entry.get('hours', 0) > 0:  # If pending_hours is not 0
-                            days_with_pending += 1
-                    else:
-                        # If no entries exist for the day, consider it as pending
-                        days_with_pending += 1
-                    days_checked += 1
-                check_date -= timedelta(days=1)
-            
-            if days_with_pending >= 7:
-                messages.error(
-                    request,
-                    'Cannot submit timesheet for today. You have pending hours for more than 7 days. Please complete previous timesheets first.'
-                )
-                return redirect('fill_timesheet')
-        
+
         # Calculate utilized and pending hours
         existing_entries = get_user_timesheets(request.user.id, entry_date)
         utilized_hours = sum(entry.get('hours', 0) for entry in existing_entries)

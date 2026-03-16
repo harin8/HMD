@@ -22,12 +22,16 @@ def get_all_groups():
 
 def create_user_profile_mongo(user_data):
     """Create user profile in MongoDB"""
+    role = user_data.get('role', '')
+    timesheet_mandatory = role not in ['Super Admin', 'Super Group Head', 'Group Head']
+    
     profile_data = {
         "django_user_id": str(user_data['user'].id),
         "area": user_data.get('area', ''),
         "groups": user_data.get('groups', []),  # Store as array
         "designation": user_data.get('designation', ''),
-        "role": user_data.get('role', ''),
+        "role": role,
+        "timesheet_mandatory": timesheet_mandatory,
         "time_in": user_data.get('time_in'),
         "time_out": user_data.get('time_out'),
         "effective_date": user_data.get('effective_date'),
@@ -214,3 +218,18 @@ def get_group_members(user_id):
     except Exception as e:
         print(f"Error fetching group members: {str(e)}")
         return [] 
+
+def is_timesheet_mandatory(user_profile):
+    """Check if timesheet is mandatory for a user based on profile or default role logic."""
+    if 'timesheet_mandatory' in user_profile:
+        return user_profile['timesheet_mandatory']
+    # Fallback default if field missing
+    role = user_profile.get('role', '')
+    return role not in ['Super Admin', 'Super Group Head', 'Group Head']
+
+def update_timesheet_mandatory_status(django_user_id, status: bool):
+    """Update timesheet mandatory status in MongoDB"""
+    return db.userProfiles.update_one(
+        {"django_user_id": str(django_user_id)},
+        {"$set": {"timesheet_mandatory": status, "updated_at": datetime.now()}}
+    )

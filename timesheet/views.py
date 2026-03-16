@@ -7,8 +7,10 @@ from django.contrib.auth import get_user_model
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse, HttpRequest
 from django.shortcuts import render, redirect
+from django.db.models import Q
 
-from accounts.database import get_user_profile_mongo, get_group_members
+from accounts.database import get_user_profile_mongo, get_group_members, is_timesheet_mandatory, update_timesheet_mandatory_status
+from accounts.roles import ROLE_HIERARCHY
 from accounts.decorators import permission_required
 from .database import (
     get_user_first_effective_date,
@@ -71,6 +73,45 @@ def fill_timesheet(request: HttpRequest):
 
         reason = request.POST.get('reason', '').upper()
         
+        # Check for pending timesheets from previous 7 days
+        user_profile = get_user_profile_mongo(request.user.id)
+        if not user_profile:
+            messages.error(request, 'User profile not found. Please contact administrator.')
+            return redirect('fill_timesheet')
+
+        if is_timesheet_mandatory(user_profile):
+            user_start_date = user_profile.get('effective_date')
+            days_checked = 0
+            days_with_pending = 0
+            check_date = today - timedelta(days=1)
+            
+            # Only check previous days if we're entering for today
+            if entry_date == today:
+                while days_checked < 7:
+                    # Stop checking if we hit the user's start date
+                    if user_start_date and check_date < user_start_date:
+                        break
+                        
+                    if check_date.weekday() != 6:  # Not Sunday
+                        daily_entries = get_user_timesheets(request.user.id, check_date)
+                        if daily_entries:
+                            # Check if the last entry of the day has pending_hours set to 0
+                            last_entry = daily_entries[0]  # get_user_timesheets returns sorted by created_at desc
+                            if last_entry.get('pending_hours', 0) - last_entry.get('hours', 0) > 0:  # If pending_hours is not 0
+                                days_with_pending += 1
+                        else:
+                            # If no entries exist for the day, consider it as pending
+                            days_with_pending += 1
+                    days_checked += 1
+                    check_date -= timedelta(days=1)
+                    
+                if days_with_pending > 0:
+                    messages.error(
+                        request,
+                        f'You cannot fill out a timesheet. You have pending hours for {days_with_pending} of the last 7 days.'
+                    )
+                    return redirect('fill_timesheet')
+
         # Check if pending hours are negative
         if pending_hours < 0:
             messages.error(request, 'Cannot submit timesheet when pending hours are negative')
@@ -480,3 +521,63 @@ def delete_timesheet_entry(request: HttpRequest) -> JsonResponse:
         },
         status=405
     )
+
+@permission_required('timesheet', 'view')
+def manage_mandatory_timesheets(request: HttpRequest):
+    """View to allow higher roles to mark lower roles as timesheet_mandatory True/False"""
+    if request.method == 'POST':
+        target_user_id = request.POST.get('user_id')
+        status = request.POST.get('status') == 'true'
+        
+        # Verify permissions
+        current_profile = get_user_profile_mongo(request.user.id)
+        current_role = current_profile.get('role', '') if current_profile else ''
+        current_rank = ROLE_HIERARCHY.get(current_role, 99)
+        
+        if is_admin(request.user):
+            current_rank = 0
+            
+        target_profile = get_user_profile_mongo(target_user_id)
+        if not target_profile:
+            return JsonResponse({'status': 'error', 'message': 'User profile not found'}, status=404)
+        
+        target_role = target_profile.get('role', '')
+        target_rank = ROLE_HIERARCHY.get(target_role, 99)
+        
+        if current_rank >= target_rank:
+            return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
+            
+        update_timesheet_mandatory_status(target_user_id, status)
+        return JsonResponse({'status': 'success'})
+
+    # GET request
+    current_profile = get_user_profile_mongo(request.user.id)
+    current_role = current_profile.get('role', '') if current_profile else ''
+    current_rank = ROLE_HIERARCHY.get(current_role, 99)
+    
+    if is_admin(request.user):
+        current_rank = 0  # Can see everyone
+        
+    User = get_user_model()
+    # Exclude admins/superusers and current user
+    all_active_users = User.objects.filter(is_active=True).exclude(
+        groups__name__in=['Super Admin', 'Admin']
+    ).exclude(id=request.user.id)
+    
+    manageable_users = []
+    for u in all_active_users:
+        profile = get_user_profile_mongo(u.id)
+        if not profile:
+            continue
+        role = profile.get('role', '')
+        rank = ROLE_HIERARCHY.get(role, 99)
+        if rank > current_rank:
+            manageable_users.append({
+                'id': u.id,
+                'name': f"{u.first_name} {u.last_name}",
+                'username': u.username,
+                'role': role,
+                'timesheet_mandatory': is_timesheet_mandatory(profile)
+            })
+            
+    return render(request, 'manage_mandatory_timesheets.html', {'users': manageable_users, 'current_role': current_role})

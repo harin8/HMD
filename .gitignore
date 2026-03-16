@@ -70,3 +70,6 @@ coverage.xml
 
 # Local development settings
 local_settings.py
+
+# DB Files
+db.sqlite3

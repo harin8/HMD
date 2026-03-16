@@ -8,5 +8,6 @@ urlpatterns = [
     path('employee-corner/', views.employee_corner, name='employee_corner'),
     path('get-time-settings/', views.get_time_settings, name='get_time_settings'),
     path('delete-entry/', views.delete_timesheet_entry, name='delete_timesheet_entry'),
-    path('get_pending_entries/', views.get_pending_entries, name='get_pending_entries')
+    path('get_pending_entries/', views.get_pending_entries, name='get_pending_entries'),
+    path('manage-mandatory-timesheets/', views.manage_mandatory_timesheets, name='manage_mandatory_timesheets')
 ]

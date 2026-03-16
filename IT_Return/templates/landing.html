@@ -68,8 +68,10 @@
             <h4 class="text-center header-title mb-3" style="width: 150%">LIVE BOARD</h4>
             <div class="card scroll" style="width: 150%"><br>
                 <div class="col-md-12"><br>
-                    <div class="form-group row">
+                    <!-- Row 1: Proceeding Type + From Date + To Date -->
+                    <div class="form-group row align-items-end mb-2">
                         <div class="col-md-6">
+                            <label class="mb-1" style="font-size:12px;font-weight:600;">Proceeding Type</label>
                             <select class="selectpicker form-control" id="proceedingsFilter"
                                     multiple
                                     data-live-search="true"
@@ -81,32 +83,30 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-block" style="background-color:DodgerBlue; color:white" onclick="filterProceedings()">Filter</button>
-                        </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-block" style="background-color:DodgerBlue; color:white" onclick="printCertificate()">Print</button>
-                        </div>
-                    </div>
-                    <div class="form-group row align-items-end mt-1">
                         <div class="col-md-3">
                             <label class="mb-1" style="font-size:12px;font-weight:600;">From Date</label>
-                            <input type="date" id="dateFrom" class="form-control form-control-sm">
+                            <input type="date" id="dateFrom" class="form-control form-control-sm" onchange="filterProceedings()">
                         </div>
                         <div class="col-md-3">
                             <label class="mb-1" style="font-size:12px;font-weight:600;">To Date</label>
-                            <input type="date" id="dateTo" class="form-control form-control-sm">
-                        </div>
-                        <div class="col-md-3">
-                            <button class="btn btn-sm btn-secondary btn-block" onclick="clearDateFilter()" title="Clear date filter">
-                                <i class="fe-x"></i> Clear Dates
-                            </button>
+                            <input type="date" id="dateTo" class="form-control form-control-sm" onchange="filterProceedings()">
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <div class="col-md-12">
-                            <button class="btn btn-block" id="markedCasesBtn" style="background-color:DodgerBlue; color:white" onclick="toggleMarkedCases()">
+                    <!-- Row 2: Action buttons inline -->
+                    <div class="form-group row mb-2">
+                        <div class="col-md-6">
+                            <button class="btn btn-sm btn-block" id="markedCasesBtn" style="background-color:DodgerBlue; color:white" onclick="toggleMarkedCases()">
                                 <i class="fas fa-star"></i> My Cases Only
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-sm btn-block" style="background-color:DodgerBlue; color:white" onclick="printCertificate()">
+                                <i class="fe-printer"></i> Print
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-sm btn-block btn-secondary" onclick="resetAllFilters()" title="Reset all filters">
+                                <i class="fe-refresh-cw"></i> Reset
                             </button>
                         </div>
                     </div>
@@ -115,7 +115,7 @@
                     <h4 id="filter_selected" style="display:none; text-align:center">ALL</h4>
                 <div class="card-body" id="proceeding_list">
                     {% for each_proc in Live_Board %}
-                    <a href="{% url 'Further Proc Info' id=each_proc|private:'_id' %}" data-closure-date="{{ each_proc.Closure_date|date:'Y-m-d' }}">
+                    <a href="{% url 'Further Proc Info' id=each_proc|private:'_id' %}" data-closure-date="{{ each_proc.Closure_date|date:'Y-m-d' }}" data-marked="{% if each_proc.is_marked %}true{% else %}false{% endif %}">
                         <p style="display:none" class="proceeding-description">{{ each_proc.Description }}</p>
                         <ul class="list-group list-group-horizontal" style="margin-bottom:5px" >
                             {% if each_proc.In_past == "Yes" %}
@@ -176,17 +176,8 @@
             btn.style.color = 'white';
         }
         
-        // Update URL to reflect the filter state
-        const url = new URL(window.location.href);
-        if (showMarkedOnly) {
-            url.searchParams.set('show_marked_only', 'true');
-        } else {
-            url.searchParams.delete('show_marked_only');
-        }
-        window.history.pushState({}, '', url);
-        
-        // Reload the page to get filtered data from server
-        window.location.href = url.toString();
+        // Re-apply all filters (no page reload)
+        filterProceedings();
     }
 
     function filterProceedings() {
@@ -213,20 +204,23 @@
                 if (dateTo)   dateMatch = dateMatch && (closureDateStr <= dateTo);
             }
 
-            $item.css('display', (typeMatch && dateMatch) ? 'block' : 'none');
+            // --- Marked-cases filter ---
+            var markedMatch = true;
+            if (showMarkedOnly) {
+                markedMatch = ($item.data('marked') === true || $item.data('marked') === 'true');
+            }
+
+            $item.css('display', (typeMatch && dateMatch && markedMatch) ? 'block' : 'none');
         });
 
         var label = noSelection ? 'ALL' : selectedValues.join(', ');
         if (dateFrom || dateTo) {
             label += ' \u2503 ' + (dateFrom || '...') + ' \u2192 ' + (dateTo || '...');
         }
+        if (showMarkedOnly) {
+            label += ' \u2503 My Cases';
+        }
         $('#filter_selected').text(label);
-    }
-
-    function clearDateFilter() {
-        $('#dateFrom').val('');
-        $('#dateTo').val('');
-        filterProceedings();
     }
 
     function printCertificate() {
@@ -242,9 +236,30 @@
         location.reload();
     }
 
+    function resetAllFilters() {
+        // Reset proceedings dropdown
+        $('#proceedingsFilter').selectpicker('deselectAll');
+        // Reset date fields
+        $('#dateFrom').val('');
+        $('#dateTo').val('');
+        // Reset marked cases
+        showMarkedOnly = false;
+        $('#markedCasesBtn').css({
+            'background-color': 'DodgerBlue',
+            'color': 'white'
+        });
+        // Re-apply (shows everything)
+        filterProceedings();
+    }
+
     $(document).ready( function () {
         // Initialize the multiselect proceedings filter
         $('#proceedingsFilter').selectpicker();
+
+        // Auto-apply filter when proceedings selection changes
+        $('#proceedingsFilter').on('changed.bs.select', function () {
+            filterProceedings();
+        });
 
         var modal_toggle = false;
         $('#it-return').on('click', function(event) {
@@ -299,15 +314,7 @@
             }
         });
 
-        // Initialize marked cases filter from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('show_marked_only') === 'true') {
-            showMarkedOnly = true;
-            $('#markedCasesBtn').css({
-                'background-color': '#ffc107',
-                'color': 'black'
-            });
-        }
+
     });
 </script>
 {% endblock %}

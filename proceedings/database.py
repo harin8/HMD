@@ -174,6 +174,10 @@ def get_proc_for_event_details(r_id):
                 data['Actual_closure_date'] = date_to_IST_format(data['Actual_closure_date'])
             except:
                 data['Actual_closure_date'] = "-"
+            try:
+                data['Closure_due_date'] = date_to_IST_format(data['Closure_due_date'])
+            except:
+                data['Closure_due_date'] = "-"
 
         return result[0]
     else:

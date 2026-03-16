@@ -1,0 +1,97 @@
+{% extends "layout.html" %}
+{% block head_block %}
+    <title>HMD | Manage Mandatory Timesheets</title>
+{% endblock %}
+{% block body_block %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <h4>Manage Mandatory Timesheets</h4>
+            <p class="text-muted">Toggle the timesheet 7-day restriction policy for the users below.</p>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table cellpadding="1" cellspacing="2" border="0" class="table table-striped table-bordered dataTable" id="mandatoryTable" width="100%">
+            <thead>
+                <tr>
+                    <th>Sr No</th>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Timesheet Mandatory</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input mandatory-toggle" 
+                                id="toggle_{{ user.id }}" 
+                                data-userid="{{ user.id }}"
+                                {% if user.timesheet_mandatory %}checked{% endif %}>
+                            <label class="custom-control-label" for="toggle_{{ user.id }}"></label>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Init DataTable
+        var commonSettings = {
+            dom: 'Bfrtip',
+            lengthMenu: [[10,25,50,-1],[10,25,50,"All"]],
+            scrollX: true,
+            buttons: [
+                {
+                    extend: 'excel',
+                    title: 'Mandatory_Timesheets'
+                },
+                {
+                    extend: 'pageLength',
+                }
+            ]
+        };
+        $('#mandatoryTable').DataTable(commonSettings);
+
+        // Handle toggle
+        $('.mandatory-toggle').change(function() {
+            var userId = $(this).data('userid');
+            var status = $(this).is(':checked');
+            
+            $.ajax({
+                url: '{% url "manage_mandatory_timesheets" %}',
+                type: 'POST',
+                data: {
+                    'user_id': userId,
+                    'status': status,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Optional: show a small toast or notification
+                    } else {
+                        alert('Error updating status: ' + (response.message || 'Unknown error'));
+                        // Revert toggle
+                        $('#toggle_' + userId).prop('checked', !status);
+                    }
+                },
+                error: function(xhr) {
+                    alert('Error updating status');
+                    $('#toggle_' + userId).prop('checked', !status);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -94,4 +94,13 @@ ROLE_PERMISSIONS = {
             # Note: No access to reports and accounts
         }
     }
-} 
+}
+
+# Role hierarchy (lower number indicates higher authority)
+ROLE_HIERARCHY = {
+    'Super Admin': 1,
+    'Super Group Head': 2,
+    'Group Head': 3,
+    'Senior Staff': 4,
+    'Trainee': 5
+}

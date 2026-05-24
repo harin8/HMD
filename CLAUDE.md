@@ -71,16 +71,12 @@ Within an app: `views.py` (logic), `urls.py` (routes), `database.py` (all Mongo 
 - **Reports**: `reports/request_data_retrieve.py` holds the report data-assembly logic, separate from `reports/database.py`.
 - Static files served via WhiteNoise; deployment entrypoint is the `Procfile` (`runserver`, not gunicorn).
 
-## Working with ECC on this project
+## Tooling available to Claude Code
 
-The [Everything Claude Code](https://github.com/affaan-m/everything-claude-code) plugin (`everything-claude-code@everything-claude-code`) is enabled. Reach for this curated subset on HMD — ignore the rest (Rust/Go/Kotlin/Laravel/healthcare/crypto/frontend skills don't apply here).
+No third-party plugins are installed. Only Anthropic's official marketplace (`claude-plugins-official`) is registered, and the `~/.claude/plugins/installed_plugins.json` / `enabledPlugins` config is empty. Work with the **built-in** Claude Code skills and agents rather than any external suite.
 
-**Skills** (`Skill` tool): `django-security` (the role/permission model, auth across both DBs), `django-tdd` + `python-testing` (no real tests exist yet — write them here), `django-verification` (pre-PR gate), `python-patterns`, `database-migrations` (only the SQLite `accounts` app has real migrations), `security-review`, `codebase-onboarding`/`code-tour` (explain the dual-DB), `deployment-patterns` (Procfile/WhiteNoise).
+- **Skills** (`Skill` tool): the built-in set — e.g. `init`, `verify`, `code-review`, `security-review`, `run`. There is no `django-security`/`django-tdd`/`ui-ux-pro-max` etc. installed; don't reference them.
+- **Agents** (`Agent` tool): the built-in types — `general-purpose`, `Explore`, `Plan`, `claude-code-guide`, plus the catch-all `claude`. Use `Explore`/`Plan` for fan-out research and planning; there are no specialized `python-reviewer`/`security-reviewer`/`database-reviewer` agents.
+- **MCP connectors**: three claude.ai connectors have been used in this account — **Figma**, **Vercel**, and **Granola**. They are not configured as local `mcpServers`; treat them as optional and unrelated to day-to-day work on this repo.
 
-**Agents** (`Agent` tool): `python-reviewer` (primary), `security-reviewer` (anything touching `auth_user` ↔ `userProfiles` sync or `roles.py`), `database-reviewer` (raw pymongo calls — no ORM safety net), `tdd-guide`, `silent-failure-hunter`, `performance-optimizer` (N+1 in Mongo report loops), `planner`/`architect`.
-
-**UI/UX work — use `ui-ux-pro-max`, not ECC.** All front-end/visual/template work (the Live Board, tables, forms, layout in `templates/`, color/typography, accessibility) goes through the `ui-ux-pro-max` skill (suite: `ui-ux-pro-max`, `ckm:ui-styling`, `ckm:design-system`, `ckm:slides`, `ckm:design`, `ckm:brand`, `ckm:banner-design`). ECC's overlapping design skills (`design-system`, `frontend-patterns`, `frontend-slides`, `accessibility`, `liquid-glass-design`) are disabled via `skillOverrides` in `~/.claude/settings.json` to avoid conflicts.
-
-**Caveat — `django-patterns` only partially applies:** HMD keeps all business data in MongoDB via `pymongo`, not the Django ORM. Use its middleware / signals / caching guidance; **ignore** its ORM-model, DRF-serializer, and migration advice for business data.
-
-**Rules** auto-load from `~/.claude/rules/ecc/{common,python,web}/`. Hooks run via the plugin; TS/React-specific hooks are disabled for this Python repo through `env` vars in `~/.claude/settings.json` (`ECC_DISABLED_HOOKS`).
+When in doubt, prefer the dedicated file/search tools and built-in agents over assuming any plugin-provided capability exists.

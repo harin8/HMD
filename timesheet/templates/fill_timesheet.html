@@ -721,27 +721,55 @@ function fetchAssignments(clientName, taskType) {
         });
 }
 
-function toggleAssignmentFields() {
-    // Hide all assignment fields first
-    const assignmentFields = document.querySelectorAll('.assignment-field');
-    assignmentFields.forEach(field => {
+// Hide all dynamic assignment fields and clear any stored assignment value
+function hideAssignmentFields() {
+    document.querySelectorAll('.assignment-field').forEach(field => {
         field.style.display = 'none';
         const select = field.querySelector('select');
         if (select) {
             select.value = '';
+            select.required = false;
             if (select.classList.contains('selectpicker')) {
                 $(select).selectpicker('refresh');
             }
         }
-        if (select) select.required = false;
     });
+    document.getElementById('selected_assignment').value = '';
+    document.getElementById('selected_assignment_display').value = '';
+}
+
+function toggleAssignmentFields() {
+    // Hide all assignment fields first
+    hideAssignmentFields();
 
     // Show the relevant assignment field based on selected task
     const taskSelect = document.getElementById('task_select');
     const selectedTask = taskSelect.value;
     const clientSelect = document.querySelector('select[name="client_name"]');
+
+    // OFFICE WORK as the task locks the client dropdown to OFFICE WORK only.
+    // Setting the client value here is programmatic, so it does not re-fire the
+    // client change handler -- the task dropdown stays free as the escape hatch.
+    if (selectedTask === 'OFFICE WORK') {
+        Array.from(clientSelect.options).forEach(option => {
+            option.disabled = option.value !== 'OFFICE WORK';
+        });
+        clientSelect.value = 'OFFICE WORK';
+        $(clientSelect).selectpicker('refresh');
+        return;  // OFFICE WORK has no assignment to load
+    }
+
+    // Any other task releases the OFFICE WORK lock on the client dropdown.
+    Array.from(clientSelect.options).forEach(option => {
+        option.disabled = false;
+    });
+    if (clientSelect.value === 'OFFICE WORK') {
+        clientSelect.value = '';
+        $(clientSelect).selectpicker('refresh');
+    }
+
     const clientName = clientSelect.value;
-    
+
     if (selectedTask) {
         const assignmentField = document.getElementById(selectedTask + '_assignment');
         if (assignmentField) {
@@ -789,14 +817,17 @@ document.querySelector('select[name="client_name"]').addEventListener('change', 
     taskSelect.value = '';
     
     if (selectedClient === 'OFFICE WORK') {
-        // Disable all options except OFFICE WORK
+        // Disable all task options except OFFICE WORK and auto-select it
         Array.from(taskSelect.options).forEach(option => {
             if (option.value === 'OFFICE WORK') {
                 option.disabled = false;
+                option.selected = true;
             } else {
                 option.disabled = true;
             }
         });
+        // OFFICE WORK has no assignment; clear any stale assignment fields
+        hideAssignmentFields();
     } else if (selectedClient === 'LEAVE') {
         // Disable all options except LEAVE
         Array.from(taskSelect.options).forEach(option => {

@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseNotFound, JsonResponse
 import clients.database as client_database
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 # Create your views here.
 @login_required
@@ -56,6 +57,7 @@ def submit_certificate(request):
             'File': 0
         }
         result = database.add_certificate_data_in_db(data_dict)
+        messages.success(request, 'Certificate saved successfully.')
     all_client_list = database.get_all_clients_details()
     certificate_description_list = database.initialise_description_id_mapping()
     cert_list = database.get_all_certificate_list()
@@ -109,6 +111,7 @@ def further_cert_submit(request):
     }
 
     result = database.add_further_cert_record(data_dict, r_id)
+    messages.success(request, 'Certificate details updated successfully.')
     cert_list = database.get_all_certificate_list()
     #Get group filter
     group_list = client_database.get_all_available_group_code()
@@ -142,6 +145,7 @@ def submit_cert_File(request):
         fs = FileSystemStorage()
         filename = fs.save(file, myfile)
         uploaded_file_url = fs.url(file)
+        messages.success(request, 'File uploaded successfully.')
     return further_cert_info(request, r_id)
 
 @login_required
@@ -168,6 +172,7 @@ def delete_certificate(request):
         r_id = request.POST.get('record_id')
         if client_database.verify_password("Record Delete", password):  
             if database.delete_certificate(r_id):
+                messages.success(request, 'Record deleted successfully.')
                 return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
             else:
                 return JsonResponse({'status': 'error', 'message': 'Record not found.'}, status=404)

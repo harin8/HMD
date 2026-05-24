@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.contrib import messages
 from . import database, request_data_retrieve
 from accounts.decorators import permission_required
 
@@ -69,54 +70,6 @@ def submit_reports(request):
                                                     'Proceedings_list': ay_list})
 
 
-@permission_required('reports', 'view')
-def read_unread(request, r_type, r_id):
-    type_name = database.get_r_type(r_type)
-    if type_name:
-        # check if record exists
-        record = database.get_record_from_db(r_id, type_name)
-        if record:
-            return render(request, 'read_unread.html', {'r_type': r_type, 'Record_Data': record})
-    ay_list = database.get_ay_list()
-    all_client_list = database.get_all_clients_details()
-    party_list = database.get_party_list()
-    return render(request, 'landing_reports.html', {'Client_list': all_client_list, 'AY_list': ay_list,
-                                                    'TDS_list': ay_list, 'Party_list': party_list,
-                                                    'Proceedings_list': ay_list})
-
-
-'''def read_submit(request):
-    r_id = request.POST.get('recordID')
-    r_type = request.POST.get('recordType')
-    read_check = request.POST.get('read')
-    reader = request.POST.get('reader')
-    remark = request.POST.get('remark').upper()
-    type_name = database.get_r_type(r_type)
-    if type_name:
-        # check if record exists
-        record = database.get_record_from_db(r_id, type_name)
-        if record:
-            if read_check == 'Read':
-                read_check_final = 'Read'
-            else:
-                read_check_final = 'No'
-
-            if reader == 'DHDIWAN':
-                reader_final = 'DHDIWAN'
-            else:
-                reader_final = 'VHDIWAN'
-            result = database.submit_read_info(r_id, type_name, read_check_final, reader_final, remark)
-            if not result:
-                err_message = True
-                return render(request, 'read_unread.html', {'r_type': r_type, 'Record_Data': record, 'Error': err_message})
-    ay_list = database.get_ay_list()
-    all_client_list = database.get_all_clients_details()
-    party_list = database.get_party_list()
-    return render(request, 'landing_reports.html', {'Client_list': all_client_list, 'AY_list': ay_list,
-                                                    'TDS_list': ay_list, 'Party_list': party_list,
-                                                    'Proceedings_list': ay_list})'''
-
-
 @permission_required('reports', 'add')
 def read_submit(request):
     r_id = request.POST.getlist('r_id')
@@ -141,6 +94,9 @@ def read_submit(request):
             type_name = database.get_r_type(all_type[x])
             remark_new = remark[x].upper()
             result = database.submit_read_info(r_id[x], type_name, 'Read', remark_new)
+        record_count = len(r_id)
+        messages.success(request, 'Report marked as Read successfully for '
+                                  '{} record{}.'.format(record_count, '' if record_count == 1 else 's'))
         ay_list = database.get_ay_list()
         all_client_list = database.get_all_clients_details()
         party_list = database.get_party_list()

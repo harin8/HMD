@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse, HttpResponseNotFound, JsonResponse
@@ -81,6 +82,7 @@ def _create_proceeding(request, proc_type):
             'Event': 0,
         }
         database.add_proceedings_data_in_db(data_dict)
+        messages.success(request, 'Proceeding created successfully.')
 
 
 # ---------------------------------------------------------------------------
@@ -180,6 +182,7 @@ def further_proc_submit(request):
             'Led_by': led_by.upper(),
             'Closure_due_date': closure_due_date,
         })
+        messages.success(request, 'Proceeding details updated successfully.')
         return further_proc_info(request, r_id)
 
     if form_type == '2':
@@ -209,6 +212,7 @@ def further_proc_submit(request):
             except (KeyError, Exception):
                 pass
 
+            messages.success(request, 'Proceeding details updated successfully.')
             close_proceedings = request.POST.get('close_proceedings')
             if close_proceedings == 'Yes':
                 return judicial_proceedings_landing(request)
@@ -219,6 +223,7 @@ def further_proc_submit(request):
             database.update_proc_details(r_id, {
                 'Closure_remarks': request.POST.get('Closure_Remarks', '').upper(),
             })
+            messages.success(request, 'Proceeding details updated successfully.')
             return _landing_response_for_type(request, proc_type)
 
 
@@ -255,6 +260,7 @@ def submit_proceedings_events(request):
         'Event_actual_date': request.POST.get('Event_Actual_Date'),
     })
 
+    messages.success(request, 'Event saved successfully.')
     return further_proc_info(request, r_id)
 
 
@@ -283,10 +289,12 @@ def mark_case(request):
 
     if action == 'mark':
         success = database.mark_proceedings_case(proceeding_id, username)
+        message = 'Case marked successfully.'
     else:
         success = database.unmark_proceedings_case(proceeding_id, username)
+        message = 'Case unmarked successfully.'
 
-    return JsonResponse({'success': success})
+    return JsonResponse({'success': success, 'message': message})
 
 
 # ---------------------------------------------------------------------------
@@ -324,6 +332,7 @@ def delete_proceedings(request):
         return JsonResponse({'status': 'error', 'message': 'Incorrect password.'}, status=403)
 
     if database.delete_proceedings_record(proc_id):
+        messages.success(request, 'Record deleted successfully.')
         return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
 
     return JsonResponse({'status': 'error', 'message': 'Record not found.'}, status=404)

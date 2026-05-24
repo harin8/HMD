@@ -184,6 +184,18 @@
 		<div class="content-page">
 			<div class="content">
 			<!-- Start Content-->
+				{% if messages %}
+				<div id="hmdMessages" class="container-fluid" style="padding-top:10px;">
+					{% for message in messages %}
+					<div class="alert alert-{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show hmd-flash" role="alert">
+						{{ message }}
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					{% endfor %}
+				</div>
+				{% endif %}
 				{% block body_block %}
 				{% endblock %}
 			</div>
@@ -209,6 +221,38 @@
     {% if user.is_authenticated %}
     <script src="{% static 'assets/js/auto_logout.js' %}"></script>
     {% endif %}
+
+    <!-- Global flash messages + toast notifications -->
+    <script>
+        // Show a transient toast (used for AJAX submissions that don't reload the page).
+        // type: 'success' (default) | 'error'/'danger' | 'warning' | 'info'
+        window.showToast = function (message, type) {
+            type = type || 'success';
+            var alertClass = (type === 'error') ? 'danger' : type;
+            var $container = $('#hmdToastContainer');
+            if (!$container.length) {
+                $container = $('<div id="hmdToastContainer" style="position:fixed;top:20px;right:20px;z-index:1080;max-width:400px;"></div>').appendTo('body');
+            }
+            var $toast = $(
+                '<div class="alert alert-' + alertClass + ' alert-dismissible fade show" role="alert">' +
+                    $('<div>').text(message).html() +
+                    '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                        '<span aria-hidden="true">&times;</span>' +
+                    '</button>' +
+                '</div>'
+            );
+            $container.append($toast);
+            setTimeout(function () { $toast.alert('close'); }, 5000);
+        };
+
+        $(document).ready(function () {
+            // Auto-dismiss server-rendered flash messages after 5 seconds.
+            $('.hmd-flash').each(function () {
+                var el = this;
+                setTimeout(function () { $(el).alert('close'); }, 5000);
+            });
+        });
+    </script>
 </body>
 </html>
 

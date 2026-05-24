@@ -2,6 +2,7 @@ from django.shortcuts import render
 from . import database
 import clients.database as client_database
 from django.http import JsonResponse
+from django.contrib import messages
 
 # Create your views here.
 
@@ -91,6 +92,7 @@ def submit_new_tds(request):
             data['Client_code'] = database.get_client_code_from_name(data['Name'])
             data['Group_name'] = database.get_group_name_from_client_code(data['Client_code'])
 
+        messages.success(request, 'TDS entry saved successfully.')
         return render(request, 'tds_landing.html', {'AY_List': ay_list, 'TDS_Form': tds_form_list,
                                                     'TDS_Type': tds_type_list, 'TDS_Quarter': tds_quarter_list,
                                                     'All_TDS_List': all_tds_list})
@@ -157,6 +159,7 @@ def further_tds_submit(request):
         data['Quarter_id'] = database.get_tds_quarter_id_from_name(data['Quarter'])
         data['Group_name'] = database.get_group_name_from_client_code(data['Client_code'])
 
+    messages.success(request, 'TDS details updated successfully.')
     return render(request, 'existing_tds.html', {'TDS_List': all_tds_list})
 
 
@@ -173,6 +176,7 @@ def delete_tds(request):
         type_id_name = database.get_tds_type_name_from_id(type_id)
         if client_database.verify_password("Record Delete", password):  # Replace with your actual password check
             if database.delete_tds_return(client_code, ay, quarter_id_name, form_id_name, type_id_name):
+                messages.success(request, 'Record deleted successfully.')
                 return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
             else:
                 return JsonResponse({'status': 'error', 'message': 'Record not found.'}, status=404)

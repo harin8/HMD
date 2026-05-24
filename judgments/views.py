@@ -1,5 +1,6 @@
 from typing import List, Any
 import os
+from django.contrib import messages
 from django.shortcuts import render
 from . import database
 from django.core.files.storage import FileSystemStorage
@@ -54,6 +55,7 @@ def submit_judgments(request):
         'Catch_Phrase': ''
     }
     return_result = database.add_judgments_data_in_db(data_dict)
+    messages.success(request, 'Judgment saved successfully.')
 
     ay = request.GET.get('A.Y')
     ay_list = database.get_ay_list()
@@ -111,6 +113,7 @@ def submit_judg_summaries(request):
         'Catch_Phrase_List': ','.join(catch_phrase_list)
     }
     data_update = database.update_judg_details(r_id, data_dict)
+    messages.success(request, 'Summary saved successfully.')
     return further_judg_info(request, r_id)
 
 
@@ -121,6 +124,7 @@ def submit_judg_Citation(request):
         'Citation': Citation.upper()
     }
     data_update = database.update_judg_details(r_id, data_dict)
+    messages.success(request, 'Judgment details updated successfully.')
     return further_judg_info(request, r_id)
 
 
@@ -143,6 +147,7 @@ def submit_judg_File(request):
         fs = FileSystemStorage()
         filename = fs.save(file, myfile)
         uploaded_file_url = fs.url(file)
+        messages.success(request, 'Judgment details updated successfully.')
     return further_judg_info(request, r_id)
 
 

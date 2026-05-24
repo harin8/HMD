@@ -185,6 +185,14 @@
 <script>
     $(document).ready( function () {
 
+        // Populate Forum/Author options BEFORE initializing the selectpicker,
+        // so this dropdown is set up in the same pass as the others (Type/Subject/AY).
+        var all_forum_author_names = [];
+        for (var i = 0; i < forum_author_all_list.length; i++) {
+            all_forum_author_names.push(forum_author_all_list[i].Name);
+        }
+        $('#forumAuthor').html(buildForumAuthorOptions(all_forum_author_names));
+
         $('select').selectpicker();
         $('select').prepend('<option value="-1" selected disabled>--Select--</option>');
         $('select').selectpicker('refresh');
@@ -204,36 +212,29 @@
     });
 
     var forum_author_all_list = {{ Forum_author_list|safe }};
-    var type_list = new Array();
-   
-    for(var i=0; i<forum_author_all_list.length; i++) {
 
-        type_list.push(forum_author_all_list[i].Name);
-     
-    }
-
-    initialize('forumAuthor', type_list);
-
-    function initialize(ele_name, list_data) {
-        html_cont = '';
-        for(var i=0; i<list_data.length;i++) {
-        //html_cont += '<option value="' + list_data[i] + '">' + list_data[i] + '</option>';
-        html_cont += '<option>' + list_data[i] + '</option>';
+    // Build <option> markup for a list of Forum/Author names.
+    function buildForumAuthorOptions(list_data) {
+        var html_cont = '';
+        for (var i = 0; i < list_data.length; i++) {
+            html_cont += '<option>' + list_data[i] + '</option>';
         }
-        $('#' + ele_name).html(html_cont);
-        $('#' + ele_name).selectpicker('refresh');
+        return html_cont;
     }
 
+    // Re-filter the Forum/Author options when the Type changes
+    // (Judgment -> FORUM, Article -> AUTHOR), keeping the --Select-- placeholder.
     $('#Type').on('change', function() {
-            var selectedValue = $(this).val();
-            var new_type_list = new Array();
-            for(var i=0; i<forum_author_all_list.length; i++) {
-                if ((selectedValue == 'Judgment' && forum_author_all_list[i].Type == 'FORUM') || (selectedValue == 'Article' && forum_author_all_list[i].Type == 'AUTHOR')) {
-                    new_type_list.push(forum_author_all_list[i].Name);
-                }
+        var selectedValue = $(this).val();
+        var new_type_list = [];
+        for (var i = 0; i < forum_author_all_list.length; i++) {
+            if ((selectedValue == 'Judgment' && forum_author_all_list[i].Type == 'FORUM') || (selectedValue == 'Article' && forum_author_all_list[i].Type == 'AUTHOR')) {
+                new_type_list.push(forum_author_all_list[i].Name);
             }
-            initialize('forumAuthor', new_type_list);
-        });
+        }
+        $('#forumAuthor').html('<option value="-1" selected disabled>--Select--</option>' + buildForumAuthorOptions(new_type_list));
+        $('#forumAuthor').selectpicker('refresh');
+    });
 
     
 </script>

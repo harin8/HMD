@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -82,6 +83,7 @@ def submit_new_return(request):
     for data in all_return_list:
         data['Client_code'] = database.get_client_code_from_name(data['Name'])
         data['Group_name'] = database.get_group_name_from_client_code(data['Client_code'])
+    messages.success(request, 'Return created successfully.')
     return render(request, 'it_return.html', {'AY_list': ay_list, 'AY_Selected': ay,
                                               'Return_Type_Selected': return_type,
                                               'Return_List': all_return_list})
@@ -136,6 +138,7 @@ def further_return_submit(request):
         for data in all_return_list:
             data['Type_id'] = database.get_return_type_id_from_name(data['Type'])
 
+    messages.success(request, 'Return details updated successfully.')
     return render(request, 'existing_return.html', {'Return_List': all_return_list})
 
 
@@ -211,6 +214,7 @@ def further_cpc_submit(request):
                             'Verification': return_proof_name}
 
         return_result = database.add_cpc_return_record(return_data_dict)
+        messages.success(request, 'CPC details updated successfully.')
     all_return_list = database.get_cpc_all_return_list()
     if all_return_list:
         for data in all_return_list:
@@ -243,6 +247,7 @@ def delete_return(request):
         return_type_name = database.get_return_type_name_from_id(r_type)
         if client_database.verify_password("Record Delete", password):  # Replace with your actual password check
             if database.delete_it_return(it_no, ay, return_type_name):
+                messages.success(request, 'Record deleted successfully.')
                 return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
             else:
                 return JsonResponse({'status': 'error', 'message': 'Record not found.'}, status=404)

@@ -79,7 +79,7 @@
                 },
                 success: function(response) {
                     if (response.status === 'success') {
-                        // Optional: show a small toast or notification
+                        showToast(response.message || 'Mandatory timesheet setting updated successfully.', 'success');
                     } else {
                         alert('Error updating status: ' + (response.message || 'Unknown error'));
                         // Revert toggle

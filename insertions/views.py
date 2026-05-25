@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.contrib import messages
 from insertions import database
 
 
@@ -36,6 +37,7 @@ def submit_new_forum_author(request):
         try:
             data_add = database.add_forum_author_details(forum_author_list)
             forum_author_list = database.get_all_forum_author_details()
+            messages.success(request, 'Forum/Author added successfully.')
             return render(request, 'forum_author_master.html', {'forum_author_list': forum_author_list})
         except TypeError:
             return render(request, 'create_new_forum_author.html', {'Error': True})
@@ -72,6 +74,7 @@ def submit_new_certificate_description(request):
         try:
             data_add = database.add_certificate_description(certificate_description_list)
             certificate_description_list = database.get_all_certificate_description(id=False)
+            messages.success(request, 'Certificate description added successfully.')
             return render(request, 'certificate_description_master.html',
                           {'certificate_description_list': certificate_description_list[0]})
         except TypeError:
@@ -111,6 +114,7 @@ def submit_new_other_form_description(request):
         try:
             data_add = database.add_other_form_description(other_form_description_list)
             other_form_description_list = database.get_all_other_form_description(id=False)
+            messages.success(request, 'Other form description added successfully.')
             return render(request, 'other_form_description_master.html',
                           {'other_form_description_list': other_form_description_list[0]})
         except TypeError:
@@ -159,6 +163,7 @@ def submit_new_proceedings_description(request):
         try:
             data_add = database.add_proceedings_description(proceedings_description_list)
             proceedings_description_list = database.get_all_proceedings_description(id=False)
+            messages.success(request, 'Proceedings description added successfully.')
             return render(request, 'proceedings_description_master.html',
                           {'proceedings_description_list': proceedings_description_list})
         except TypeError:
@@ -179,6 +184,7 @@ def delete_proceedings_description(request, p_no, p_type):
     if database.check_if_proceedings_description_exists_by_name(p_no, p_type):
         database.delete_proceedings_description(p_no, p_type)
         proceedings_description_list = database.get_all_proceedings_description(id=False)
+        messages.success(request, 'Description deleted successfully.')
         return render(request, 'proceedings_description_master.html',
                       {'proceedings_description_list': proceedings_description_list,
                        'Message': 'Proceeding Description deleted successfully!'})
@@ -192,6 +198,7 @@ def delete_other_form_description(request, p_no):
     if database.check_if_other_form_description_exists_by_name(p_no):
         database.delete_other_form_description(p_no)
         other_form_description_list = database.get_all_other_form_description(id=False)
+        messages.success(request, 'Description deleted successfully.')
         return render(request, 'other_form_description_master.html',
                       {'other_form_description_list': other_form_description_list[0],
                        'Message': 'Other Form Description deleted successfully!'})
@@ -205,6 +212,7 @@ def delete_certificate_description(request, p_no):
     if database.check_if_certificate_description_exists_by_name(p_no):
         database.delete_certificate_description(p_no)
         certificate_description_list = database.get_all_certificate_description(id=False)
+        messages.success(request, 'Description deleted successfully.')
         return render(request, 'certificate_description_master.html',
                       {'certificate_description_list': certificate_description_list[0],
                        'Message': 'Certificate Description deleted successfully!'})

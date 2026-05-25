@@ -469,6 +469,7 @@
                         button.querySelector('i').classList.remove('fa-star');
                         button.querySelector('i').classList.add('fa-star-o');
                     }
+                    showToast(response.message || 'Case updated successfully.', 'success');
                 }
             }
         });

@@ -548,7 +548,7 @@ def manage_mandatory_timesheets(request: HttpRequest):
             return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
             
         update_timesheet_mandatory_status(target_user_id, status)
-        return JsonResponse({'status': 'success'})
+        return JsonResponse({'status': 'success', 'message': 'Mandatory timesheet setting updated successfully.'})
 
     # GET request
     current_profile = get_user_profile_mongo(request.user.id)

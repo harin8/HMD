@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.contrib import messages
 from accounts.decorators import permission_required
 from clients import database
 from contacts import database as contact_database
@@ -135,6 +136,7 @@ def submit_new_client(request):
                              'Contact_details': contact_list
                              }
                 data_add = database.add_client_details(data_dict)
+                messages.success(request, 'Client created successfully.')
         else:
             error_message = 'Client name already exists. Please user different name.'
     all_return_list = database.get_client_master_list(id_field=False)
@@ -244,6 +246,7 @@ def submit_edit_client(request):
             'Contact_details': contact_list
         }
         update_client = database.update_client_details_edit(client_id, data_dict)
+        messages.success(request, 'Client details updated successfully.')
         all_return_list = database.get_client_master_list(id_field=True)
         return render(request, 'client_master.html', {'client_List': all_return_list,
                                                       'can_edit': True})
@@ -315,6 +318,7 @@ def submit_new_party(request):
                          }
             data_add = database.add_party_details(data_dict)
             if data_add:
+                messages.success(request, 'Party created successfully.')
                 party_size = database.get_client_it_size_list()
                 return render(request, 'party_master.html', {'Party_Size': party_size})
             else:
@@ -361,6 +365,7 @@ def submit_close_party(request):
                          'Party_name': party_name.upper(),
                          }
             data_update = database.close_party(r_id, data_dict)
+            messages.success(request, 'Party closed successfully.')
             party_list = database.get_party_master_list(id_field=True)
             for x in party_list:
                 x['Total_clients'] = database.get_total_client_from_party_name(x['Party_name'])
@@ -459,6 +464,7 @@ def submit_transfer_party(request):
                 # Update party name for the specified group name in partyMaster table
                 database.update_party_name_in_party_master(group_name, party_name.upper())
                 database.update_client_details(final_update_list)
+                messages.success(request, 'Party transferred successfully.')
                 party_list = database.get_party_master_list(id_field=True)
                 # Count no of clients in each party
                 for x in party_list:
@@ -509,6 +515,7 @@ def submit_new_group(request):
         if group_range != "" and group_name != "" and int(group_range) in available_group_range:
             database.insert_group_code_to_db_new(str(group_code), group_name)
             database.insert_new_group_to_db(group_name, group_range, heads_name)
+            messages.success(request, 'Group created successfully.')
             all_group_list = database.get_all_group_list()
             return render(request, 'group_master.html', {"Group_list": all_group_list})
         else:
@@ -535,6 +542,7 @@ def close_one_group(request):
     if database.verify_password("Group Closure", password):
         result = database.close_group_database(group_name, close_reason)
         if result:
+            messages.success(request, 'Group closed successfully.')
             all_group_list = database.get_all_group_list()
             return render(request, 'group_master.html', {"Group_list": all_group_list})
     else:
@@ -599,6 +607,7 @@ def close_client(request):
             success, message = database.close_client(data)
             response_data = {'message': message}
             if success == 1:
+                messages.success(request, 'Client closed successfully.')
                 return JsonResponse(response_data)
             else:
                 return JsonResponse(response_data, status=500)

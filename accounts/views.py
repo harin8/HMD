@@ -285,6 +285,7 @@ def delete_user(request, user_id):
         #delete the user from the mongo db
         delete_user_profile_mongo(user_id)
 
+        messages.success(request, 'User deleted successfully.')
         return JsonResponse({
             'status': 'success',
             'message': 'User deleted successfully'

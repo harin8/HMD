@@ -8,6 +8,7 @@ from datetime import datetime
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseNotFound, JsonResponse
 import clients.database as client_database
+from django.contrib import messages
 
 # Create your views here.
 
@@ -53,6 +54,7 @@ def submit_certificate(request):
             'File': 0
         }
         result = database.add_other_forms_data_in_db(data_dict)
+        messages.success(request, 'Other form saved successfully.')
     all_client_list = database.get_all_clients_details()
     otherForms_description_list = database.initialise_description_id_mapping()
     other_forms_list = database.get_all_other_forms_list()
@@ -105,6 +107,7 @@ def further_other_forms_submit(request):
     }
 
     result = database.add_further_other_forms_record(data_dict, r_id)
+    messages.success(request, 'Other form details updated successfully.')
     other_forms_list = database.get_all_other_forms_list()
     for data in other_forms_list:
         data['Client_code'] = database.get_client_code_from_name(data['Name'])
@@ -136,6 +139,7 @@ def submit_otherform_File(request):
         fs = FileSystemStorage()
         filename = fs.save(file, myfile)
         uploaded_file_url = fs.url(file)
+        messages.success(request, 'File uploaded successfully.')
     return further_other_forms_info(request, r_id)
 
 
@@ -161,6 +165,7 @@ def delete_other_forms(request):
         id = request.POST.get('otherFormId')
         if client_database.verify_password("Record Delete", password): 
             if database.delete_other_forms_record(id):
+                messages.success(request, 'Record deleted successfully.')
                 return JsonResponse({'status': 'success', 'message': 'Record deleted successfully.'})
             else:
                 return JsonResponse({'status': 'error', 'message': 'Record not found.'}, status=404)

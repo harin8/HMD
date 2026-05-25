@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.contrib import messages
 from contacts import database
 
 
@@ -37,6 +38,7 @@ def submit_new_contact(request):
         data_add = database.add_contact_details(contact_list)
     except TypeError:
         return render(request, 'create_new_contact.html', {'Error': True})
+    messages.success(request, 'Contact added successfully.')
     return render(request, 'create_new_contact.html')
 
 
@@ -81,5 +83,6 @@ def submit_edit_contact(request):
         client_contact_update = database.update_contact_details_in_clientMaster(r_id, temp)
         contact_detail = database.get_contact_detail_from_id(r_id)
         contact_list = database.get_all_contact_details()
+        messages.success(request, 'Contact updated successfully.')
         return render(request, 'contact_master.html', {'can_edit': True, 'contact_list': contact_list})
     return render(request, 'create_new_contact.html', {'Error': True, 'Hide': True, 'Contact_Details': contact_detail})

@@ -23,6 +23,10 @@ from .database import (
     get_proceedings,
     get_tds,
     delete_timesheet_entry as db_delete_timesheet_entry,
+    mark_optional_days,
+    unmark_optional_days,
+    get_optional_dates,
+    get_optional_days_detail,
 )
 
 
@@ -39,6 +43,71 @@ def is_super_group_head(user) -> bool:
 def is_admin(user) -> bool:
     """Check if user is a Super Admin."""
     return user.groups.filter(name='Super Admin').exists()
+
+
+def _can_mark_optional(request) -> bool:
+    """Only Super Group Head / Super Admin (or superuser) may mark optional days."""
+    return is_super_group_head(request.user) or is_admin(request.user) or request.user.is_superuser
+
+
+def _actor_rank(request) -> int:
+    """Rank of the requesting user (lower = higher authority); 0 for admin/superuser."""
+    if is_admin(request.user) or request.user.is_superuser:
+        return 0
+    profile = get_user_profile_mongo(request.user.id)
+    role = profile.get('role', '') if profile else ''
+    return ROLE_HIERARCHY.get(role, 99)
+
+
+def _target_rank(target_user_id):
+    """Rank of a target user from their Mongo profile, or None if the profile is missing."""
+    profile = get_user_profile_mongo(target_user_id)
+    if not profile:
+        return None
+    return ROLE_HIERARCHY.get(profile.get('role', ''), 99)
+
+
+def _expand_optional_dates(mode, request):
+    """Build the list of working-day midnight datetimes (Sundays skipped) for a mode.
+
+    mode 'day' -> POST['date']; 'range' -> POST['start_date']..POST['end_date'] inclusive;
+    'week' -> Mon..Sat of the week containing POST['week_start'] (or POST['date']).
+    Returns (dates, error_message).
+    """
+    def _parse(name):
+        raw = request.POST.get(name)
+        if not raw:
+            return None
+        return datetime.strptime(raw, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
+
+    dates = []
+    if mode == 'day':
+        d = _parse('date')
+        if not d:
+            return None, 'A date is required.'
+        if d.weekday() != 6:  # skip Sunday
+            dates.append(d)
+    elif mode == 'range':
+        start = _parse('start_date')
+        end = _parse('end_date')
+        if not start or not end:
+            return None, 'Start and end dates are required.'
+        if end < start:
+            return None, 'End date cannot be before start date.'
+        cur = start
+        while cur <= end:
+            if cur.weekday() != 6:  # skip Sundays
+                dates.append(cur)
+            cur += timedelta(days=1)
+    elif mode == 'week':
+        anchor = _parse('week_start') or _parse('date')
+        if not anchor:
+            return None, 'A date within the week is required.'
+        monday = anchor - timedelta(days=anchor.weekday())
+        dates = [monday + timedelta(days=i) for i in range(6)]  # Mon..Sat
+    else:
+        return None, 'Invalid selection mode.'
+    return dates, None
 
 # Create your views here.
 
@@ -81,6 +150,11 @@ def fill_timesheet(request: HttpRequest):
 
         if is_timesheet_mandatory(user_profile):
             user_start_date = user_profile.get('effective_date')
+            optional_set = get_optional_dates(
+                request.user.id,
+                user_start_date if user_start_date else today - timedelta(days=14),
+                today,
+            )
             days_checked = 0
             days_with_pending = 0
             check_date = today - timedelta(days=1)
@@ -92,7 +166,7 @@ def fill_timesheet(request: HttpRequest):
                     if user_start_date and check_date < user_start_date:
                         break
                         
-                    if check_date.weekday() != 6:  # Not Sunday
+                    if check_date.weekday() != 6 and check_date not in optional_set:  # Not Sunday, not optional
                         daily_entries = get_user_timesheets(request.user.id, check_date)
                         if daily_entries:
                             # Check if the last entry of the day has pending_hours set to 0
@@ -228,7 +302,8 @@ def get_pending_entries(request: HttpRequest) -> JsonResponse:
     start_check_date = (
         user_start_date if user_start_date else today - timedelta(days=7)
     )
-    
+    optional_set = get_optional_dates(request.user.id, start_check_date, today)
+
     # Get all timesheet entries for the date range in one query to reduce database calls
     from .database import db
     all_entries = list(db.timesheetMaster.find({
@@ -250,7 +325,7 @@ def get_pending_entries(request: HttpRequest) -> JsonResponse:
         check_date = today - timedelta(days=days_back)
         if user_start_date and check_date < user_start_date:
             break
-        if check_date.weekday() != 6:  # Skip Sundays
+        if check_date.weekday() != 6 and check_date not in optional_set:  # Skip Sundays + optional
             date_str = check_date.strftime('%Y-%m-%d')
             daily_entries = entries_by_date.get(date_str, [])
             
@@ -402,12 +477,25 @@ def employee_corner(request: HttpRequest):
         if date_str not in entries_by_user_date[user_id]:
             entries_by_user_date[user_id][date_str] = []
         entries_by_user_date[user_id][date_str].append(entry)
-    
+
+    # Prefetch optional days for all visible users in one query, grouped per user.
+    optional_docs = db.optionalDayMaster.find({
+        'user_id': {'$in': user_ids},
+        'date': {'$gte': min_start_date, '$lte': today}
+    }, {'_id': 0, 'user_id': 1, 'date': 1})
+    optional_by_user = {}
+    for doc in optional_docs:
+        optional_by_user.setdefault(doc['user_id'], set()).add(doc['date'])
+
+    can_mark = _can_mark_optional(request)
+    actor_rank = _actor_rank(request)
+
     for user in all_users:
         user_profile = user_profiles[user.id]
         default_time_in = user_profile.get('time_in', '09:00')
         default_time_out = user_profile.get('time_out', '18:00')
         user_start_date = user_profile.get('effective_date')
+        user_optional = optional_by_user.get(str(user.id), set())
         
         # Get timesheet entries for selected date
         selected_date_str = selected_date.strftime('%Y-%m-%d')
@@ -428,7 +516,7 @@ def employee_corner(request: HttpRequest):
         standard_hours = (time_out_obj - time_in_obj).seconds / 3600
         
         daily_total = sum(entry.get('hours', 0) for entry in daily_entries)
-        pending_hours = standard_hours - daily_total if selected_date.weekday() != 6 else 0
+        pending_hours = standard_hours - daily_total if (selected_date.weekday() != 6 and selected_date not in user_optional) else 0
         
         # Calculate pending days from user's start date or last 7 days, whichever is more recent
         start_check_date = user_start_date if user_start_date else today - timedelta(days=7)
@@ -439,7 +527,7 @@ def employee_corner(request: HttpRequest):
         user_entries = entries_by_user_date.get(str(user.id), {})
         
         while check_date >= start_check_date:
-            if check_date.weekday() != 6:  # Skip Sunday
+            if check_date.weekday() != 6 and check_date not in user_optional:  # Skip Sunday + optional
                 check_date_str = check_date.strftime('%Y-%m-%d')
                 day_entries = user_entries.get(check_date_str, [])
                 
@@ -465,7 +553,8 @@ def employee_corner(request: HttpRequest):
         
         # Serialize timesheet entries for JavaScript
         serialized_entries = json.dumps(daily_entries, cls=DjangoJSONEncoder)
-        
+
+        target_rank_val = ROLE_HIERARCHY.get(user_profile.get('role', ''), 99) if user_profile else 99
         user_data.append({
             'user': user,
             'timesheet_entries': daily_entries,
@@ -476,7 +565,9 @@ def employee_corner(request: HttpRequest):
             'is_critical': days_with_pending >= 7,
             'days_with_pending': days_with_pending,
             'total_pending_days': total_pending_days,
-            'start_date': start_check_date.strftime('%Y-%m-%d') if start_check_date else None
+            'start_date': start_check_date.strftime('%Y-%m-%d') if start_check_date else None,
+            'can_mark_optional': can_mark and actor_rank < target_rank_val,
+            'optional_days': sorted(d.strftime('%Y-%m-%d') for d in user_optional),
         })
     
     # Sort users by pending hours and critical status
@@ -486,6 +577,7 @@ def employee_corner(request: HttpRequest):
         'user_data': user_data,
         'selected_date': selected_date,
         'is_super_group_head': is_super_group_head(request.user),
+        'can_mark_optional': can_mark,
         'today': datetime.now()
     }
     
@@ -581,3 +673,98 @@ def manage_mandatory_timesheets(request: HttpRequest):
             })
             
     return render(request, 'manage_mandatory_timesheets.html', {'users': manageable_users, 'current_role': current_role})
+
+
+@permission_required('timesheet', 'view')
+def mark_optional(request: HttpRequest) -> JsonResponse:
+    """Mark an employee's day(s) as optional so they no longer count as pending."""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
+    if not _can_mark_optional(request):
+        return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
+
+    target_user_id = request.POST.get('user_id')
+    target_rank = _target_rank(target_user_id)
+    if target_rank is None:
+        return JsonResponse({'status': 'error', 'message': 'User profile not found'}, status=404)
+    if _actor_rank(request) >= target_rank:  # strictly lower-rank targets only (no self/peers)
+        return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
+
+    dates, error = _expand_optional_dates(request.POST.get('mode', 'day'), request)
+    if error:
+        return JsonResponse({'status': 'error', 'message': error}, status=400)
+    if not dates:
+        return JsonResponse({'status': 'error', 'message': 'No working days selected.'}, status=400)
+
+    count = mark_optional_days(
+        target_user_id, dates,
+        reason=request.POST.get('reason', ''),
+        marked_by=request.user.id,
+        marked_by_name=request.user.get_full_name(),
+    )
+    messages.success(request, f'Marked {count} day(s) as optional.')
+    return JsonResponse({'status': 'success', 'marked': count})
+
+
+@permission_required('timesheet', 'view')
+def unmark_optional(request: HttpRequest) -> JsonResponse:
+    """Remove optional-day mark(s) for an employee (single date or inclusive range)."""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
+    if not _can_mark_optional(request):
+        return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
+
+    target_user_id = request.POST.get('user_id')
+    target_rank = _target_rank(target_user_id)
+    if target_rank is None:
+        return JsonResponse({'status': 'error', 'message': 'User profile not found'}, status=404)
+    if _actor_rank(request) >= target_rank:
+        return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
+
+    single = request.POST.get('date')
+    if single:
+        dates = [datetime.strptime(single, '%Y-%m-%d')]
+    else:
+        start = request.POST.get('start_date')
+        end = request.POST.get('end_date')
+        if not start or not end:
+            return JsonResponse({'status': 'error', 'message': 'A date or date range is required.'}, status=400)
+        start_d = datetime.strptime(start, '%Y-%m-%d')
+        end_d = datetime.strptime(end, '%Y-%m-%d')
+        dates = []
+        cur = start_d
+        while cur <= end_d:
+            dates.append(cur)
+            cur += timedelta(days=1)
+
+    removed = unmark_optional_days(target_user_id, dates)
+    messages.success(request, f'Removed optional mark from {removed} day(s).')
+    return JsonResponse({'status': 'success', 'removed': removed})
+
+
+@permission_required('timesheet', 'view')
+def list_optional_days(request: HttpRequest) -> JsonResponse:
+    """List an employee's optional days for the Employee Corner unmark panel."""
+    if not _can_mark_optional(request):
+        return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
+
+    target_user_id = request.GET.get('user_id')
+    target_rank = _target_rank(target_user_id)
+    if target_rank is None:
+        return JsonResponse({'status': 'error', 'message': 'User profile not found'}, status=404)
+    if _actor_rank(request) >= target_rank:
+        return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
+
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    details = get_optional_days_detail(target_user_id, today - timedelta(days=90), today + timedelta(days=90))
+    return JsonResponse({
+        'status': 'success',
+        'optional_days': [
+            {
+                'date': d['date'].strftime('%Y-%m-%d'),
+                'reason': d.get('reason', ''),
+                'marked_by_name': d.get('marked_by_name', ''),
+            }
+            for d in details
+        ],
+    })

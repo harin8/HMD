@@ -50,10 +50,18 @@
                             {% endif %}
                         </td>
                         <td>
-                            <button onclick="toggleDetails('details-{{ data.user.id }}')" 
+                            <button onclick="toggleDetails('details-{{ data.user.id }}')"
                                     class="btn-primary">
                                 View Details
                             </button>
+                            {% if data.can_mark_optional %}
+                            <button class="btn-primary mark-optional-btn"
+                                    data-userid="{{ data.user.id }}"
+                                    data-username="{{ data.user.get_full_name }}"
+                                    data-optional="{{ data.optional_days|join:',' }}">
+                                Mark Optional
+                            </button>
+                            {% endif %}
                         </td>
                     </tr>
                     <tr>
@@ -95,6 +103,50 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<!-- Mark Optional modal -->
+<div class="modal fade" id="optionalModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Mark Optional Days &mdash; <span id="optName"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="optUserId">
+                <p class="text-muted" style="font-size:0.85em;">Marked days stop counting as pending and won't block the employee's timesheet. Sundays are skipped automatically.</p>
+                <div class="form-group">
+                    <label style="margin-right:12px;"><input type="radio" name="optMode" value="day" checked> Single day</label>
+                    <label style="margin-right:12px;"><input type="radio" name="optMode" value="range"> Date range</label>
+                    <label><input type="radio" name="optMode" value="week"> Whole week</label>
+                </div>
+                <div class="form-group opt-field" id="optDayField">
+                    <label>Date</label>
+                    <input type="date" id="optDate" class="form-control">
+                </div>
+                <div class="form-group opt-field" id="optRangeField" style="display:none;">
+                    <label>From</label>
+                    <input type="date" id="optStart" class="form-control">
+                    <label style="margin-top:8px;">To</label>
+                    <input type="date" id="optEnd" class="form-control">
+                </div>
+                <div class="form-group opt-field" id="optWeekField" style="display:none;">
+                    <label>Any date in the week (Mon&ndash;Sat will be marked)</label>
+                    <input type="date" id="optWeek" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Reason (optional)</label>
+                    <input type="text" id="optReason" class="form-control" placeholder="e.g. Approved leave, field work">
+                </div>
+                <div id="optExisting"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn-primary" id="optSubmit">Mark Optional</button>
+            </div>
         </div>
     </div>
 </div>
@@ -233,5 +285,82 @@
         const button = event.target;
         button.textContent = isHidden ? 'Hide Details' : 'View Details';
     }
+
+    // ----- Mark Optional days (Super Group Head / Super Admin only) -----
+    (function () {
+        const csrftoken = '{{ csrf_token }}';
+
+        function showField() {
+            const mode = document.querySelector('input[name=optMode]:checked').value;
+            document.getElementById('optDayField').style.display = mode === 'day' ? 'block' : 'none';
+            document.getElementById('optRangeField').style.display = mode === 'range' ? 'block' : 'none';
+            document.getElementById('optWeekField').style.display = mode === 'week' ? 'block' : 'none';
+        }
+        document.querySelectorAll('input[name=optMode]').forEach(function (r) {
+            r.addEventListener('change', showField);
+        });
+
+        function renderExisting(userId, optionalCsv) {
+            const wrap = document.getElementById('optExisting');
+            const days = optionalCsv ? optionalCsv.split(',').filter(Boolean) : [];
+            if (!days.length) {
+                wrap.innerHTML = '<hr><p class="no-entries">No optional days marked.</p>';
+                return;
+            }
+            let html = '<hr><strong>Current optional days</strong><ul style="padding-left:18px;margin-top:6px;">';
+            days.forEach(function (d) {
+                html += '<li style="margin-bottom:4px;">' + d +
+                    ' <button class="btn-primary opt-unmark" data-date="' + d + '" style="padding:1px 6px;font-size:0.8em;">Unmark</button></li>';
+            });
+            html += '</ul>';
+            wrap.innerHTML = html;
+            wrap.querySelectorAll('.opt-unmark').forEach(function (b) {
+                b.addEventListener('click', function () {
+                    unmarkOptional(userId, this.getAttribute('data-date'));
+                });
+            });
+        }
+
+        document.querySelectorAll('.mark-optional-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const userId = this.getAttribute('data-userid');
+                document.getElementById('optUserId').value = userId;
+                document.getElementById('optName').textContent = this.getAttribute('data-username');
+                document.getElementById('optReason').value = '';
+                renderExisting(userId, this.getAttribute('data-optional'));
+                $('#optionalModal').modal('show');
+            });
+        });
+
+        const submitBtn = document.getElementById('optSubmit');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', function () {
+                const userId = document.getElementById('optUserId').value;
+                const mode = document.querySelector('input[name=optMode]:checked').value;
+                const data = {
+                    user_id: userId, mode: mode,
+                    reason: document.getElementById('optReason').value,
+                    csrfmiddlewaretoken: csrftoken
+                };
+                if (mode === 'day') {
+                    data.date = document.getElementById('optDate').value;
+                } else if (mode === 'range') {
+                    data.start_date = document.getElementById('optStart').value;
+                    data.end_date = document.getElementById('optEnd').value;
+                } else {
+                    data.week_start = document.getElementById('optWeek').value;
+                }
+                $.post('{% url "mark_optional_days" %}', data)
+                    .done(function (r) { if (r.status === 'success') { location.reload(); } else { alert(r.message || 'Error'); } })
+                    .fail(function (x) { alert((x.responseJSON && x.responseJSON.message) || 'Error marking optional days.'); });
+            });
+        }
+
+        function unmarkOptional(userId, date) {
+            $.post('{% url "unmark_optional_days" %}', { user_id: userId, date: date, csrfmiddlewaretoken: csrftoken })
+                .done(function (r) { if (r.status === 'success') { location.reload(); } else { alert(r.message || 'Error'); } })
+                .fail(function (x) { alert((x.responseJSON && x.responseJSON.message) || 'Error removing optional day.'); });
+        }
+    })();
 </script>
 {% endblock %}

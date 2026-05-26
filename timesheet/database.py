@@ -176,6 +176,73 @@ def is_leave(user_id, date):
     return bool(db.leaveMaster.find_one({'user_id': str(user_id), 'date': date}))
 
 
+def _normalize_date(d):
+    """Normalize a datetime to midnight, matching timesheetMaster.date / effective_date storage."""
+    return d.replace(hour=0, minute=0, second=0, microsecond=0)
+
+
+def mark_optional_days(user_id, dates, reason='', marked_by=None, marked_by_name=None):
+    """Mark each date in `dates` as an optional (non-pending) timesheet day for a user.
+
+    One document per (user_id, date); idempotent upsert so re-marking updates the reason
+    instead of duplicating. Sundays are NOT filtered here - the caller expands working days.
+    Returns the number of dates processed.
+    """
+    count = 0
+    for d in dates:
+        nd = _normalize_date(d)
+        db.optionalDayMaster.update_one(
+            {'user_id': str(user_id), 'date': nd},
+            {
+                '$set': {
+                    'reason': (reason or '').upper(),
+                    'marked_by': str(marked_by) if marked_by else None,
+                    'marked_by_name': marked_by_name,
+                },
+                '$setOnInsert': {'created_at': datetime.now()},
+            },
+            upsert=True,
+        )
+        count += 1
+    return count
+
+
+def unmark_optional_days(user_id, dates):
+    """Remove optional-day marks for the given dates. Returns the number deleted."""
+    norm = [_normalize_date(d) for d in dates]
+    result = db.optionalDayMaster.delete_many(
+        {'user_id': str(user_id), 'date': {'$in': norm}}
+    )
+    return result.deleted_count
+
+
+def get_optional_dates(user_id, start, end):
+    """Return a set of normalized (midnight) datetimes marked optional in [start, end].
+
+    Used to prefetch a user's optional days for O(1) membership checks in the pending loops.
+    """
+    docs = db.optionalDayMaster.find(
+        {
+            'user_id': str(user_id),
+            'date': {'$gte': _normalize_date(start), '$lte': _normalize_date(end)},
+        },
+        {'_id': 0, 'date': 1},
+    )
+    return {doc['date'] for doc in docs}
+
+
+def get_optional_days_detail(user_id, start, end):
+    """Return [{date, reason, marked_by_name}] for a user's optional days in [start, end]."""
+    docs = db.optionalDayMaster.find(
+        {
+            'user_id': str(user_id),
+            'date': {'$gte': _normalize_date(start), '$lte': _normalize_date(end)},
+        },
+        {'_id': 0},
+    ).sort('date', 1)
+    return list(docs)
+
+
 def get_user_timesheets_by_task_assignment(assignment_id):
     """Get users who have worked on a specific task and assignment"""
     query = {'assignment_id': str(assignment_id)}

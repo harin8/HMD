@@ -13,4 +13,9 @@ urlpatterns = [
     path('mark-optional/', views.mark_optional, name='mark_optional_days'),
     path('unmark-optional/', views.unmark_optional, name='unmark_optional_days'),
     path('list-optional/', views.list_optional_days, name='list_optional_days'),
+    # Fixed paths must precede the <str:allocation_id> catch-all.
+    path('verifications/', views.my_verifications, name='my_verifications'),
+    path('verifications/log/', views.verification_log, name='verification_log'),
+    path('verifications/submit/', views.submit_verification, name='submit_verification'),
+    path('verifications/<str:allocation_id>/', views.verification_detail, name='verification_detail'),
 ]

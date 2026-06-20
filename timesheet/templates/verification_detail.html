@@ -1,0 +1,311 @@
+{% extends 'layout.html' %}
+
+{% block body_block %}
+<div class="container">
+    <h2 class="header">Timesheet Verification</h2>
+    {% include 'includes/timesheet_manager_tabs.html' %}
+
+    <!-- Allocation summary -->
+    <div class="card">
+        <div class="card-header">
+            <h5>
+                {{ allocation.employee_name }} &mdash;
+                Week of {{ allocation.week_start|date:"d M" }} &ndash; {{ allocation.week_end|date:"d M Y" }}
+                {% if allocation.status == 'verified' %}
+                <span class="badge success">Verified</span>
+                {% elif allocation.status == 'flagged' %}
+                <span class="badge critical">Flagged</span>
+                {% else %}
+                <span class="badge warning">Pending Review</span>
+                {% endif %}
+            </h5>
+        </div>
+        <div class="card-body summary-grid">
+            <div><strong>Role:</strong> {{ allocation.employee_role|default:"-" }}</div>
+            <div><strong>Group(s):</strong> {{ allocation.groups|join:", "|default:"-" }}</div>
+            <div><strong>Verifier:</strong> {{ allocation.verifier_name }} ({{ allocation.verifier_role }})</div>
+            <div><strong>Allocated on:</strong> {{ allocation.allocated_at|date:"d M Y" }}</div>
+        </div>
+    </div>
+
+    <!-- Day-by-day entries -->
+    {% for row in day_rows %}
+    <div class="card day-card">
+        <div class="card-header day-header">
+            <span>
+                <strong>{{ row.date|date:"l" }}</strong>, {{ row.date|date:"d M Y" }}
+                {% if row.optional %}
+                <span class="badge optional" title="Marked by {{ row.optional.marked_by_name|default:'-' }}">
+                    Optional{% if row.optional.reason %}: {{ row.optional.reason }}{% endif %}
+                </span>
+                {% endif %}
+                {% if row.non_mandatory %}
+                <span class="badge optional">Timesheet not mandatory</span>
+                {% endif %}
+                {% if row.before_joining %}
+                <span class="badge muted">Before joining date</span>
+                {% endif %}
+            </span>
+            <span class="day-totals">
+                Total: <strong>{{ row.total_hours }}</strong> /
+                Expected: {{ row.standard_hours|floatformat:2 }} /
+                Pending:
+                <strong class="{% if row.pending_hours > 0 %}pending-red{% endif %}">{{ row.pending_hours }}</strong>
+            </span>
+        </div>
+        <div class="card-body">
+            {% if row.entries %}
+            <table class="details-table">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Task</th>
+                        <th>Assignment</th>
+                        <th>Hours</th>
+                        <th>Time In</th>
+                        <th>Time Out</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in row.entries %}
+                    <tr>
+                        <td>{{ entry.client_name }}</td>
+                        <td>{{ entry.task }}</td>
+                        <td>{{ entry.assignment }}</td>
+                        <td>{{ entry.hours }}</td>
+                        <td>{{ entry.time_in }}</td>
+                        <td>{{ entry.time_out }}</td>
+                        <td>{{ entry.remarks|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="no-entries">No timesheet entries for this day</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Week summary -->
+    <div class="card">
+        <div class="card-header"><h5>Week Summary</h5></div>
+        <div class="card-body summary-grid">
+            <div><strong>Total hours:</strong> {{ week_total }}</div>
+            <div>
+                <strong>Total pending:</strong>
+                <span class="{% if week_pending > 0 %}pending-red{% endif %}">{{ week_pending }}</span>
+            </div>
+            <div><strong>Days with entries:</strong> {{ days_with_entries }} / 6</div>
+        </div>
+    </div>
+
+    {% if can_decide %}
+    <!-- Decision -->
+    <div class="card">
+        <div class="card-header"><h5>Your Review</h5></div>
+        <div class="card-body">
+            <form method="post" action="{% url 'submit_verification' %}" id="decisionForm">
+                {% csrf_token %}
+                <input type="hidden" name="allocation_id" value="{{ allocation.id }}">
+                <div class="form-group">
+                    <label for="remarks">Remarks <span class="hint-text">(required when flagging)</span></label>
+                    <textarea name="remarks" id="remarks" class="form-control" rows="3"
+                              placeholder="e.g. Hours look consistent with assignments / Client codes missing on Tuesday"></textarea>
+                </div>
+                <button type="submit" name="action" value="verified" class="btn-verify"
+                        onclick="return confirmDecision(this)">Mark Verified</button>
+                <button type="submit" name="action" value="flagged" class="btn-flag"
+                        onclick="return confirmDecision(this)">Flag for Correction</button>
+            </form>
+        </div>
+    </div>
+    {% elif allocation.status != 'pending' %}
+    <!-- Read-only decision -->
+    <div class="card">
+        <div class="card-header"><h5>Review Outcome</h5></div>
+        <div class="card-body">
+            <p>
+                {% if allocation.status == 'verified' %}
+                <span class="badge success">Verified</span>
+                {% else %}
+                <span class="badge critical">Flagged for correction</span>
+                {% endif %}
+                by <strong>{{ allocation.verifier_name }}</strong>
+                on {{ allocation.verified_at|date:"d M Y, H:i" }}
+            </p>
+            <p><strong>Remarks:</strong> {{ allocation.remarks|default:"-" }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <p>
+        <a href="{% url 'my_verifications' %}" class="back-link">&larr; Back to My Verifications</a>
+    </p>
+</div>
+
+<style>
+    .container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .header {
+        margin-bottom: 20px;
+    }
+
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        background: white;
+    }
+
+    .card-header {
+        padding: 10px 15px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .day-card {
+        margin-bottom: 12px;
+    }
+
+    .day-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .day-totals {
+        font-size: 0.9em;
+        color: #444;
+    }
+
+    .summary-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        font-size: 0.95em;
+    }
+
+    .details-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .details-table th,
+    .details-table td {
+        padding: 6px;
+        border: 1px solid #ddd;
+        font-size: 0.9em;
+        text-align: left;
+    }
+
+    .details-table th {
+        background: #f8f9fa;
+    }
+
+    .badge {
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-size: 0.8em;
+        font-weight: normal;
+        vertical-align: middle;
+    }
+
+    .badge.critical {
+        background: #dc3545;
+        color: white;
+    }
+
+    .badge.warning {
+        background: #ffc107;
+        color: black;
+    }
+
+    .badge.success {
+        background: #198754;
+        color: white;
+    }
+
+    .badge.optional {
+        background: #6c757d;
+        color: white;
+    }
+
+    .badge.muted {
+        background: #e9ecef;
+        color: #555;
+    }
+
+    .pending-red {
+        color: #dc3545;
+        font-weight: 600;
+    }
+
+    .no-entries {
+        text-align: center;
+        color: #666;
+        margin: 10px 0;
+    }
+
+    .hint-text {
+        color: #888;
+        font-size: 0.85em;
+        font-weight: normal;
+    }
+
+    .btn-verify {
+        background: #198754;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 8px;
+    }
+
+    .btn-verify:hover {
+        background: #157347;
+    }
+
+    .btn-flag {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-flag:hover {
+        background: #bb2d3b;
+    }
+
+    .back-link {
+        color: #0d6efd;
+        text-decoration: none;
+    }
+</style>
+
+<script>
+    function confirmDecision(btn) {
+        const remarks = document.getElementById('remarks').value.trim();
+        if (btn.value === 'flagged' && !remarks) {
+            alert('Please add remarks explaining what needs correction before flagging.');
+            return false;
+        }
+        return confirm(btn.value === 'flagged'
+            ? 'Flag this timesheet for correction?'
+            : 'Mark this timesheet as verified?');
+    }
+</script>
+{% endblock %}

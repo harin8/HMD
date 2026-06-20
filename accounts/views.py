@@ -5,8 +5,9 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib import messages
 from django.urls import reverse
-from accounts.database import delete_user_profile_mongo,get_all_groups, create_user_profile_mongo, get_user_profile_mongo, update_user_profile_mongo, create_group_head_assignments, update_group_head_assignments, remove_group_head_assignments
+from accounts.database import delete_user_profile_mongo,get_all_groups, create_user_profile_mongo, get_user_profile_mongo, update_user_profile_mongo, create_group_head_assignments, update_group_head_assignments, remove_group_head_assignments, set_timesheet_mandatory, is_timesheet_mandatory
 from datetime import datetime
+from django.conf import settings
 from accounts.roles import ROLE_PERMISSIONS
 from accounts.decorators import permission_required
 
@@ -90,13 +91,17 @@ def create_user(request):
             # Create MongoDB profile with rate history
             effective_date = datetime.strptime(request.POST.get('effective_date'), '%Y-%m-%d')
             hourly_rate = request.POST.get('hourly_rate')
-            
+            timesheet_mandatory = request.POST.get('timesheet_mandatory') == 'on'
+
             profile_data = {
                 'user': user,
                 'area': request.POST.get('area', '').upper(),
                 'groups': groups,
                 'designation': request.POST.get('designation', '').upper(),
                 'role': role,
+                'timesheet_mandatory': timesheet_mandatory,
+                'changed_by': request.user.id,
+                'changed_by_name': request.user.get_full_name(),
                 'time_in': request.POST.get('time_in'),
                 'time_out': request.POST.get('time_out'),
                 'effective_date': effective_date,
@@ -107,6 +112,16 @@ def create_user(request):
                 }] if hourly_rate else []
             }
             create_user_profile_mongo(profile_data)
+
+            # New user starting as non-mandatory: mark their timesheets optional from day one.
+            if not timesheet_mandatory:
+                from timesheet.database import mark_period_optional
+                today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+                mark_period_optional(
+                    user.id, effective_date, today,
+                    reason='TIMESHEET NOT MANDATORY',
+                    marked_by=request.user.id, marked_by_name=request.user.get_full_name(),
+                )
 
             messages.success(request, f'User {username} has been created successfully.')
             return JsonResponse({'status': 'success', 'redirect_url': reverse('user_management')})
@@ -208,6 +223,23 @@ def edit_user(request, user_id):
             # Update MongoDB profile
             update_user_profile_mongo(user_id, profile_data)
 
+            # Timesheet-mandatory toggle + audit history (kept separate so update_user_profile_mongo
+            # doesn't clobber the mandatory fields).
+            timesheet_mandatory = request.POST.get('timesheet_mandatory') == 'on'
+            changed = set_timesheet_mandatory(
+                user_id, timesheet_mandatory, request.user.id, request.user.get_full_name()
+            )
+            # Switched off: retroactively mark every working day from the user's start optional.
+            if changed and not timesheet_mandatory:
+                from timesheet.database import mark_period_optional
+                start = effective_date or (mongo_profile.get('effective_date') if mongo_profile else None) or settings.TIMESHEET_START_DATE
+                today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+                mark_period_optional(
+                    user_id, start, today,
+                    reason='TIMESHEET NOT MANDATORY',
+                    marked_by=request.user.id, marked_by_name=request.user.get_full_name(),
+                )
+
             messages.success(request, f'User {editing_user.username} has been updated successfully.')
             return redirect('user_management')
             
@@ -236,12 +268,16 @@ def edit_user(request, user_id):
             'time_out': mongo_profile.get('time_out', ''),
             'effective_date': mongo_profile.get('effective_date'),
             'hourly_rate': mongo_profile.get('hourly_rate'),
+            'timesheet_mandatory': is_timesheet_mandatory(mongo_profile),
+            'mandatory_history': mongo_profile.get('mandatory_history', []),  # already newest-first
             'rate_history': sorted(
                 mongo_profile.get('rate_history', []),
                 key=lambda x: x['effective_date'],
                 reverse=True
             )
         })
+    else:
+        user_data['timesheet_mandatory'] = True
     
     context = {
         'edit_user': editing_user,

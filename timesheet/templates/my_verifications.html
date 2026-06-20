@@ -1,0 +1,214 @@
+{% extends 'layout.html' %}
+
+{% block body_block %}
+<div class="container">
+    <h2 class="header">Employee Corner</h2>
+    {% include 'includes/timesheet_manager_tabs.html' %}
+
+    {% if not is_verifier %}
+    <div class="card">
+        <div class="card-body">
+            <p class="no-entries">
+                Verification allocations are drawn for Group Heads and the Super Group Head.
+                Use the <a href="{% url 'verification_log' %}">Verification Log</a> to review all verified and flagged timesheets.
+            </p>
+        </div>
+    </div>
+    {% else %}
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Pending Verifications</h5>
+        </div>
+        <div class="card-body">
+            {% if pending_allocations %}
+            <p class="hint-text">
+                A random sample of your team's timesheets is allocated to you each week for the
+                previous Mon&ndash;Sat week. Review each one and mark it Verified or Flag it for correction.
+            </p>
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th>Week</th>
+                        <th>Employee</th>
+                        <th>Role</th>
+                        <th>Group(s)</th>
+                        <th>Allocated On</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in pending_allocations %}
+                    <tr>
+                        <td>{{ a.week_start|date:"d M" }} &ndash; {{ a.week_end|date:"d M Y" }}</td>
+                        <td>{{ a.employee_name }}</td>
+                        <td>{{ a.employee_role }}</td>
+                        <td>{{ a.groups|join:", "|default:"-" }}</td>
+                        <td>{{ a.allocated_at|date:"d M Y" }}</td>
+                        <td>
+                            <a href="{% url 'verification_detail' a.id %}" class="btn-primary btn-link-style">Review</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="no-entries">
+                No pending verifications &mdash; a fresh random sample is allocated automatically
+                each week from your team's previous-week timesheets.
+            </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Recently Reviewed</h5>
+        </div>
+        <div class="card-body">
+            {% if reviewed_allocations %}
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th>Week</th>
+                        <th>Employee</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                        <th>Reviewed On</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in reviewed_allocations %}
+                    <tr>
+                        <td>{{ a.week_start|date:"d M" }} &ndash; {{ a.week_end|date:"d M Y" }}</td>
+                        <td>{{ a.employee_name }}</td>
+                        <td>
+                            {% if a.status == 'verified' %}
+                            <span class="badge success">Verified</span>
+                            {% else %}
+                            <span class="badge critical">Flagged</span>
+                            {% endif %}
+                        </td>
+                        <td class="remarks-cell">{{ a.remarks|default:"-" }}</td>
+                        <td>{{ a.verified_at|date:"d M Y" }}</td>
+                        <td>
+                            <a href="{% url 'verification_detail' a.id %}" class="btn-primary btn-link-style">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="no-entries">Nothing reviewed yet.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .header {
+        margin-bottom: 20px;
+    }
+
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        background: white;
+    }
+
+    .card-header {
+        padding: 10px 15px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .main-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9em;
+    }
+
+    .main-table th,
+    .main-table td {
+        padding: 8px 6px;
+        border: 1px solid #ddd;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    .main-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .remarks-cell {
+        white-space: normal;
+        max-width: 320px;
+    }
+
+    .btn-primary {
+        background: #0d6efd;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background: #0b5ed7;
+    }
+
+    .btn-link-style {
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    .btn-link-style:hover {
+        color: white;
+        text-decoration: none;
+    }
+
+    .badge {
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-size: 0.85em;
+    }
+
+    .badge.critical {
+        background: #dc3545;
+        color: white;
+    }
+
+    .badge.success {
+        background: #198754;
+        color: white;
+    }
+
+    .no-entries {
+        text-align: center;
+        color: #666;
+        margin: 10px 0;
+    }
+
+    .hint-text {
+        color: #666;
+        font-size: 0.9em;
+        margin-bottom: 12px;
+    }
+</style>
+{% endblock %}

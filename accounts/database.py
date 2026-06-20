@@ -1,5 +1,5 @@
 import pymongo
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 
 __MONGO_CONNECTION_URI__ = 'mongodb://localhost/'
@@ -23,8 +23,12 @@ def get_all_groups():
 def create_user_profile_mongo(user_data):
     """Create user profile in MongoDB"""
     role = user_data.get('role', '')
-    timesheet_mandatory = role not in ['Super Admin', 'Super Group Head', 'Group Head']
-    
+    # Explicit choice from the form wins; otherwise fall back to the role default.
+    timesheet_mandatory = user_data.get('timesheet_mandatory')
+    if timesheet_mandatory is None:
+        timesheet_mandatory = role not in ['Super Admin', 'Super Group Head', 'Group Head']
+
+    effective_date = user_data.get('effective_date')
     profile_data = {
         "django_user_id": str(user_data['user'].id),
         "area": user_data.get('area', ''),
@@ -32,15 +36,23 @@ def create_user_profile_mongo(user_data):
         "designation": user_data.get('designation', ''),
         "role": role,
         "timesheet_mandatory": timesheet_mandatory,
+        # Audit log of mandatory toggles, mirroring rate_history (newest at index 0).
+        "mandatory_history": [{
+            "mandatory": timesheet_mandatory,
+            "effective_date": effective_date or datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
+            "changed_by": user_data.get('changed_by'),
+            "changed_by_name": user_data.get('changed_by_name'),
+            "created_at": datetime.now(),
+        }],
         "time_in": user_data.get('time_in'),
         "time_out": user_data.get('time_out'),
-        "effective_date": user_data.get('effective_date'),
+        "effective_date": effective_date,
         "hourly_rate": float(user_data.get('hourly_rate', 0)) if user_data.get('hourly_rate') else None,
         "rate_history": user_data.get('rate_history', []),
         "created_at": datetime.now(),
         "updated_at": datetime.now()
     }
-    
+
     return db.userProfiles.insert_one(profile_data)
 
 def get_user_profile_mongo(django_user_id):
@@ -219,6 +231,11 @@ def get_group_members(user_id):
         print(f"Error fetching group members: {str(e)}")
         return [] 
 
+def get_users_by_role(role):
+    """Return django_user_ids of all userProfiles with the given role (e.g. 'Group Head')."""
+    profiles = db.userProfiles.find({'role': role}, {'_id': 0, 'django_user_id': 1})
+    return [profile['django_user_id'] for profile in profiles]
+
 def is_timesheet_mandatory(user_profile):
     """Check if timesheet is mandatory for a user based on profile or default role logic."""
     if 'timesheet_mandatory' in user_profile:
@@ -228,8 +245,83 @@ def is_timesheet_mandatory(user_profile):
     return role not in ['Super Admin', 'Super Group Head', 'Group Head']
 
 def update_timesheet_mandatory_status(django_user_id, status: bool):
-    """Update timesheet mandatory status in MongoDB"""
+    """Update timesheet mandatory status in MongoDB (boolean only, no history).
+
+    Prefer set_timesheet_mandatory() which also records the change in mandatory_history.
+    """
     return db.userProfiles.update_one(
         {"django_user_id": str(django_user_id)},
         {"$set": {"timesheet_mandatory": status, "updated_at": datetime.now()}}
     )
+
+
+def _normalize_day(d):
+    """Midnight datetime, matching how timesheet dates / effective_date are stored."""
+    return d.replace(hour=0, minute=0, second=0, microsecond=0)
+
+
+def _mandatory_on(history, day):
+    """Whether the timesheet was mandatory on `day` per a newest-first mandatory_history.
+
+    Returns the status of the most recent entry whose effective_date <= day; for days
+    before the earliest entry, falls back to the earliest entry's status (or True).
+    """
+    if not history:
+        return True
+    day = _normalize_day(day)
+    for entry in history:  # newest first
+        eff = entry.get('effective_date')
+        if eff and _normalize_day(eff) <= day:
+            return entry.get('mandatory', True)
+    return history[-1].get('mandatory', True)
+
+
+def get_non_mandatory_dates(profile, start, end):
+    """Set of working-day (Mon-Sat) midnights in [start, end] that fell in a non-mandatory period.
+
+    Driven by the user's mandatory_history; empty when the user has no history (so callers
+    fall back to plain optional-day handling). Lets the timesheet views treat non-mandatory
+    stretches as optional without stamping every future day.
+    """
+    history = profile.get('mandatory_history') if profile else None
+    if not history:
+        return set()
+    cur = _normalize_day(start)
+    end = _normalize_day(end)
+    result = set()
+    while cur <= end:
+        if cur.weekday() != 6 and not _mandatory_on(history, cur):  # skip Sundays
+            result.add(cur)
+        cur += timedelta(days=1)
+    return result
+
+
+def set_timesheet_mandatory(django_user_id, mandatory, changed_by=None, changed_by_name=None):
+    """Set a user's timesheet-mandatory status, appending to mandatory_history when it changes.
+
+    Mirrors the rate_history idiom: a new entry is inserted at index 0 only when the value
+    differs from the current head. Keeps the denormalized timesheet_mandatory boolean in sync.
+    Returns True if the status actually changed.
+    """
+    profile = get_user_profile_mongo(django_user_id)
+    history = (profile.get('mandatory_history', []) if profile else []) or []
+
+    changed = not history or history[0].get('mandatory') != mandatory
+    if changed:
+        history.insert(0, {
+            "mandatory": mandatory,
+            "effective_date": datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
+            "changed_by": str(changed_by) if changed_by else None,
+            "changed_by_name": changed_by_name,
+            "created_at": datetime.now(),
+        })
+
+    db.userProfiles.update_one(
+        {"django_user_id": str(django_user_id)},
+        {"$set": {
+            "timesheet_mandatory": mandatory,
+            "mandatory_history": history,
+            "updated_at": datetime.now(),
+        }},
+    )
+    return changed

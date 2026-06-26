@@ -44,6 +44,15 @@ def create_user_profile_mongo(user_data):
             "changed_by_name": user_data.get('changed_by_name'),
             "created_at": datetime.now(),
         }],
+        # Account status: 'active' | 'hold' | 'inactive' (Django is_active == status=='active').
+        "status": user_data.get('status', 'active'),
+        "status_history": [{
+            "status": user_data.get('status', 'active'),
+            "effective_date": datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
+            "changed_by": user_data.get('changed_by'),
+            "changed_by_name": user_data.get('changed_by_name'),
+            "created_at": datetime.now(),
+        }],
         "time_in": user_data.get('time_in'),
         "time_out": user_data.get('time_out'),
         "effective_date": effective_date,
@@ -325,3 +334,45 @@ def set_timesheet_mandatory(django_user_id, mandatory, changed_by=None, changed_
         }},
     )
     return changed
+
+
+def get_user_status(profile):
+    """Effective account status of a profile: 'active' | 'hold' | 'inactive'.
+
+    Falls back for legacy profiles that predate the status field.
+    """
+    if profile and profile.get('status'):
+        return profile['status']
+    return 'active'
+
+
+def set_user_status(django_user_id, status, changed_by=None, changed_by_name=None):
+    """Set a user's account status, appending to status_history when it changes.
+
+    Mirrors the mandatory_history idiom (newest entry at index 0, only on change).
+    Updates the Mongo profile only; the caller flips the Django User.is_active flag.
+    Returns (changed, prev_status).
+    """
+    profile = get_user_profile_mongo(django_user_id)
+    history = (profile.get('status_history', []) if profile else []) or []
+    prev_status = history[0].get('status') if history else (profile.get('status') if profile else None)
+
+    changed = prev_status != status
+    if changed:
+        history.insert(0, {
+            "status": status,
+            "effective_date": datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
+            "changed_by": str(changed_by) if changed_by else None,
+            "changed_by_name": changed_by_name,
+            "created_at": datetime.now(),
+        })
+
+    db.userProfiles.update_one(
+        {"django_user_id": str(django_user_id)},
+        {"$set": {
+            "status": status,
+            "status_history": history,
+            "updated_at": datetime.now(),
+        }},
+    )
+    return changed, prev_status

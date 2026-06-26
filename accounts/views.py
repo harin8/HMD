@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib import messages
 from django.urls import reverse
-from accounts.database import delete_user_profile_mongo,get_all_groups, create_user_profile_mongo, get_user_profile_mongo, update_user_profile_mongo, create_group_head_assignments, update_group_head_assignments, remove_group_head_assignments, set_timesheet_mandatory, is_timesheet_mandatory
+from accounts.database import delete_user_profile_mongo,get_all_groups, create_user_profile_mongo, get_user_profile_mongo, update_user_profile_mongo, create_group_head_assignments, update_group_head_assignments, remove_group_head_assignments, set_timesheet_mandatory, is_timesheet_mandatory, set_user_status, get_user_status
 from datetime import datetime
 from django.conf import settings
 from accounts.roles import ROLE_PERMISSIONS
@@ -13,6 +13,26 @@ from accounts.decorators import permission_required
 
 def is_superuser(user):
     return user.is_superuser
+
+
+def _apply_status_change(request, user_id, new_status, prev_status, prev_status_effective, user_start):
+    """Record an account-status change; on return to Active, excuse the away period.
+
+    When a user comes back from Hold/Inactive, the days they were away are marked
+    optional (reusing the timesheet optional-day mechanism) so they never show as
+    pending/critical. Returns True if the status actually changed.
+    """
+    changed, _ = set_user_status(user_id, new_status, request.user.id, request.user.get_full_name())
+    if changed and new_status == 'active' and prev_status in ('hold', 'inactive'):
+        from timesheet.database import mark_period_optional
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        start = prev_status_effective or user_start or settings.TIMESHEET_START_DATE
+        reason = 'ON HOLD' if prev_status == 'hold' else 'INACTIVE PERIOD'
+        mark_period_optional(
+            user_id, start, today, reason=reason,
+            marked_by=request.user.id, marked_by_name=request.user.get_full_name(),
+        )
+    return changed
 
 @ensure_csrf_cookie
 def login_view(request):
@@ -42,10 +62,13 @@ def user_management(request):
     # Get all users except the current user
     users = User.objects.all().exclude(id=request.user.id)
     
-    # Attach MongoDB profiles to users
+    # Attach MongoDB profiles to users, with an effective status for legacy profiles.
     for user in users:
-        user.mongo_profile = get_user_profile_mongo(user.id)
-    
+        profile = get_user_profile_mongo(user.id)
+        if profile is not None:
+            profile['status'] = profile.get('status') or ('active' if user.is_active else 'inactive')
+        user.mongo_profile = profile
+
     return render(request, 'accounts/user_management.html', {'users': users})
 
 
@@ -58,7 +81,8 @@ def create_user(request):
         first_name = request.POST.get('first_name').upper()
         last_name = request.POST.get('last_name').upper()
         role = request.POST.get('role')
-        is_active = request.POST.get('is_active', 'on') == 'on'
+        status = request.POST.get('status', 'active')
+        is_active = status == 'active'
 
         try:
             # Create Django user
@@ -100,6 +124,7 @@ def create_user(request):
                 'designation': request.POST.get('designation', '').upper(),
                 'role': role,
                 'timesheet_mandatory': timesheet_mandatory,
+                'status': status,
                 'changed_by': request.user.id,
                 'changed_by_name': request.user.get_full_name(),
                 'time_in': request.POST.get('time_in'),
@@ -147,8 +172,16 @@ def edit_user(request, user_id):
             editing_user.email = request.POST.get('email')
             editing_user.first_name = request.POST.get('first_name').upper()
             editing_user.last_name = request.POST.get('last_name').upper()
-            editing_user.is_active = request.POST.get('is_active') == 'on'
-            
+            # Account status drives Django's is_active (active -> can log in).
+            new_status = request.POST.get('status', 'active')
+            if new_status not in ('active', 'hold', 'inactive'):
+                new_status = 'active'
+            prev_status = get_user_status(mongo_profile)
+            prev_status_effective = None
+            if mongo_profile and mongo_profile.get('status_history'):
+                prev_status_effective = mongo_profile['status_history'][0].get('effective_date')
+            editing_user.is_active = new_status == 'active'
+
             # Handle password change if provided
             if request.POST.get('password'):
                 editing_user.set_password(request.POST.get('password'))
@@ -240,6 +273,12 @@ def edit_user(request, user_id):
                     marked_by=request.user.id, marked_by_name=request.user.get_full_name(),
                 )
 
+            # Account status toggle + audit history.
+            _apply_status_change(
+                request, user_id, new_status, prev_status, prev_status_effective,
+                effective_date or (mongo_profile.get('effective_date') if mongo_profile else None),
+            )
+
             messages.success(request, f'User {editing_user.username} has been updated successfully.')
             return redirect('user_management')
             
@@ -270,6 +309,8 @@ def edit_user(request, user_id):
             'hourly_rate': mongo_profile.get('hourly_rate'),
             'timesheet_mandatory': is_timesheet_mandatory(mongo_profile),
             'mandatory_history': mongo_profile.get('mandatory_history', []),  # already newest-first
+            'status': get_user_status(mongo_profile) if mongo_profile.get('status') else ('active' if editing_user.is_active else 'inactive'),
+            'status_history': mongo_profile.get('status_history', []),  # already newest-first
             'rate_history': sorted(
                 mongo_profile.get('rate_history', []),
                 key=lambda x: x['effective_date'],
@@ -278,6 +319,7 @@ def edit_user(request, user_id):
         })
     else:
         user_data['timesheet_mandatory'] = True
+        user_data['status'] = 'active' if editing_user.is_active else 'inactive'
     
     context = {
         'edit_user': editing_user,
@@ -288,55 +330,6 @@ def edit_user(request, user_id):
     }
     
     return render(request, 'accounts/edit_user.html', context)
-
-@permission_required('accounts', 'delete')
-def delete_user(request, user_id):
-    if request.method != 'POST':
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Invalid request method'
-        }, status=405)
-
-    try:
-        # Get the user to delete
-        user_to_delete = User.objects.get(id=user_id)
-        # Prevent superuser from being deleted
-        if user_to_delete.is_superuser:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Cannot delete superuser account'
-            }, status=403)
-
-        # Verify the current user's password
-        password = request.POST.get('password')
-        if not request.user.check_password(password):
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Invalid password'
-            }, status=403)
-
-        # Delete the user
-        user_to_delete.delete()
-
-        #delete the user from the mongo db
-        delete_user_profile_mongo(user_id)
-
-        messages.success(request, 'User deleted successfully.')
-        return JsonResponse({
-            'status': 'success',
-            'message': 'User deleted successfully'
-        })
-
-    except User.DoesNotExist:
-        return JsonResponse({
-            'status': 'error',
-            'message': 'User not found'
-        }, status=404)
-    except Exception as e:
-        return JsonResponse({
-            'status': 'error',
-            'message': str(e)
-        }, status=500)
 
 def permission_denied(request):
     # Get the user's current roles/groups

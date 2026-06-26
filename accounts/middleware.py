@@ -2,6 +2,7 @@ from django.shortcuts import redirect
 from django.urls import reverse, resolve
 from django.conf import settings
 from django.apps import apps
+from django.contrib.auth import logout
 
 class PermissionMiddleware:
     def __init__(self, get_response):
@@ -21,6 +22,11 @@ class PermissionMiddleware:
 
         # Check if user is authenticated
         if not request.user.is_authenticated:
+            return redirect(f"{reverse('login')}?next={request.path}")
+
+        # Deactivated mid-session (put on hold / made inactive): end the session now.
+        if not request.user.is_active:
+            logout(request)
             return redirect(f"{reverse('login')}?next={request.path}")
 
         # Allow superusers full access

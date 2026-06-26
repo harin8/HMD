@@ -369,7 +369,12 @@
     {% if request.user.groups.all|length > 0 and 'Group Head' in request.user.groups.all|join:" " or 'Super Group Head' in request.user.groups.all|join:" " or 'Super Admin' in request.user.groups.all|join:" " %}
     <div class="row">
         <div class="col-md-12">
-            <button class="btn btn-primary" onclick="window.open('{% url 'employee_corner' %}', '_blank')">Employee Corner</button>
+            <button class="btn btn-primary" onclick="window.open('{% url 'employee_corner' %}', '_blank')">
+                Employee Corner
+                {% if pending_verification_count %}
+                <span class="badge badge-light" title="{{ pending_verification_count }} timesheet verification(s) pending">{{ pending_verification_count }} to verify</span>
+                {% endif %}
+            </button>
         </div>
     </div>
     {% endif %}

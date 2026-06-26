@@ -9,5 +9,13 @@ urlpatterns = [
     path('get-time-settings/', views.get_time_settings, name='get_time_settings'),
     path('delete-entry/', views.delete_timesheet_entry, name='delete_timesheet_entry'),
     path('get_pending_entries/', views.get_pending_entries, name='get_pending_entries'),
-    path('manage-mandatory-timesheets/', views.manage_mandatory_timesheets, name='manage_mandatory_timesheets')
+    path('manage-mandatory-timesheets/', views.manage_mandatory_timesheets, name='manage_mandatory_timesheets'),
+    path('mark-optional/', views.mark_optional, name='mark_optional_days'),
+    path('unmark-optional/', views.unmark_optional, name='unmark_optional_days'),
+    path('list-optional/', views.list_optional_days, name='list_optional_days'),
+    # Fixed paths must precede the <str:allocation_id> catch-all.
+    path('verifications/', views.my_verifications, name='my_verifications'),
+    path('verifications/log/', views.verification_log, name='verification_log'),
+    path('verifications/submit/', views.submit_verification, name='submit_verification'),
+    path('verifications/<str:allocation_id>/', views.verification_detail, name='verification_detail'),
 ]

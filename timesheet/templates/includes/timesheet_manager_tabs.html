@@ -1,0 +1,65 @@
+{% if show_manager_tabs %}
+<ul class="ts-manager-tabs">
+    <li class="{% if active_tab == 'overview' %}active{% endif %}">
+        <a href="{% url 'employee_corner' %}">Daily Overview</a>
+    </li>
+    <li class="{% if active_tab == 'verifications' %}active{% endif %}">
+        <a href="{% url 'my_verifications' %}">
+            My Verifications
+            {% if pending_verification_count %}
+            <span class="ts-tab-badge">{{ pending_verification_count }}</span>
+            {% endif %}
+        </a>
+    </li>
+    <li class="{% if active_tab == 'log' %}active{% endif %}">
+        <a href="{% url 'verification_log' %}">Verification Log</a>
+    </li>
+</ul>
+<style>
+    .ts-manager-tabs {
+        list-style: none;
+        display: flex;
+        padding: 0;
+        margin: 0 0 20px 0;
+        border-bottom: 2px solid #ddd;
+    }
+
+    .ts-manager-tabs li {
+        margin-right: 4px;
+    }
+
+    .ts-manager-tabs li a {
+        display: inline-block;
+        padding: 10px 18px;
+        color: #555;
+        text-decoration: none;
+        border: 1px solid transparent;
+        border-bottom: none;
+        border-radius: 4px 4px 0 0;
+        font-weight: 500;
+    }
+
+    .ts-manager-tabs li a:hover {
+        background: #f8f9fa;
+        text-decoration: none;
+    }
+
+    .ts-manager-tabs li.active a {
+        color: #0d6efd;
+        background: white;
+        border-color: #ddd;
+        border-bottom: 2px solid white;
+        margin-bottom: -2px;
+    }
+
+    .ts-tab-badge {
+        background: #dc3545;
+        color: white;
+        border-radius: 10px;
+        padding: 1px 8px;
+        font-size: 0.8em;
+        margin-left: 4px;
+        vertical-align: middle;
+    }
+</style>
+{% endif %}

@@ -193,13 +193,114 @@
 
                 <div class="row mt-3">
                     <div class="col-md-12">
-                        <div class="form-check mb-3">
-                            <input type="checkbox" class="form-check-input" id="is_active" name="is_active" 
-                                   {% if edit_user.is_active %}checked{% endif %}>
-                            <label class="form-check-label" for="is_active">Active Status</label>
+                        <div class="form-check mb-1">
+                            <input type="checkbox" class="form-check-input" id="timesheet_mandatory" name="timesheet_mandatory"
+                                   {% if user_profile.timesheet_mandatory %}checked{% endif %}>
+                            <label class="form-check-label" for="timesheet_mandatory">Timesheet Mandatory</label>
+                        </div>
+                        <small class="form-text text-muted mb-3">
+                            Unchecking marks all of this user's timesheets (past and going forward) as optional until it is re-enabled.
+                        </small>
+                    </div>
+                </div>
+
+                {% if user_profile.mandatory_history %}
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <h6>Timesheet Mandatory History <span class="badge badge-info">{{ user_profile.mandatory_history|length }} records</span></h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Effective Date</th>
+                                        <th>Timesheet Mandatory</th>
+                                        <th>Changed By</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in user_profile.mandatory_history %}
+                                    <tr {% if forloop.first %}class="table-primary"{% endif %}>
+                                        <td>{{ entry.effective_date|date:"d-m-Y" }}</td>
+                                        <td>
+                                            {% if entry.mandatory %}
+                                                <span class="badge badge-success">Yes</span>
+                                            {% else %}
+                                                <span class="badge badge-secondary">No</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ entry.changed_by_name|default:"-" }}</td>
+                                        <td>
+                                            {% if forloop.first %}
+                                                <span class="badge badge-success">Current</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
+                {% endif %}
+
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="status">Account Status:</label>
+                            <select name="status" id="status" class="form-control">
+                                <option value="active" {% if user_profile.status == 'active' %}selected{% endif %}>Active</option>
+                                <option value="hold" {% if user_profile.status == 'hold' %}selected{% endif %}>On Hold</option>
+                                <option value="inactive" {% if user_profile.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                        <small class="form-text text-muted mb-3">
+                            On Hold and Inactive both block login. On Hold exempts the user from timesheets for the time they are on hold; Inactive keeps all their data and can be reactivated.
+                        </small>
+                    </div>
+                </div>
+
+                {% if user_profile.status_history %}
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <h6>Account Status History <span class="badge badge-info">{{ user_profile.status_history|length }} records</span></h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Effective Date</th>
+                                        <th>Status</th>
+                                        <th>Changed By</th>
+                                        <th>Current</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in user_profile.status_history %}
+                                    <tr {% if forloop.first %}class="table-primary"{% endif %}>
+                                        <td>{{ entry.effective_date|date:"d-m-Y" }}</td>
+                                        <td>
+                                            {% if entry.status == 'active' %}
+                                                <span class="badge badge-success">Active</span>
+                                            {% elif entry.status == 'hold' %}
+                                                <span class="badge badge-warning">On Hold</span>
+                                            {% else %}
+                                                <span class="badge badge-danger">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ entry.changed_by_name|default:"-" }}</td>
+                                        <td>
+                                            {% if forloop.first %}
+                                                <span class="badge badge-success">Current</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
 
                 <div class="row mt-3">
                     <div class="col-md-12">
